@@ -28,7 +28,7 @@ class TestPdb(unittest.TestCase):
             'charge': "",
             'extras': " new"
         }
-        with open('tests/full.pdb') as f:
+        with open('tests/test_files/full.pdb') as f:
             cls.pdb = pdb.Pdb(f)
 
     def test__residue_hash(self):
@@ -49,7 +49,7 @@ class TestPdb(unittest.TestCase):
         result_file = StringIO()
         self.pdb.to_file(result_file)
         result_file.seek(0)
-        with open('tests/only_atoms.pdb', 'r') as pdb_file:
+        with open('tests/test_files/only_atoms.pdb', 'r') as pdb_file:
             self.assertEqual(pdb_file.read(), result_file.read())
 
     def test_get_residues_by_name(self):
