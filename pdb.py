@@ -15,7 +15,7 @@ class Pdb(object):
                       if any(x in line[:6] for x in ['ATOM', 'HETATM'])]
 
     def residues(self):
-        """list of atom lists from each residue"""
+        """dict of residue_hash: residue_atom_list"""
         return {k: list(v) for k, v in groupby(self.atoms, residue_hash)}
 
     def get_residues_by_name(self, residue_name):
