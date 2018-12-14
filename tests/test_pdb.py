@@ -43,7 +43,7 @@ class TestPdb(unittest.TestCase):
 
     def test_create_pdb_from_file(self):
         self.assertEqual(len(self.pdb.atoms), 2236)
-        self.assertEqual(len(self.pdb.residues), 463)
+        self.assertEqual(len(self.pdb.residues()), 463)
 
     def test_dump_pdb_to_file(self):
         result_file = StringIO()

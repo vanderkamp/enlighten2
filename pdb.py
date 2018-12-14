@@ -14,13 +14,12 @@ class Pdb(object):
         self.atoms = [parse_atom(line) for line in file
                       if any(x in line[:6] for x in ['ATOM', 'HETATM'])]
 
-    @property
     def residues(self):
         """list of atom lists from each residue"""
-        return [list(v) for k, v in groupby(self.atoms, _residue_hash)]
+        return {k: list(v) for k, v in groupby(self.atoms, _residue_hash)}
 
     def get_residues_by_name(self, residue_name):
-        return [residue for residue in self.residues
+        return [residue for k, residue in self.residues().items()
                 if residue[0]['resName'] == residue_name]
 
     def to_file(self, file):
