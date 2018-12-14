@@ -13,8 +13,11 @@ class TestAntechamberWrapper(unittest.TestCase):
         mock_os.environ = {'AMBERHOME': ""}
         mock_os.getcwd.return_value = '.'
         antechamber = wrappers.AntechamberWrapper('XXX')
-        mock_os.system.assert_called_with(
-            "$AMBERHOME/bin/antechamber -i XXX.pdb -fi pdb "
-            "-o XXX.prepc -fo prepc -rn XXX -c bcc -nc 0"
-        )
+
+        mock_os.system.assert_has_calls([
+            mock.call("$AMBERHOME/bin/antechamber -i XXX.pdb -fi pdb "
+                      "-o XXX.prepc -fo prepc -rn XXX -c bcc -nc 0"),
+            mock.call("$AMBERHOME/bin/parmchk2 -i XXX.prepc "
+                      "-f prepc -o XXX.frcmod")
+        ])
         mock_os_path.join.assert_called_with('.', 'XXX.frcmod')

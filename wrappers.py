@@ -41,6 +41,10 @@ class AntechamberWrapper(object):
             )
 
         if frcmod is None:
+            os.system("$AMBERHOME/bin/parmchk2 "
+                      "-i {ligand_name}.prepc -f prepc -o {ligand_name}.frcmod"
+                      .format(ligand_name=ligand_name))
+            # TODO: check for ATTN warnings
             self.frcmod = os.path.join(os.getcwd(), ligand_name + '.frcmod')
         else:
             self.frcmod = frcmod
