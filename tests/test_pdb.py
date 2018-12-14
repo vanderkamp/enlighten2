@@ -31,8 +31,8 @@ class TestPdb(unittest.TestCase):
         with open('tests/test_files/full.pdb') as f:
             cls.pdb = pdb.Pdb(f)
 
-    def test__residue_hash(self):
-        self.assertEqual(pdb._residue_hash(self.parsed_atom), "A_36_ARG")
+    def test_residue_hash(self):
+        self.assertEqual(pdb.residue_hash(self.parsed_atom), "A_36_ARG")
 
     def test_parse_atom(self):
         self.assertEqual(pdb.parse_atom(self.atom_string), self.parsed_atom)

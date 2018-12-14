@@ -16,7 +16,7 @@ class Pdb(object):
 
     def residues(self):
         """list of atom lists from each residue"""
-        return {k: list(v) for k, v in groupby(self.atoms, _residue_hash)}
+        return {k: list(v) for k, v in groupby(self.atoms, residue_hash)}
 
     def get_residues_by_name(self, residue_name):
         return [residue for k, residue in self.residues().items()
@@ -26,7 +26,7 @@ class Pdb(object):
         dump_atoms_to_file(file, self.atoms)
 
 
-def _residue_hash(atom):
+def residue_hash(atom):
     """Uniquely identifies the residue atom belongs to"""
     return '_'.join([str(atom[key])
                      for key in ['chainID', 'resSeq', 'resName']])
