@@ -1,4 +1,5 @@
 from itertools import groupby
+from copy import deepcopy
 
 
 class Pdb(object):
@@ -9,7 +10,9 @@ class Pdb(object):
             raise ValueError('Either file or atoms must be provided')
 
         if file is None:
-            self.atoms = atoms
+            self.atoms = deepcopy(atoms)
+            return
+
         # ignores everything that is not ATOM or HETATM
         self.atoms = [parse_atom(line) for line in file
                       if any(x in line[:6] for x in ['ATOM', 'HETATM'])]
@@ -24,6 +27,9 @@ class Pdb(object):
 
     def to_file(self, file):
         dump_atoms_to_file(file, self.atoms)
+
+    def copy(self):
+        return Pdb(atoms=self.atoms)
 
 
 def residue_hash(atom):

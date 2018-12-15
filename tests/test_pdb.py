@@ -54,3 +54,9 @@ class TestPdb(unittest.TestCase):
 
     def test_get_residues_by_name(self):
         self.assertEqual(len(self.pdb.get_residues_by_name('TRP')), 4)
+
+    def test_copy(self):
+        pdb_copy = self.pdb.copy()
+        self.assertIsNot(self.pdb, pdb_copy)
+        self.assertIsNot(self.pdb.atoms, pdb_copy.atoms)
+        self.assertEqual(self.pdb.atoms, pdb_copy.atoms)
