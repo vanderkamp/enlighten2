@@ -1,7 +1,7 @@
 import unittest
 import unittest.mock as mock
 import wrappers
-import pdb
+import pdb_utils
 
 
 def setup_mock(mock_os, mock_os_path):
@@ -17,11 +17,13 @@ class TestAntechamberWrapper(unittest.TestCase):
     @mock.patch('wrappers.os')
     def test_antechamber_simple_call(self, mock_os, mock_os_path):
         setup_mock(mock_os, mock_os_path)
-        antechamber = wrappers.AntechamberWrapper('XXX')
+        pdb = mock.MagicMock()
+        pdb.tofile = mock.MagicMock()
+        antechamber = wrappers.AntechamberWrapper(pdb, 'XXX', 1)
 
         mock_os.system.assert_has_calls([
-            mock.call("$AMBERHOME/bin/antechamber -i XXX.pdb -fi pdb "
-                      "-o XXX.prepc -fo prepc -rn XXX -c bcc -nc 0"),
+            mock.call("$AMBERHOME/bin/antechamber -i ligand.pdb -fi pdb "
+                      "-o XXX.prepc -fo prepc -rn XXX -c bcc -nc 1"),
             mock.call("$AMBERHOME/bin/parmchk2 -i XXX.prepc "
                       "-f prepc -o XXX.frcmod")
         ])
@@ -35,15 +37,14 @@ class TestPdb4AmberReduceWrapper(unittest.TestCase):
     @mock.patch('wrappers.os')
     def test_pdb4amber_reduce_call(self, mock_os, mock_os_path, mock_open):
         setup_mock(mock_os, mock_os_path)
-        pdb4AmberReduce = wrappers.Pdb4AmberReduceWrapper(
-            system_name='XXX',
-            system_pdb='XXX_renamed_ligand.pdb'
-        )
+        pdb = mock.MagicMock()
+        pdb.tofile = mock.MagicMock()
+        pdb4AmberReduce = wrappers.Pdb4AmberReduceWrapper(pdb)
         mock_os.system.assert_has_calls([
-            mock.call("$AMBERHOME/bin/pdb4amber -i XXX_renamed_ligand.pdb "
-                      "-o XXX_pdb4amber.pdb --nohyd --dry &> pdb4amber.log"),
+            mock.call("$AMBERHOME/bin/pdb4amber -i input.pdb "
+                      "-o pdb4amber.pdb --nohyd --dry &> pdb4amber.log"),
             mock.call("$AMBERHOME/bin/reduce -build -nuclear "
-                      "XXX_pdb4amber.pdb &> XXX_reduce.pdb")
+                      "pdb4amber.pdb &> reduce.pdb")
         ])
 
     def test_get_renamed_histidines(self):
@@ -54,6 +55,6 @@ class TestPdb4AmberReduceWrapper(unittest.TestCase):
                               'A_128_HIS': 'HIE',
                               'A_133_HIS': 'HIE'}
         with open('tests/test_files/reduce.pdb') as f:
-            reducePdb = pdb.Pdb(f)
+            reducePdb = pdb_utils.Pdb(f)
         self.assertEqual(wrappers.get_renamed_histidines(reducePdb),
                          renamed_histidines)
