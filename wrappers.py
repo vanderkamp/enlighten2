@@ -75,16 +75,20 @@ class Pdb4AmberReduceWrapper(object):
 
 
 def get_renamed_histidines(pdb):
-    rename_dict = {'no HE2': 'HID',
+
+    RENAME_DICT = {'no HE2': 'HID',
                    'no HD1': 'HIE',
                    'bothHN': 'HIP'}
     renamed_histidines = {}  # dict of residue_hash: new_name pairs
+
     for line in pdb.other:
         if line[:9] != 'USER  MOD' or line[25:28] != 'HIS':
             continue
-        his_name = rename_dict.get(line[39:45])
+
+        his_name = RENAME_DICT.get(line[39:45])
         if his_name is None:
             continue
+
         his_hash = pdb_utils.residue_hash({'chainID': line[19],
                                            'resSeq': int(line[20:24]),
                                            'resName': "HIS"})
