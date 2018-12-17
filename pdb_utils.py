@@ -43,6 +43,11 @@ def residue_hash(atom):
                      for key in ['chainID', 'resSeq', 'resName']])
 
 
+def modify_atoms(atoms, key, value):
+    for atom in atoms:
+        atom[key] = value
+
+
 def is_atom_line(line):
     return any(x in line[:6] for x in ['ATOM', 'HETATM'])
 

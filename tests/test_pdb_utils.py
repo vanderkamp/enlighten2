@@ -40,6 +40,11 @@ class TestPdb(unittest.TestCase):
     def test_residue_hash(self):
         self.assertEqual(pdb_utils.residue_hash(self.parsed_atom), "A_36_ARG")
 
+    def test_modify_atoms(self):
+        pdb = self.pdb.copy()
+        pdb_utils.modify_atoms(pdb.residues()['A_122_LEU'], 'chainID', 'B')
+        self.assertEqual(len(pdb.residues()['B_122_LEU']), 8)
+
     def test_parse_atom(self):
         self.assertEqual(pdb_utils.parse_atom(self.atom_string),
                          self.parsed_atom)
