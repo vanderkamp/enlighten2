@@ -1,6 +1,6 @@
 import unittest
 from io import StringIO
-import pdb
+import pdb_utils
 
 
 class TestPdb(unittest.TestCase):
@@ -29,7 +29,7 @@ class TestPdb(unittest.TestCase):
             'extras': " new"
         }
         with open('tests/test_files/full.pdb') as f:
-            cls.pdb = pdb.Pdb(f)
+            cls.pdb = pdb_utils.Pdb(f)
 
     def test_other_list(self):
         self.assertEqual(len(self.pdb.other), 428)
@@ -38,14 +38,16 @@ class TestPdb(unittest.TestCase):
                          "01-NOV-93   1BTL              \n")
 
     def test_residue_hash(self):
-        self.assertEqual(pdb.residue_hash(self.parsed_atom), "A_36_ARG")
+        self.assertEqual(pdb_utils.residue_hash(self.parsed_atom), "A_36_ARG")
 
     def test_parse_atom(self):
-        self.assertEqual(pdb.parse_atom(self.atom_string), self.parsed_atom)
+        self.assertEqual(pdb_utils.parse_atom(self.atom_string),
+                         self.parsed_atom)
 
     def test_dump_atom(self):
-        atom = pdb.parse_atom(self.atom_string)
-        self.assertEqual(pdb.dump_atom(self.parsed_atom), self.atom_string)
+        atom = pdb_utils.parse_atom(self.atom_string)
+        self.assertEqual(pdb_utils.dump_atom(self.parsed_atom),
+                         self.atom_string)
 
     def test_create_pdb_from_file(self):
         self.assertEqual(len(self.pdb.atoms), 2236)
