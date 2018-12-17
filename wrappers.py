@@ -2,6 +2,23 @@ import os
 import shutil
 
 
+def check_amberhome():
+    if 'AMBERHOME' not in os.environ:
+        raise AssertionError("$AMBERHOME not set")
+
+
+def check_file(name, message=None):
+    if not os.path.isfile(name):
+        raise FileNotFoundError(message or "File " + name + " not found.")
+
+
+def set_working_directory(working_directory):
+    if os.path.exists(working_directory):
+        shutil.rmtree(working_directory)
+    os.makedirs(working_directory)
+    os.chdir(working_directory)
+
+
 class AntechamberWrapper(object):
 
     def __init__(self,
@@ -11,19 +28,10 @@ class AntechamberWrapper(object):
                  working_directory=".antechamber",
                  frcmod=None):
 
-        if ligand_pdb is None:
-            ligand_pdb = ligand_name + '.pdb'
-        if not os.path.isfile(ligand_pdb):
-            raise ValueError("PDB file " + ligand_pdb + " not found.")
-
-        if 'AMBERHOME' not in os.environ:
-            raise AssertionError("$AMBERHOME not set")
-
-        # Set current working directory to working_directory
-        if os.path.exists(working_directory):
-            shutil.rmtree(working_directory)
-        os.makedirs(working_directory)
-        os.chdir(working_directory)
+        ligand_pdb = ligand_pdb or ligand_name + '.pdb'
+        check_file(ligand_pdb)
+        check_amberhome()
+        set_working_directory(working_directory)
 
         os.system(
             "$AMBERHOME/bin/antechamber "
@@ -34,11 +42,9 @@ class AntechamberWrapper(object):
                     ligand_charge=ligand_charge)
         )
 
-        if not (os.path.isfile(ligand_name + '.prepc')):
-            raise AssertionError(
+        check_file(ligand_name + '.prepc',
                 "Antechamber failed to generate {ligand_name}.prepc file"
-                .format(ligand_name=ligand_name)
-            )
+                   .format(ligand_name=ligand_name))
 
         if frcmod is None:
             os.system("$AMBERHOME/bin/parmchk2 "
