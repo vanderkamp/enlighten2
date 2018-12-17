@@ -56,9 +56,9 @@ class Pdb4AmberReduceWrapper(object):
 
     def __init__(self, pdb, working_directory=".pdb4amber_reduce"):
 
-        pdb.tofile('input.pdb')
         check_amberhome()
         set_working_directory(working_directory)
+        pdb.tofile('input.pdb')
 
         os.system(
             "$AMBERHOME/bin/pdb4amber -i input.pdb -o pdb4amber.pdb "
@@ -67,9 +67,15 @@ class Pdb4AmberReduceWrapper(object):
         os.system(
             "$AMBERHOME/bin/reduce -build -nuclear pdb4amber.pdb &> reduce.pdb"
         )
-
         with open('reduce.pdb') as f:
-            self.renamed_histidines = get_renamed_histidines(pdb_utils.Pdb(f))
+            self.pdb = pdb_utils.Pdb(f)
+
+        renamed_histidines = get_renamed_histidines(self.pdb)
+        residues = self.pdb.residues()
+
+        for res_hash, res_name in renamed_histidines.items():
+            pdb_utils.modify_atoms(residues.get(res_hash, []),
+                                   'resName', res_name)
 
         os.chdir('..')
 
