@@ -31,6 +31,12 @@ class TestPdb(unittest.TestCase):
         with open('tests/test_files/full.pdb') as f:
             cls.pdb = pdb.Pdb(f)
 
+    def test_other_list(self):
+        self.assertEqual(len(self.pdb.other), 428)
+        self.assertEqual(self.pdb.other[0],
+                         "HEADER    HYDROLASE                               "
+                         "01-NOV-93   1BTL              \n")
+
     def test_residue_hash(self):
         self.assertEqual(pdb.residue_hash(self.parsed_atom), "A_36_ARG")
 

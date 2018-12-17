@@ -9,13 +9,18 @@ class Pdb(object):
         if file is None and atoms is None:
             raise ValueError('Either file or atoms must be provided')
 
+        self.atoms = []
+        self.other = []  # Unparsed pdb lines that are not ATOM/HETATM records
+
         if file is None:
             self.atoms = deepcopy(atoms)
             return
 
-        # ignores everything that is not ATOM or HETATM
-        self.atoms = [parse_atom(line) for line in file
-                      if any(x in line[:6] for x in ['ATOM', 'HETATM'])]
+        for line in file:
+            if is_atom_line(line):
+                self.atoms.append(parse_atom(line))
+            else:
+                self.other.append(line)
 
     def residues(self):
         """dict of residue_hash: residue_atom_list"""
@@ -36,6 +41,10 @@ def residue_hash(atom):
     """Uniquely identifies the residue atom belongs to"""
     return '_'.join([str(atom[key])
                      for key in ['chainID', 'resSeq', 'resName']])
+
+
+def is_atom_line(line):
+    return any(x in line[:6] for x in ['ATOM', 'HETATM'])
 
 
 def parse_atom(atom_line):
