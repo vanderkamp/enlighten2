@@ -36,6 +36,12 @@ class Pdb(object):
     def copy(self):
         return Pdb(atoms=self.atoms)
 
+    def remove_atom(self, atom):
+        try:
+            self.atoms.remove(atom)
+        except ValueError:
+            pass
+
 
 def residue_hash(atom):
     """Uniquely identifies the residue atom belongs to"""

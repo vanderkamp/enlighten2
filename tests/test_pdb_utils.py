@@ -73,3 +73,8 @@ class TestPdb(unittest.TestCase):
         self.assertIsNot(self.pdb, pdb_copy)
         self.assertIsNot(self.pdb.atoms, pdb_copy.atoms)
         self.assertEqual(self.pdb.atoms, pdb_copy.atoms)
+
+    def test_remove_atom(self):
+        pdb_copy = self.pdb.copy()
+        pdb_copy.remove_atom(pdb_copy.atoms[10])
+        self.assertEqual(len(pdb_copy.atoms), 2235)
