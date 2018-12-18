@@ -78,3 +78,8 @@ class TestPdb(unittest.TestCase):
         pdb_copy = self.pdb.copy()
         pdb_copy.remove_atom(pdb_copy.atoms[10])
         self.assertEqual(len(pdb_copy.atoms), 2235)
+
+    def test_find_atom(self):
+        self.assertEqual(pdb_utils.find_atom(self.pdb.atoms,
+                                             lambda x: x['resName'] == 'VAL'),
+                         self.pdb.residues()['A_31_VAL'][0])

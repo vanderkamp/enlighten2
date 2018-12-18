@@ -54,6 +54,11 @@ def modify_atoms(atoms, key, value):
         atom[key] = value
 
 
+def find_atom(atoms, condition):
+    """Return first atom in atoms that fulfills condition"""
+    return next(atom for atom in atoms if condition(atom))
+
+
 def is_atom_line(line):
     return any(x in line[:6] for x in ['ATOM', 'HETATM'])
 
