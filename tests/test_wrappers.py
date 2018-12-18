@@ -58,3 +58,57 @@ class TestPdb4AmberReduceWrapper(unittest.TestCase):
             reducePdb = pdb_utils.Pdb(f)
         self.assertEqual(wrappers.get_renamed_histidines(reducePdb),
                          renamed_histidines)
+
+
+class TestPropkaWrapper(unittest.TestCase):
+
+    def test_line_to_pka_entry(self):
+        self.assertEqual(
+            wrappers.line_to_pka_entry("   ARG 215 A    12.39      12.50    "),
+            {'resName': 'ARG',
+             'resSeq': 215,
+             'chainID': 'A',
+             'pKa': 12.39,
+             'model-pKa': 12.50}
+        )
+
+    def test_parse_propka_output(self):
+        with open('tests/test_files/propka.pka') as f:
+            output = wrappers.parse_propka_output(f)
+        self.assertEqual(len(output), 76)
+        self.assertEqual(
+            output['A_154_ASP'],
+            {'resName': 'ASP',
+             'resSeq': 154,
+             'chainID': 'A',
+             'pKa': 4.24,
+             'model-pKa': 3.80}
+        )
+
+    @mock.patch('wrappers.print')
+    @mock.patch('wrappers.os.path')
+    @mock.patch('wrappers.os')
+    def test_propka_call(self, mock_os, mock_os_path, mock_print):
+        setup_mock(mock_os, mock_os_path)
+
+        with open('tests/test_files/reduce.pdb') as f:
+            pdb = pdb_utils.Pdb(f)
+        pdb.to_file = mock.MagicMock()
+
+        with open('tests/test_files/propka.pka') as f:
+            mock_open = mock.mock_open(read_data=f.read())
+        # The following is needed to handle next() and map()
+        # calls in parse_propka_output
+        mock_open.return_value.__iter__ = lambda self: self
+        mock_open.return_value.__next__ = (lambda self:
+                                           next(iter(self.readline, '')))
+
+        with mock.patch('wrappers.open', mock_open):
+            result = wrappers.PropkaWrapper(pdb)
+        residues = result.pdb.residues()
+
+        self.assertEqual(len(result.prot_list), 1)
+        self.assertEqual(len(result.deprot_list), 0)
+        self.assertNotIn('A_189_ASP', residues)
+        self.assertIn('A_189_ASH', residues)
+        self.assertEqual(len(residues['A_189_ASH']), 12)

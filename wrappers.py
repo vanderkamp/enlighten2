@@ -101,3 +101,103 @@ def get_renamed_histidines(pdb):
         renamed_histidines[his_hash] = his_name
 
     return renamed_histidines
+
+
+PROT_DICT = {'ASP': 'ASH', 'GLU': 'GLH'}
+DEPROT_DICT = {'CYS': 'CYM', 'LYS': 'LYN'}
+
+
+class PropkaWrapper(object):
+
+    def __init__(self, pdb, ph=7.0, ph_offset=0.7,
+                 working_directory=".propka"):
+
+        set_working_directory(working_directory)
+        with open('input.pdb', 'w') as f:
+            pdb.to_file(f)
+        os.system("propka31 input.pdb &> propka31.log")
+        with open('input.pka') as f:
+            propka_results = parse_propka_output(f)
+
+        self.pdb = pdb.copy()
+        residues = self.pdb.residues()
+
+        self.prot_pka = ph + ph_offset
+        self.deprot_pka = ph - ph_offset
+        self.prot_list = []
+        self.deprot_list = []
+
+        for hash, pka_entry in propka_results.items():
+            if hash not in residues:
+                continue
+
+            if prot_residue(pka_entry, self.prot_pka):
+                pdb_utils.modify_atoms(residues[hash],
+                                       'resName',
+                                       PROT_DICT[pka_entry['resName']])
+                self.prot_list.append(pka_entry)
+
+            if deprot_residue(pka_entry, self.deprot_pka):
+                pdb_utils.modify_atoms(residues[hash],
+                                       'resName',
+                                       DEPROT_DICT[pka_entry['resName']])
+                self.deprot_list.append(pka_entry)
+
+                # Need to remove hydrogens added by reduce on deprotonated
+                # residues - else top-file creation will fail.
+                self.pdb.remove_atom(pdb_utils.find_atom(
+                    residues[hash],
+                    lambda atom: 'new' in atom['extras']
+                ))
+
+        PRINT_PKA_FORMAT = "{resName:>6}{resSeq:>4}{chainID:>2}{pKa:>9.2f}"
+
+        if len(self.prot_list) > 0:
+            print("The following ASP/GLU residues have predicted pKa's above "
+                  "{:4.2f} and will be protonated (on OD2/OE2):"
+                  .format(self.prot_pka))
+            print("                  pKa")
+
+            for pka_entry in self.prot_list:
+                print(PRINT_PKA_FORMAT.format(**pka_entry))
+
+        if len(self.deprot_list) > 0:
+            print("The following CYS/LYS residues have predicted pKa's below "
+                  "{:4.2f} and will be deprotonated:"
+                  .format(self.deprot_pka))
+            print("                  pKa")
+
+            for pka_entry in self.deprot_list:
+                print(PRINT_PKA_FORMAT.format(**pka_entry))
+
+        os.chdir('..')
+
+
+def parse_propka_output(file):
+    while next(file) != "SUMMARY OF THIS PREDICTION\n":
+        pass
+    next(file)
+    return {pdb_utils.residue_hash(entry): entry
+            for entry in map(line_to_pka_entry, file)
+            if entry is not None}
+
+
+def line_to_pka_entry(line):
+    raw_entry = line.split()
+    if len(raw_entry) != 5:
+        return None
+    return {'resName': raw_entry[0],
+            'resSeq': int(raw_entry[1]),
+            'chainID': raw_entry[2],
+            'pKa': float(raw_entry[3]),
+            'model-pKa': float(raw_entry[4])}
+
+
+def prot_residue(pka_entry, prot_pka):
+    return (pka_entry['resName'] in PROT_DICT.keys() and
+            pka_entry['pKa'] >= prot_pka)
+
+
+def deprot_residue(pka_entry, deprot_pka):
+    return (pka_entry['resName'] in DEPROT_DICT.keys() and
+            pka_entry['pKa'] <= deprot_pka)
