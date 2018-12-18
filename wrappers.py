@@ -77,6 +77,11 @@ class Pdb4AmberReduceWrapper(object):
             pdb_utils.modify_atoms(residues.get(res_hash, []),
                                    'resName', res_name)
 
+        # Remove hydrogens on HETATMs
+        self.pdb.atoms = [atom for atom in self.pdb.atoms
+                          if (atom['record'] != 'HETATM' or
+                              'new' not in atom['extras'])]
+
         os.chdir('..')
 
 

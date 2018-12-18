@@ -44,20 +44,17 @@ class TestAntechamberWrapper(unittest.TestCase):
 
 class TestPdb4AmberReduceWrapper(unittest.TestCase):
 
-    @mock.patch('wrappers.open')
     @mock.patch('wrappers.os.path')
     @mock.patch('wrappers.os')
-    def test_pdb4amber_reduce_call(self, mock_os, mock_os_path, mock_open):
+    def test_pdb4amber_reduce_call(self, mock_os, mock_os_path):
         setup_mock(mock_os, mock_os_path)
         pdb = mock.MagicMock()
         pdb.tofile = mock.MagicMock()
-        pdb4AmberReduce = wrappers.Pdb4AmberReduceWrapper(pdb)
-        mock_os.system.assert_has_calls([
-            mock.call("$AMBERHOME/bin/pdb4amber -i input.pdb "
-                      "-o pdb4amber.pdb --nohyd --dry &> pdb4amber.log"),
-            mock.call("$AMBERHOME/bin/reduce -build -nuclear "
-                      "pdb4amber.pdb &> reduce.pdb")
-        ])
+        with open('tests/test_files/reduce.pdb') as f:
+            mock_open = iterable_mock_open(read_data=f.read())
+        with mock.patch('wrappers.open', mock_open):
+            result = wrappers.Pdb4AmberReduceWrapper(pdb)
+        self.assertEqual(len(result.pdb.atoms), 4080)
 
     def test_get_renamed_histidines(self):
         renamed_histidines = {'A_262_HIS': 'HIE',
