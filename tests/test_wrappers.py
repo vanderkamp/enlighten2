@@ -4,6 +4,18 @@ import wrappers
 import pdb_utils
 
 
+def iterable_mock_open(_mock=None, read_data=''):
+    """
+    Returns modified mock_open object that supports iteration
+    (iter, next, etc.)
+    """
+    mock_open = mock.mock_open(mock=_mock, read_data=read_data)
+    mock_open.return_value.__iter__ = lambda self: self
+    mock_open.return_value.__next__ = (lambda self:
+                                       next(iter(self.readline, '')))
+    return mock_open
+
+
 def setup_mock(mock_os, mock_os_path):
     mock_os_path.exists.return_value = False
     mock_os_path.isfile.return_value = True
@@ -96,12 +108,7 @@ class TestPropkaWrapper(unittest.TestCase):
         pdb.to_file = mock.MagicMock()
 
         with open('tests/test_files/propka.pka') as f:
-            mock_open = mock.mock_open(read_data=f.read())
-        # The following is needed to handle next() and map()
-        # calls in parse_propka_output
-        mock_open.return_value.__iter__ = lambda self: self
-        mock_open.return_value.__next__ = (lambda self:
-                                           next(iter(self.readline, '')))
+            mock_open = iterable_mock_open(read_data=f.read())
 
         with mock.patch('wrappers.open', mock_open):
             result = wrappers.PropkaWrapper(pdb)
