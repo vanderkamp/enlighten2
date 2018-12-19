@@ -54,8 +54,9 @@ class TestPdb4AmberReduceWrapper(unittest.TestCase):
         pdb.tofile = mock.MagicMock()
 
         # Create a "list" of iterable_mock_open instances to mock properly
-        # two open() calls in Pdb4AmberReduceWrapper.__init__
+        # multiple open() calls in Pdb4AmberReduceWrapper.__init__
         mock_open_files = ['tests/test_files/reduce.pdb',
+                           'tests/test_files/pdb4amber_nonprot.pdb',
                            'tests/test_files/pdb4amber_nonprot.pdb']
         mock_open = mock.MagicMock()
         side_effects = []

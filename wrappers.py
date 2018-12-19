@@ -73,12 +73,16 @@ class Pdb4AmberReduceWrapper(object):
 
         # Remove hydrogens added by reduce to non-protein residues
         with open('pdb4amber_nonprot.pdb') as f:
-            nonprot_pdb = pdb_utils.Pdb(f)
+            self.nonprotPdb = pdb_utils.Pdb(f)
         self.nonprot_residues = set(atom['resName']
-                                    for atom in nonprot_pdb.atoms)
+                                    for atom in self.nonprotPdb.atoms)
         self.pdb.atoms = [atom for atom in self.pdb.atoms
                           if (atom['resName'] not in self.nonprot_residues or
                               'new' not in atom['extras'])]
+
+        # store crystalline waters
+        with open('pdb4amber_water.pdb') as f:
+            self.waterPdb = pdb_utils.Pdb(f)
 
         os.chdir('..')
 
