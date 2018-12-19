@@ -82,6 +82,15 @@ class Pdb4AmberReduceWrapper(object):
                           if (atom['record'] != 'HETATM' or
                               'new' not in atom['extras'])]
 
+        # Remove hydrogens added by reduce to non-protein residues
+        with open('pdb4amber_nonprot.pdb') as f:
+            nonprot_pdb = pdb_utils.Pdb(f)
+        self.nonprot_residues = set(atom['resName']
+                                    for atom in nonprot_pdb.atoms)
+        self.pdb.atoms = [atom for atom in self.pdb.atoms
+                          if (atom['resName'] not in self.nonprot_residues or
+                              'new' not in atom['extras'])]
+
         os.chdir('..')
 
 

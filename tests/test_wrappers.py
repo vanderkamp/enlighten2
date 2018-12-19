@@ -50,11 +50,22 @@ class TestPdb4AmberReduceWrapper(unittest.TestCase):
         setup_mock(mock_os, mock_os_path)
         pdb = mock.MagicMock()
         pdb.tofile = mock.MagicMock()
-        with open('tests/test_files/reduce.pdb') as f:
-            mock_open = iterable_mock_open(read_data=f.read())
+
+        # Create a "list" of iterable_mock_open instances to mock properly
+        # two open() calls in Pdb4AmberReduceWrapper.__init__
+        mock_open_files = ['tests/test_files/reduce.pdb',
+                           'tests/test_files/pdb4amber_nonprot.pdb']
+        mock_open = mock.MagicMock()
+        side_effects = []
+        for file in mock_open_files:
+            with open(file) as f:
+                side_effects.append(iterable_mock_open(read_data=f.read())())
+        mock_open.side_effect = side_effects
+
         with mock.patch('wrappers.open', mock_open):
             result = wrappers.Pdb4AmberReduceWrapper(pdb)
         self.assertEqual(len(result.pdb.atoms), 4080)
+        self.assertEqual(result.nonprot_residues, {'0RN'})
 
     def test_get_renamed_histidines(self):
         renamed_histidines = {'A_262_HIS': 'HIE',
