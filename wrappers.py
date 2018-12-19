@@ -1,23 +1,12 @@
 import os
 import shutil
 import pdb_utils
+import utils
 
 
 def check_amberhome():
     if 'AMBERHOME' not in os.environ:
         raise AssertionError("$AMBERHOME not set")
-
-
-def check_file(name, message=None):
-    if not os.path.isfile(name):
-        raise FileNotFoundError(message or "File " + name + " not found.")
-
-
-def set_working_directory(working_directory):
-    if os.path.exists(working_directory):
-        shutil.rmtree(working_directory)
-    os.makedirs(working_directory)
-    os.chdir(working_directory)
 
 
 class AntechamberWrapper(object):
@@ -26,7 +15,7 @@ class AntechamberWrapper(object):
                  working_directory=".antechamber", frcmod=None):
 
         check_amberhome()
-        set_working_directory(working_directory)
+        utils.set_working_directory(working_directory)
         pdb.tofile('ligand.pdb')
 
         os.system(
@@ -36,9 +25,9 @@ class AntechamberWrapper(object):
             .format(name=name, charge=charge)
         )
 
-        check_file(name + '.prepc',
-                   "Antechamber failed to generate {name}.prepc file"
-                   .format(name=name))
+        utils.check_file(name + '.prepc',
+                         "Antechamber failed to generate {name}.prepc file"
+                         .format(name=name))
 
         if frcmod is None:
             os.system("$AMBERHOME/bin/parmchk2 "
@@ -57,7 +46,7 @@ class Pdb4AmberReduceWrapper(object):
     def __init__(self, pdb, working_directory=".pdb4amber_reduce"):
 
         check_amberhome()
-        set_working_directory(working_directory)
+        utils.set_working_directory(working_directory)
         pdb.tofile('input.pdb')
 
         os.system(
@@ -126,7 +115,7 @@ class PropkaWrapper(object):
     def __init__(self, pdb, ph=7.0, ph_offset=0.7,
                  working_directory=".propka"):
 
-        set_working_directory(working_directory)
+        utils.set_working_directory(working_directory)
         with open('input.pdb', 'w') as f:
             pdb.to_file(f)
         os.system("propka31 input.pdb &> propka31.log")

@@ -25,9 +25,10 @@ def setup_mock(mock_os, mock_os_path):
 
 class TestAntechamberWrapper(unittest.TestCase):
 
+    @mock.patch('wrappers.utils')
     @mock.patch('wrappers.os.path')
     @mock.patch('wrappers.os')
-    def test_antechamber_simple_call(self, mock_os, mock_os_path):
+    def test_antechamber_simple_call(self, mock_os, mock_os_path, mock_utils):
         setup_mock(mock_os, mock_os_path)
         pdb = mock.MagicMock()
         pdb.tofile = mock.MagicMock()
@@ -44,9 +45,10 @@ class TestAntechamberWrapper(unittest.TestCase):
 
 class TestPdb4AmberReduceWrapper(unittest.TestCase):
 
+    @mock.patch('wrappers.utils')
     @mock.patch('wrappers.os.path')
     @mock.patch('wrappers.os')
-    def test_pdb4amber_reduce_call(self, mock_os, mock_os_path):
+    def test_pdb4amber_reduce_call(self, mock_os, mock_os_path, mock_utils):
         setup_mock(mock_os, mock_os_path)
         pdb = mock.MagicMock()
         pdb.tofile = mock.MagicMock()
@@ -105,10 +107,11 @@ class TestPropkaWrapper(unittest.TestCase):
              'model-pKa': 3.80}
         )
 
+    @mock.patch('wrappers.utils')
     @mock.patch('wrappers.print')
     @mock.patch('wrappers.os.path')
     @mock.patch('wrappers.os')
-    def test_propka_call(self, mock_os, mock_os_path, mock_print):
+    def test_propka_call(self, mock_os, mock_os_path, mock_print, mock_utils):
         setup_mock(mock_os, mock_os_path)
 
         with open('tests/test_files/reduce.pdb') as f:
