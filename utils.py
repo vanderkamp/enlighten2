@@ -20,3 +20,8 @@ def file_in_paths(filename, path_list):
         if os.path.isfile(full_path):
             return full_path
     return None
+
+
+def merge_dicts_of_dicts(dict1, dict2):
+    return {key: {**dict1.get(key, {}), **dict2.get(key, {})}
+            for key in set(dict1.keys()) | set(dict2.keys())}
