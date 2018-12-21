@@ -5,7 +5,7 @@ import utils
 
 class TestUtils(unittest.TestCase):
 
-    @mock.patch('wrappers.os.path.isfile')
+    @mock.patch('utils.os.path.isfile')
     def test_file_in_paths(self, mock_isfile):
         DIRS = ['empty_dir', 'dir1', 'dir2']
         VALUES = {'empty_dir/file1': False,
