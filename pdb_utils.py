@@ -10,17 +10,18 @@ class Pdb(object):
             raise ValueError('Either file or atoms must be provided')
 
         self.atoms = []
-        self.other = []  # Unparsed pdb lines that are not ATOM/HETATM records
+        self.ter = []
+        self.conect = []
+        self.other = []
 
         if file is None:
             self.atoms = deepcopy(atoms)
             return
 
         for line in file:
-            if is_atom_line(line):
-                self.atoms.append(parse_atom(line))
-            else:
-                self.other.append(line)
+            getattr(self, pdb_line_key(line)).append(line)
+        self.atoms = [parse_atom(atom) for atom in self.atoms]
+        self.ter = [parse_ter(ter) for ter in self.ter]
 
     def residues(self):
         """dict of residue_hash: residue_atom_list"""
@@ -31,7 +32,14 @@ class Pdb(object):
                 if residue[0]['resName'] == residue_name]
 
     def to_file(self, file):
-        dump_atoms_to_file(file, self.atoms)
+        """Writes atoms, TER and CONECT entries. Ignores all the rest."""
+        DUMP_CALLBACK = {'ATOM': dump_atom,
+                         'HETATM': dump_atom,
+                         'TER': dump_ter}
+        for entry in sorted(self.atoms+self.ter, key=lambda x: x['serial']):
+            file.write(DUMP_CALLBACK[entry['record']](entry))
+        for entry in self.conect:
+            file.write(entry)
 
     def copy(self):
         return Pdb(atoms=self.atoms)
@@ -59,8 +67,12 @@ def find_atom(atoms, condition):
     return next(atom for atom in atoms if condition(atom))
 
 
-def is_atom_line(line):
-    return any(x in line[:6] for x in ['ATOM', 'HETATM'])
+def pdb_line_key(line):
+    KEY_DICT = {'ATOM  ': 'atoms',
+                'HETATM': 'atoms',
+                'TER   ': 'ter',
+                'CONECT': 'conect'}
+    return KEY_DICT.get(line[:6], 'other')
 
 
 def parse_atom(atom_line):
@@ -88,6 +100,22 @@ def parse_atom(atom_line):
     }
 
 
+def parse_ter(ter_line):
+    """
+    Based on official PDB format from
+    http://www.wwpdb.org/documentation/file-format-content/format33/sect9.html
+    """
+    return {
+        'record': ter_line[:6].strip(),
+        'serial': int(ter_line[6:11].strip()),
+        'resName': ter_line[17:20].strip(),
+        'chainID': ter_line[21].strip(),
+        'resSeq': int(ter_line[22:26]),
+        'iCode': ter_line[26].strip(),
+        'extras': ter_line[27:]
+    }
+
+
 def dump_atom(atom):
     name_format = "{name:>4}" if len(atom['name']) > 2 else " {name:<3}"
     return ("{record:6}{serial:5} " + name_format + "{altLoc:1}"
@@ -97,6 +125,7 @@ def dump_atom(atom):
             "{charge:>2}{extras}").format(**atom)
 
 
-def dump_atoms_to_file(file, atoms):
-    for atom in atoms:
-        file.write(dump_atom(atom))
+def dump_ter(ter):
+    return ("{record:6}{serial:5} {resName:>8} "
+            "{chainID:1}{resSeq:4}{iCode:1}{extras}"
+            .format(**ter))

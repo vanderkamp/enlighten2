@@ -32,7 +32,9 @@ class TestPdb(unittest.TestCase):
             cls.pdb = pdb_utils.Pdb(f)
 
     def test_other_list(self):
-        self.assertEqual(len(self.pdb.other), 428)
+        self.assertEqual(len(self.pdb.conect), 7)
+        self.assertEqual(len(self.pdb.ter), 1)
+        self.assertEqual(len(self.pdb.other), 420)
         self.assertEqual(self.pdb.other[0],
                          "HEADER    HYDROLASE                               "
                          "01-NOV-93   1BTL              \n")
