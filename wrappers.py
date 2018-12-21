@@ -12,7 +12,7 @@ def check_amberhome():
 class AntechamberWrapper(object):
 
     def __init__(self, pdb, name, charge=0,
-                 working_directory=".antechamber", frcmod=None):
+                 working_directory=".antechamber", create_frcmod=True):
 
         check_amberhome()
         utils.set_working_directory(working_directory)
@@ -29,14 +29,12 @@ class AntechamberWrapper(object):
                          "Antechamber failed to generate {name}.prepc file"
                          .format(name=name))
 
-        if frcmod is None:
+        self.working_directory = os.getcwd()
+        if create_frcmod:
             os.system("$AMBERHOME/bin/parmchk2 "
                       "-i {name}.prepc -f prepc -o {name}.frcmod"
                       .format(name=name))
             # TODO: check for ATTN warnings
-            self.frcmod = os.path.join(os.getcwd(), name + '.frcmod')
-        else:
-            self.frcmod = frcmod
 
         os.chdir('..')
 

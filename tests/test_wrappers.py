@@ -40,7 +40,6 @@ class TestAntechamberWrapper(unittest.TestCase):
             mock.call("$AMBERHOME/bin/parmchk2 -i XXX.prepc "
                       "-f prepc -o XXX.frcmod")
         ])
-        mock_os_path.join.assert_called_with('.', 'XXX.frcmod')
 
 
 class TestPdb4AmberReduceWrapper(unittest.TestCase):
