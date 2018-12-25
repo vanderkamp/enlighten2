@@ -2,6 +2,7 @@ import os
 import shutil
 import pdb_utils
 import utils
+import tleap
 
 
 def check_amberhome():
@@ -206,3 +207,67 @@ def prot_residue(pka_entry, prot_pka):
 def deprot_residue(pka_entry, deprot_pka):
     return (pka_entry['resName'] in DEPROT_DICT.keys() and
             pka_entry['pKa'] <= deprot_pka)
+
+
+class TleapWrapper(object):
+
+    def __init__(self, template_name, include=[], nonprot_residues=[],
+                 params={}, working_directory='.tleap'):
+
+        utils.set_working_directory(working_directory)
+
+        enlighten_path = os.path.dirname(__import__(__name__).__file__)
+        tleap_module_path = os.path.join(enlighten_path, 'tleap')
+        template_path = os.path.join(tleap_module_path, template_name + '.in')
+        template_contents = None
+        if os.path.isfile(template_path):
+            with open(template_path) as f:
+                template_contents = f.read()
+
+        params['include'] = get_tleap_includes(include, nonprot_residues)
+        template_module = getattr(
+            __import__('tleap', fromlist=[template_name]),
+            template_name
+        )
+
+        params['pdb'].to_file('input.pdb')
+        params['water_pdb'].to_file('water.pdb')
+        with open('tleap.in', 'w') as f:
+            f.write(template_module.run(params, template_contents))
+        os.system('tleap -f tleap.in &> tleap.log')
+
+        try:
+            template_module.check(params)
+        except AttributeError:
+            pass
+
+
+def get_tleap_includes(include, nonprot_residues):
+
+    INCLUDE_COMMANDS = {'off': 'loadoff {}',
+                        'prepc': 'loadamberprep {}',
+                        'frcmod': 'loadamberparams {}'}
+
+    # Find all the include files and check that frcmod and prepc files are
+    # provided for all non-protein residues
+    include_lists = {key: [] for key in INCLUDE_COMMANDS.keys()}
+    for residue in nonprot_residues:
+        residue_includes = {
+            key: utils.file_in_paths('{}.{}'.format(residue, key), include)
+            for key in INCLUDE_COMMANDS.keys()
+        }
+
+        if not residue_includes['prepc']:
+            raise FileNotFoundError("Cannot find topology ({0}.prepc) for "
+                                    "residue {0}. Exiting...".format(residue))
+        if not residue_includes['frcmod']:
+            raise FileNotFoundError("Cannot find parameters ({0}.frcmod) for "
+                                    "residue {0}. Exiting...".format(residue))
+
+        for key, value in residue_includes.items():
+            if residue_includes[key] is not None:
+                include_lists[key].append(value)
+
+    return '\n'.join(INCLUDE_COMMANDS[key].format(name)
+                     for key, include_list in include_lists.items()
+                     for name in include_list)
