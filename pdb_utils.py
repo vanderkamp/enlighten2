@@ -39,7 +39,13 @@ class Pdb(object):
         DUMP_CALLBACK = {'ATOM': dump_atom,
                          'HETATM': dump_atom,
                          'TER': dump_ter}
-        for entry in sorted(self.atoms+self.ter, key=lambda x: x['serial']):
+        # Sort atoms with TER entries by resSeq. TER is always the last.
+        # If some atoms have no index (extra Hs added by reduce) they go
+        # after the "normal" ones.
+        for entry in sorted(self.atoms+self.ter,
+                            key=lambda x: (x['resSeq'],
+                                           x['record'],
+                                           x['serial'] or 99999999)):
             file.write(DUMP_CALLBACK[entry['record']](entry))
         for entry in self.conect:
             file.write(entry)
@@ -104,7 +110,7 @@ def parse_atom(atom_line):
         'tempFactor': float(atom_line[60:66]),
         'element': atom_line[76:78].strip(),
         'charge': atom_line[78:80].strip(),
-        'extras': atom_line[80:]
+        'extras': atom_line[80:] or '\n'
     }
 
 
@@ -120,7 +126,7 @@ def parse_ter(ter_line):
         'chainID': ter_line[21].strip(),
         'resSeq': int(ter_line[22:26]),
         'iCode': ter_line[26].strip(),
-        'extras': ter_line[27:]
+        'extras': ter_line[27:] or '\n'
     }
 
 
