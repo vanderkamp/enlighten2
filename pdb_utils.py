@@ -4,7 +4,7 @@ from copy import deepcopy
 
 class Pdb(object):
 
-    def __init__(self, file=None, atoms=None):
+    def __init__(self, file=None, atoms=None, ter=[], conect=[], other=[]):
 
         if file is None and atoms is None:
             raise ValueError('Either file or atoms must be provided')
@@ -16,6 +16,9 @@ class Pdb(object):
 
         if file is None:
             self.atoms = deepcopy(atoms)
+            self.ter = ter
+            self.conect = conect
+            self.other = other
             return
 
         for line in file:
@@ -46,7 +49,8 @@ class Pdb(object):
             self.to_file(f)
 
     def copy(self):
-        return Pdb(atoms=self.atoms)
+        return Pdb(atoms=self.atoms, ter=self.ter,
+                   conect=self.conect, other=self.other)
 
     def remove_atom(self, atom):
         try:
