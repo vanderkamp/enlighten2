@@ -5,9 +5,10 @@ import utils
 import tleap
 
 
-def check_amberhome():
+def get_amberhome():
     if 'AMBERHOME' not in os.environ:
         raise AssertionError("$AMBERHOME not set")
+    return os.environ['AMBERHOME']
 
 
 class AntechamberWrapper(object):
@@ -15,26 +16,25 @@ class AntechamberWrapper(object):
     def __init__(self, pdb, name, charge=0,
                  working_directory=".antechamber", create_frcmod=True):
 
-        check_amberhome()
+        amberhome = get_amberhome()
         utils.set_working_directory(working_directory)
-        pdb.tofile('ligand.pdb')
+        pdb.to_filename('ligand.pdb')
 
-        os.system(
-            "$AMBERHOME/bin/antechamber "
-            "-i ligand.pdb -fi pdb -o {name}.prepc -fo prepc "
-            "-rn {name} -c bcc -nc {charge}"
-            .format(name=name, charge=charge)
-        )
-
+        antechamber_command = (amberhome + "/bin/antechamber " +
+                               "-i ligand.pdb -fi pdb -o {name}.prepc "
+                               "-fo prepc -rn {name} -c bcc -nc {charge}"
+                               .format(name=name, charge=charge))
+        utils.run_in_shell(antechamber_command, 'antechamber.out')
         utils.check_file(name + '.prepc',
                          "Antechamber failed to generate {name}.prepc file"
                          .format(name=name))
 
         self.working_directory = os.getcwd()
         if create_frcmod:
-            os.system("$AMBERHOME/bin/parmchk2 "
-                      "-i {name}.prepc -f prepc -o {name}.frcmod"
-                      .format(name=name))
+            parmck_command = (amberhome + "/bin/parmchk2 " +
+                              "-i {name}.prepc -f prepc -o {name}.frcmod"
+                              .format(name=name))
+            utils.run_in_shell(parmck_command, 'parmchk2.out')
             # TODO: check for ATTN warnings
 
         os.chdir('..')
@@ -44,17 +44,18 @@ class Pdb4AmberReduceWrapper(object):
 
     def __init__(self, pdb, working_directory=".pdb4amber_reduce"):
 
-        check_amberhome()
+        amberhome = get_amberhome()
         utils.set_working_directory(working_directory)
-        pdb.tofile('input.pdb')
+        pdb.to_filename('input.pdb')
 
-        os.system(
-            "$AMBERHOME/bin/pdb4amber -i input.pdb -o pdb4amber.pdb "
-            "--nohyd --dry &> pdb4amber.log"
-        )
-        os.system(
-            "$AMBERHOME/bin/reduce -build -nuclear pdb4amber.pdb &> reduce.pdb"
-        )
+        pdb4amber_command = (amberhome + "/bin/pdb4amber "
+                             "-i input.pdb -o pdb4amber.pdb --nohyd --dry")
+        utils.run_in_shell(pdb4amber_command, 'pdb4amber.out')
+
+        reduce_command = (amberhome + "/bin/reduce "
+                          "-build -nuclear pdb4amber.pdb")
+        utils.run_in_shell(reduce_command, 'reduce.pdb')
+
         with open('reduce.pdb') as f:
             self.pdb = pdb_utils.Pdb(f)
 
@@ -119,9 +120,9 @@ class PropkaWrapper(object):
                  working_directory=".propka"):
 
         utils.set_working_directory(working_directory)
-        with open('input.pdb', 'w') as f:
-            pdb.to_file(f)
-        os.system("propka31 input.pdb &> propka31.log")
+        pdb.to_filename('input.pdb')
+
+        utils.run_in_shell("propka31 input.pdb", "propka31.out")
         with open('input.pka') as f:
             propka_results = parse_propka_output(f)
 
@@ -230,11 +231,11 @@ class TleapWrapper(object):
             template_name
         )
 
-        params['pdb'].to_file('input.pdb')
-        params['water_pdb'].to_file('water.pdb')
+        params['pdb'].to_filename('input.pdb')
+        params['water_pdb'].to_filename('water.pdb')
         with open('tleap.in', 'w') as f:
             f.write(template_module.run(params, template_contents))
-        os.system('tleap -f tleap.in &> tleap.log')
+        utils.run_in_shell('tleap -f tleap.in', 'tleap.log')
 
         try:
             template_module.check(params)

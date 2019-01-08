@@ -1,5 +1,6 @@
 import os
 import shutil
+import subprocess
 
 
 def check_file(name, message=None):
@@ -25,3 +26,14 @@ def file_in_paths(filename, path_list):
 def merge_dicts_of_dicts(dict1, dict2):
     return {key: {**dict1.get(key, {}), **dict2.get(key, {})}
             for key in set(dict1.keys()) | set(dict2.keys())}
+
+
+def run_in_shell(command, output):
+    """
+    Runs given command in the shell, redirecting both STDOUT and STDERR to
+    the output file. Waits for the command to finish.
+    """
+    with open(output, 'w') as f:
+        proc = subprocess.Popen(command, shell=True, stdout=f,
+                                stderr=subprocess.STDOUT)
+        proc.wait()

@@ -41,6 +41,10 @@ class Pdb(object):
         for entry in self.conect:
             file.write(entry)
 
+    def to_filename(self, filename):
+        with open(filename, 'w') as f:
+            self.to_file(f)
+
     def copy(self):
         return Pdb(atoms=self.atoms)
 
