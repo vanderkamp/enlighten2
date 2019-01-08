@@ -32,14 +32,15 @@ class TestAntechamberWrapper(unittest.TestCase):
     def test_antechamber_simple_call(self, mock_os, mock_os_path, mock_utils):
         setup_mock(mock_os, mock_os_path)
         pdb = mock.MagicMock()
-        pdb.tofile = mock.MagicMock()
+        pdb.to_filename = mock.MagicMock()
         antechamber = wrappers.AntechamberWrapper(pdb, 'XXX', 1)
 
-        mock_os.system.assert_has_calls([
-            mock.call("$AMBERHOME/bin/antechamber -i ligand.pdb -fi pdb "
-                      "-o XXX.prepc -fo prepc -rn XXX -c bcc -nc 1"),
-            mock.call("$AMBERHOME/bin/parmchk2 -i XXX.prepc "
-                      "-f prepc -o XXX.frcmod")
+        mock_utils.run_in_shell.assert_has_calls([
+            mock.call("/bin/antechamber -i ligand.pdb -fi pdb "
+                      "-o XXX.prepc -fo prepc -rn XXX -c bcc -nc 1",
+                      'antechamber.out'),
+            mock.call(("/bin/parmchk2 -i XXX.prepc -f prepc -o XXX.frcmod"),
+                      'parmchk2.out')
         ])
 
 
@@ -51,7 +52,7 @@ class TestPdb4AmberReduceWrapper(unittest.TestCase):
     def test_pdb4amber_reduce_call(self, mock_os, mock_os_path, mock_utils):
         setup_mock(mock_os, mock_os_path)
         pdb = mock.MagicMock()
-        pdb.tofile = mock.MagicMock()
+        pdb.to_filename = mock.MagicMock()
 
         # Create a "list" of iterable_mock_open instances to mock properly
         # multiple open() calls in Pdb4AmberReduceWrapper.__init__
@@ -117,7 +118,7 @@ class TestPropkaWrapper(unittest.TestCase):
 
         with open('tests/test_files/reduce.pdb') as f:
             pdb = pdb_utils.Pdb(f)
-        pdb.to_file = mock.MagicMock()
+        pdb.to_filename = mock.MagicMock()
 
         with open('tests/test_files/propka.pka') as f:
             mock_open = iterable_mock_open(read_data=f.read())
@@ -164,12 +165,12 @@ class TestTleapWrapper(unittest.TestCase):
                           "Cannot find topology (res3.prepc) "
                           "for residue res3. Exiting...")
 
-    @mock.patch('wrappers.utils.set_working_directory')
+    @mock.patch('wrappers.utils')
     @mock.patch('wrappers.os.system')
     @mock.patch('wrappers.get_tleap_includes')
     def test_tleap_call(self, mock_includes, *args):
         pdb = mock.MagicMock()
-        pdb.tofile = mock.MagicMock()
+        pdb.to_filename = mock.MagicMock()
         PARAMS = {'name': 'XXX',
                   'pdb': pdb,
                   'water_pdb': pdb,
