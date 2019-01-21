@@ -1,20 +1,39 @@
+import os
+import pymol
+
+
 def __init_plugin__(app=None):
     from pymol.plugins import addmenuitemqt
     addmenuitemqt('Enlighten', run_plugin_gui)
 
 
 def run_plugin_gui():
-    import os
-    from pymol.Qt import QtWidgets
-    from pymol.Qt.utils import loadUi
 
-    dialog = QtWidgets.QDialog()
+    dialog = pymol.Qt.QtWidgets.QDialog()
     ui_file = os.path.join(os.path.dirname(__file__), 'ui_form.ui')
-    form = loadUi(ui_file, dialog)
+    form = pymol.Qt.utils.loadUi(ui_file, dialog)
 
     form.pymolObjectRadio.toggled.connect(lambda: update_view(form))
-    form.pymolObjectRadio.setChecked(True)
+    initialize_view(form)
     dialog.show()
+
+
+def initialize_view(form):
+    form.pymolObjectRadio.setChecked(True)
+    objects = pymol.cmd.get_names('objects')
+    form.pymolObjectCombo.addItems(objects)
+    form.pymolObjectCombo.setCurrentIndex(len(objects)-1)
+
+    enlighten_dir = os.getenv('ENLIGHTEN',
+                              "Please specify ENLIGHTEN home directory")
+    form.enlightenEdit.setText(enlighten_dir)
+
+    amber_dir = os.getenv('AMBERHOME', "Please specify AMBER home directory")
+    form.amberEdit.setText(amber_dir)
+
+    form.outputEdit.setText(os.getcwd())
+    form.ligandChargeEdit.setValidator(pymol.Qt.QtGui.QIntValidator())
+    form.ligandChargeEdit.setText("0")
 
 
 def update_view(form):
