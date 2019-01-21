@@ -12,27 +12,27 @@ def run_plugin_gui():
     ui_file = os.path.join(os.path.dirname(__file__), 'ui_form.ui')
     form = loadUi(ui_file, dialog)
 
-    form.pymolObjectRadio.toggled.connect(lambda: updateView(form))
+    form.pymolObjectRadio.toggled.connect(lambda: update_view(form))
     form.pymolObjectRadio.setChecked(True)
     dialog.show()
 
 
-def updateView(form):
+def update_view(form):
     PDB_FILE_WIDGETS = ('pdbFileLabel', 'pdbFileEdit', 'pdbFileBrowseButton')
     PYMOL_OBJECT_WIDGETS = ('pymolObjectLabel', 'pymolObjectCombo')
     if form.pdbFileRadio.isChecked():
-        showWidgets(form, PDB_FILE_WIDGETS)
-        hideWidgets(form, PYMOL_OBJECT_WIDGETS)
+        show_widgets(form, PDB_FILE_WIDGETS)
+        hide_widgets(form, PYMOL_OBJECT_WIDGETS)
     else:
-        showWidgets(form, PYMOL_OBJECT_WIDGETS)
-        hideWidgets(form, PDB_FILE_WIDGETS)
+        show_widgets(form, PYMOL_OBJECT_WIDGETS)
+        hide_widgets(form, PDB_FILE_WIDGETS)
 
 
-def showWidgets(form, widgets):
+def show_widgets(form, widgets):
     for widget in widgets:
         getattr(form, widget).show()
 
 
-def hideWidgets(form, widgets):
+def hide_widgets(form, widgets):
     for widget in widgets:
         getattr(form, widget).hide()
