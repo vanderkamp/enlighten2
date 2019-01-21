@@ -80,7 +80,7 @@ ligand_atoms = ligands[ligand_index-1]
 if len(ligands) > 1:
     print("More than one ligand detected. Using coordinates from the ligand"
           " with chainID={} and resSeq={}"
-          .format(ligand.atoms[0]['chainID'], ligand.atoms[0]['resSeq']))
+          .format(ligand_atoms[0]['chainID'], ligand_atoms[0]['resSeq']))
 
 # Only generate ligand frcmod if it is not found in include paths
 ligand_frcmod = utils.file_in_paths(ligand_name + '.frcmod',
