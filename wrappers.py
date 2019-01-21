@@ -14,7 +14,7 @@ def get_amberhome():
 class AntechamberWrapper(object):
 
     def __init__(self, pdb, name, charge=0,
-                 working_directory=".antechamber", create_frcmod=True):
+                 working_directory="antechamber", create_frcmod=True):
 
         amberhome = get_amberhome()
         utils.set_working_directory(working_directory)
@@ -42,7 +42,7 @@ class AntechamberWrapper(object):
 
 class Pdb4AmberReduceWrapper(object):
 
-    def __init__(self, pdb, working_directory=".pdb4amber_reduce"):
+    def __init__(self, pdb, working_directory="pdb4amber_reduce"):
 
         amberhome = get_amberhome()
         utils.set_working_directory(working_directory)
@@ -117,7 +117,7 @@ DEPROT_DICT = {'CYS': 'CYM', 'LYS': 'LYN'}
 class PropkaWrapper(object):
 
     def __init__(self, pdb, ph=7.0, ph_offset=0.7,
-                 working_directory=".propka"):
+                 working_directory="propka"):
 
         utils.set_working_directory(working_directory)
         pdb.to_filename('input.pdb')
@@ -213,7 +213,7 @@ def deprot_residue(pka_entry, deprot_pka):
 class TleapWrapper(object):
 
     def __init__(self, template_name, include=[], nonprot_residues=[],
-                 params={}, working_directory='.tleap'):
+                 params={}, working_directory='tleap'):
 
         utils.set_working_directory(working_directory)
 
