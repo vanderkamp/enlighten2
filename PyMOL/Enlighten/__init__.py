@@ -14,6 +14,9 @@ def run_plugin_gui():
     form = pymol.Qt.utils.loadUi(ui_file, dialog)
 
     form.pymolObjectRadio.toggled.connect(lambda: update_view(form))
+    bind_file_dialog(form.pdbFileEdit, form.pdbFileBrowseButton)
+    bind_directory_dialog(form.enlightenEdit, form.enlightenBrowseButton)
+    bind_directory_dialog(form.amberEdit, form.amberBrowseButton)
     initialize_view(form)
     dialog.show()
 
@@ -55,3 +58,19 @@ def show_widgets(form, widgets):
 def hide_widgets(form, widgets):
     for widget in widgets:
         getattr(form, widget).hide()
+
+
+def bind_file_dialog(lineEdit, browseButton):
+    browseButton.clicked.connect(lambda: assign_filename(lineEdit))
+
+
+def bind_directory_dialog(lineEdit, browseButton):
+    browseButton.clicked.connect(lambda: assign_directory(lineEdit))
+
+
+def assign_filename(lineEdit):
+    lineEdit.setText(pymol.Qt.QtWidgets.QFileDialog.getOpenFileName()[0])
+
+
+def assign_directory(lineEdit):
+    lineEdit.setText(pymol.Qt.QtWidgets.QFileDialog.getExistingDirectory())
