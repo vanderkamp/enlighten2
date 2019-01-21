@@ -17,7 +17,10 @@ def run_plugin_gui():
     bind_file_dialog(form.pdbFileEdit, form.pdbFileBrowseButton)
     bind_directory_dialog(form.enlightenEdit, form.enlightenBrowseButton)
     bind_directory_dialog(form.amberEdit, form.amberBrowseButton)
+
     form.runPrepButton.clicked.connect(lambda: validate_fields(form))
+    form.websiteButton.clicked.connect(open_enlighten_website)
+
     initialize_view(form)
     dialog.show()
 
@@ -49,6 +52,11 @@ def update_view(form):
     else:
         show_widgets(form, PYMOL_OBJECT_WIDGETS)
         hide_widgets(form, PDB_FILE_WIDGETS)
+
+
+def open_enlighten_website():
+    import webbrowser
+    webbrowser.open_new("https://github.com/marcvanderkamp/enlighten/")
 
 
 def validate_fields(form):
