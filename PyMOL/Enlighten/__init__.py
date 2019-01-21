@@ -17,6 +17,7 @@ def run_plugin_gui():
     bind_file_dialog(form.pdbFileEdit, form.pdbFileBrowseButton)
     bind_directory_dialog(form.enlightenEdit, form.enlightenBrowseButton)
     bind_directory_dialog(form.amberEdit, form.amberBrowseButton)
+    form.runPrepButton.clicked.connect(lambda: validate_fields(form))
     initialize_view(form)
     dialog.show()
 
@@ -48,6 +49,50 @@ def update_view(form):
     else:
         show_widgets(form, PYMOL_OBJECT_WIDGETS)
         hide_widgets(form, PDB_FILE_WIDGETS)
+
+
+def validate_fields(form):
+    VALIDATORS = [pdb_validator, enlighten_validator,
+                  amber_validator, output_validator]
+    results = [validator(form) for validator in VALIDATORS]
+    errors = [result for result in results if result is not None]
+    if errors:
+        pymol.Qt.QtWidgets.QMessageBox.critical(
+            form,
+            "Enlighten error",
+            "The following errors were encountered:\n"
+            "{}".format("\n".join(errors))
+        )
+
+
+def pdb_validator(form):
+    if not form.pdbFileRadio.isChecked():
+        return None
+    if not os.path.isfile(form.pdbFileEdit.text()):
+        return "PDB file not found"
+    return None
+
+
+def enlighten_validator(form):
+    enlighten_path = form.enlightenEdit.text()
+    if not os.path.isfile(os.path.join(enlighten_path, 'prep.py')):
+        return "prep.py not found in {}".format(enlighten_path)
+    return None
+
+
+def amber_validator(form):
+    amber_bin_path = os.path.join(form.amberEdit.text(), 'bin')
+    for filename in ('antechamber', 'pdb4amber', 'reduce'):
+        if not os.path.isfile(os.path.join(amber_bin_path, filename)):
+            return "{} not found in {}".format(filename, amber_bin_path)
+    return None
+
+
+def output_validator(form):
+    output_path = form.outputEdit.text()
+    if not os.path.isdir(output_path):
+        return "directory {} does not exist".format(output_path)
+    return None
 
 
 def show_widgets(form, widgets):
