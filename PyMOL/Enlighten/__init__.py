@@ -54,6 +54,12 @@ def update_view(form):
         hide_widgets(form, PDB_FILE_WIDGETS)
 
 
+def write_object_to_pdb(object_name):
+    filename = os.path.join(os.getcwd(), object_name + '.pdb')
+    pymol.cmd.save(filename, '({})'.format(object_name))
+    return filename
+
+
 def open_enlighten_website():
     import webbrowser
     webbrowser.open_new("https://github.com/marcvanderkamp/enlighten/")
