@@ -106,7 +106,7 @@ def open_enlighten_website():
 
 def validate_fields(form):
     VALIDATORS = [pdb_validator, enlighten_validator,
-                  amber_validator, output_validator]
+                  amber_validator, output_validator, ligand_validator]
     results = [validator(form) for validator in VALIDATORS]
     errors = [result for result in results if result is not None]
     if errors:
@@ -143,6 +143,12 @@ def output_validator(form):
     output_path = form.outputEdit.text()
     if not os.path.isdir(output_path):
         return "directory {} does not exist".format(output_path)
+    return None
+
+
+def ligand_validator(form):
+    if not form.ligandNameEdit.text():
+        return "Ligand name not provided"
     return None
 
 
