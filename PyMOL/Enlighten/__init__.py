@@ -71,12 +71,12 @@ def run_prep(form):
     enlighten = form.enlightenEdit.text()
     amberhome = form.amberEdit.text()
     os.chdir(form.outputEdit.text())
+    os.environ.update({'AMBERHOME': amberhome})
 
     proc = subprocess.Popen("{}/prep.py {} {} {}"
                             .format(enlighten, pdb_file,
                                     ligand_name, ligand_charge),
                             shell=True,
-                            env=os.environ.update({'AMBERHOME': amberhome}),
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE)
     proc.wait()
