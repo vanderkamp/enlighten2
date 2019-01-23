@@ -57,6 +57,7 @@ def update_view(form):
 def run_prep(form):
     import subprocess
     import sys
+    import threads
 
     if validate_fields(form):
         return
@@ -72,21 +73,24 @@ def run_prep(form):
     amberhome = form.amberEdit.text()
     os.chdir(form.outputEdit.text())
     os.environ.update({'AMBERHOME': amberhome})
+    prepThread = threads.SubprocessThread("{}/prep.py {} {} {}"
+                                          .format(enlighten, pdb_file,
+                                                  ligand_name, ligand_charge))
 
-    proc = subprocess.Popen("{}/prep.py {} {} {}"
-                            .format(enlighten, pdb_file,
-                                    ligand_name, ligand_charge),
-                            shell=True,
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE)
-    proc.wait()
-    output = proc.stdout.read().decode('string_escape')
-    error = proc.stderr.read().decode('string_escape')
+    def prep_done():
+        form.runPrepButton.setText("Run PREP")
+        form.runPrepButton.setEnabled(True)
+        if prepThread.error:
+            error_message(form,
+                          "The following errors were encountered:\n" +
+                          prepThread.error)
+        else:
+            info_message(form, prepThread.output)
+    prepThread.finished.connect(prep_done)
 
-    if error:
-        error_message(form, "The following errors were encountered:\n" + error)
-    else:
-        info_message(form, output)
+    form.runPrepButton.setText("Running...")
+    form.runPrepButton.setEnabled(False)
+    prepThread.start()
 
 
 def write_object_to_pdb(object_name):
