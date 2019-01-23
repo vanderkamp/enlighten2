@@ -126,6 +126,8 @@ def pdb_validator(form):
 
 def enlighten_validator(form):
     enlighten_path = form.enlightenEdit.text()
+    if not os.path.isdir(enlighten_path):
+        return "Wrong Enlighten path"
     if not os.path.isfile(os.path.join(enlighten_path, 'prep.py')):
         return "prep.py not found in {}".format(enlighten_path)
     return None
@@ -133,6 +135,8 @@ def enlighten_validator(form):
 
 def amber_validator(form):
     amber_bin_path = os.path.join(form.amberEdit.text(), 'bin')
+    if not os.path.isdir(amber_bin_path):
+        return "Wrong AMBER path"
     for filename in ('antechamber', 'pdb4amber', 'reduce'):
         if not os.path.isfile(os.path.join(amber_bin_path, filename)):
             return "{} not found in {}".format(filename, amber_bin_path)
