@@ -18,7 +18,7 @@ def run_plugin_gui():
     bind_directory_dialog(form.enlightenEdit, form.enlightenBrowseButton)
     bind_directory_dialog(form.amberEdit, form.amberBrowseButton)
 
-    form.runPrepButton.clicked.connect(lambda: validate_fields(form))
+    form.runPrepButton.clicked.connect(lambda: run_prep(form))
     form.websiteButton.clicked.connect(open_enlighten_website)
 
     initialize_view(form)
@@ -54,6 +54,41 @@ def update_view(form):
         hide_widgets(form, PDB_FILE_WIDGETS)
 
 
+def run_prep(form):
+    import subprocess
+    import sys
+
+    if validate_fields(form):
+        return
+
+    if form.pdbFileRadio.isChecked():
+        pdb_file = form.pdbFileEdit.text()
+    else:
+        pdb_file = write_object_to_pdb(form.pymolObjectCombo.currentText())
+
+    ligand_name = form.ligandNameEdit.text()
+    ligand_charge = form.ligandChargeEdit.text()
+    enlighten = form.enlightenEdit.text()
+    amberhome = form.amberEdit.text()
+    os.chdir(form.outputEdit.text())
+
+    proc = subprocess.Popen("{}/prep.py {} {} {}"
+                            .format(enlighten, pdb_file,
+                                    ligand_name, ligand_charge),
+                            shell=True,
+                            env=os.environ.update({'AMBERHOME': amberhome}),
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+    proc.wait()
+    output = proc.stdout.read().decode('string_escape')
+    error = proc.stderr.read().decode('string_escape')
+
+    if error:
+        error_message(form, "The following errors were encountered:\n" + error)
+    else:
+        info_message(form, output)
+
+
 def write_object_to_pdb(object_name):
     filename = os.path.join(os.getcwd(), object_name + '.pdb')
     pymol.cmd.save(filename, '({})'.format(object_name))
@@ -71,12 +106,10 @@ def validate_fields(form):
     results = [validator(form) for validator in VALIDATORS]
     errors = [result for result in results if result is not None]
     if errors:
-        pymol.Qt.QtWidgets.QMessageBox.critical(
-            form,
-            "Enlighten error",
-            "The following errors were encountered:\n"
-            "{}".format("\n".join(errors))
-        )
+        error_message(form,
+                      "The following errors were encountered:\n"
+                      "{}".format("\n".join(errors)))
+    return errors
 
 
 def pdb_validator(form):
@@ -107,6 +140,14 @@ def output_validator(form):
     if not os.path.isdir(output_path):
         return "directory {} does not exist".format(output_path)
     return None
+
+
+def info_message(form, text):
+    pymol.Qt.QtWidgets.QMessageBox.information(form, "Enlighten", text)
+
+
+def error_message(form, text):
+    pymol.Qt.QtWidgets.QMessageBox.critical(form, "Enlighten", text)
 
 
 def show_widgets(form, widgets):
