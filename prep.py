@@ -115,7 +115,7 @@ if params['propka']['with_propka']:
               "WARNING: all ASP/GLU will be treated as unprotonated.")
 
 ligand = pdb.get_residues_by_name(ligand_name)[ligand_index-1]
-params['tleap']['name'] = pdb_name
+params['tleap']['name'] = os.path.basename(pdb_name)
 params['tleap']['pdb'] = pdb
 params['tleap']['ligand'] = ligand
 wrappers.TleapWrapper(params['tleap']['template'],
