@@ -101,7 +101,7 @@ def write_object_to_pdb(object_name):
 
 def open_enlighten_website():
     import webbrowser
-    webbrowser.open_new("https://github.com/marcvanderkamp/enlighten/")
+    webbrowser.open_new("https://github.com/vanderkamp/enlighten2/")
 
 
 def validate_fields(form):
