@@ -1,5 +1,12 @@
+#-*- coding: utf-8 -*-
 import os
 import pymol
+import re
+import ntpath
+from PyQt5 import QtCore, QtGui, QtWidgets
+
+
+
 
 
 def __init_plugin__(app=None):
@@ -10,19 +17,33 @@ def __init_plugin__(app=None):
 def run_plugin_gui():
 
     dialog = pymol.Qt.QtWidgets.QDialog()
-    ui_file = os.path.join(os.path.dirname(__file__), 'ui_form.ui')
+    ui_file = os.path.join(os.path.dirname(__file__), 'ui_form2.ui')
     form = pymol.Qt.utils.loadUi(ui_file, dialog)
 
     form.pymolObjectRadio.toggled.connect(lambda: update_view(form))
     bind_file_dialog(form.pdbFileEdit, form.pdbFileBrowseButton)
     bind_directory_dialog(form.enlightenEdit, form.enlightenBrowseButton)
     bind_directory_dialog(form.amberEdit, form.amberBrowseButton)
+    bind_directory_dialog(form.outputEdit, form.outputBrowseButton)
 
     form.runPrepButton.clicked.connect(lambda: run_prep(form))
     form.websiteButton.clicked.connect(open_enlighten_website)
 
+    form.AdvancedOptionsButton.clicked.connect(lambda: advanced_options(form))
+
+    form.SphereSizeSlider.sliderReleased.connect(lambda: change_slider_value(form))
+    form.SphereSizeValue.textChanged.connect(lambda: change_slider_position(form))
+
+    form.phValue.textChanged.connect(lambda: change_pHvariable(form))
+
+    pHvariable_settings(form)
+    slider_settings(form)
     initialize_view(form)
+    #display_advanced_options(form)
     dialog.show()
+
+
+
 
 
 def initialize_view(form):
@@ -42,10 +63,120 @@ def initialize_view(form):
     form.ligandChargeEdit.setValidator(pymol.Qt.QtGui.QIntValidator())
     form.ligandChargeEdit.setText("0")
 
+    ADVANCED_OPTIONS_WIDGETS = ('phLabel', 'SphereSizeLabel', 'phValue',
+                                'SphereSizeSlider', 'SphereSizeValue')
+    hide_widgets(form, ADVANCED_OPTIONS_WIDGETS)
+    form.resize(400, 295)
 
+
+def advanced_options(form):
+
+    if form.pymolObjectCombo.isVisible():
+        object_file_name = form.pymolObjectCombo.currentText()
+        if not object_file_name:
+            print("No object is selected")
+        else:
+            output_folder_status = os.path.join(os.getcwd(), object_file_name)
+            print(output_folder_status + " This is the folder being checked")
+            if os.path.isdir(output_folder_status):
+                print("It appears you've already (attempted to) run prep.py with {0}. "
+                       "Delete folder {0} or rename pdb if you want to run it again."
+                    .format(object_file_name))
+
+    elif form.pdbFileEdit.isVisible():
+        object_file_path = form.pdbFileEdit.text()
+        if not object_file_path.endswith(".pdb"):
+            print("ERROR: file selected is not a .pdb")
+        else:
+            object_file_name = os.path.basename(object_file_path)
+            print(object_file_name + " is file selected")
+            output_folder_status = os.path.join(os.getcwd(), object_file_name)
+            print(output_folder_status + " This is folder being checked")
+            if os.path.isdir(output_folder_status):
+                print("It appears you've already (attempted to) run prep.py with {0}. "
+                      "Delete folder {0} or rename pdb if you want to run it again."
+                      .format(object_file_name))
+    else:
+        print("combo or line edit not visible: ERROR")
+
+    ADVANCED_OPTIONS_WIDGETS = ('phLabel', 'SphereSizeLabel', 'phValue',
+                                'SphereSizeSlider', 'SphereSizeValue')
+    if form.AdvancedOptionsButton.text() == "Show Advanced Options":
+        show_widgets(form, ADVANCED_OPTIONS_WIDGETS)
+        form.AdvancedOptionsButton.setText('Hide Advanced Options')
+        form.resize(400, 330)
+
+    else:
+        hide_widgets(form, ADVANCED_OPTIONS_WIDGETS)
+        form.AdvancedOptionsButton.setText('Show Advanced Options')
+        form.resize(400, 295)
+
+
+
+'''
+def display_advanced_options(form):
+    ADVANCED_OPTIONS_WIDGETS = ('phLabel', 'SphereSizeLabel', 'phValue',
+                                'SphereSizeSlider', 'SphereSizeValue')
+    SHOWBUTTON = ('ShowAdvancedOptionsCheck')
+    HIDEBUTTON = ('HideAdvancedOptionsCheck')
+    SHOWBUTTON = ('ShowAdvancedOptionsCheck', 'timeValue')
+    HIDEBUTTON = ('HideAdvancedOptionsCheck')
+    show_widgets(form, ADVANCED_OPTIONS_WIDGETS)
+    form.HideAdvancedOptionsCheck.show()
+    form.ShowAdvancedOptionsCheck.hide()
+    print('Shown')
+
+def hide_advanced_options(form):
+    ADVANCED_OPTIONS_WIDGETS = ('phLabel', 'SphereSizeLabel', 'phValue',
+                                'SphereSizeSlider', 'SphereSizeValue')
+
+    hide_widgets(form, ADVANCED_OPTIONS_WIDGETS)
+    form.HideAdvancedOptionsCheck.hide()
+    form.ShowAdvancedOptionsCheck.show()
+    print('Hidden')
+'''
+#'HideAdvOpLayout', 'pHandTimeLayout', , 'SphereLayout'
+
+
+def slider_settings(form):
+    form.SphereSizeSlider.setMinimum(10)
+    form.SphereSizeSlider.setMaximum(60)
+    form.SphereSizeSlider.setValue(20)
+    form.SphereSizeValue.setText(str(20)+"Å")
+    #form.SphereSizeSlider.setTickInterval(20)
+    #form.SphereSizeSlider.setTickPosition(QSlider.TicksBelow)
+
+
+def change_slider_value(form):
+    global sphereValue
+    sphereValue = int(form.SphereSizeSlider.value())
+    form.SphereSizeValue.setText(str(sphereValue) + ' Å')
+
+def change_slider_position(form):
+    global sphereValue
+    sphereValue = int(''.join(x for x in form.SphereSizeValue.text() if x.isdigit()))
+    form.SphereSizeSlider.setValue(int(sphereValue))
+    print("Set Sphere Size: " + str(sphereValue) + ' Å')
+
+
+def pHvariable_settings(form):
+    form.phValue.setText('7.0')
+    global pH
+    pH = float(form.phValue.text())
+
+
+def change_pHvariable(form):
+    global pH
+    pH = float(form.phValue.text())
+    print('pH set to: ' + str(pH))
+
+
+#Changes view depending on selecting from PDB file or PyMOL object
 def update_view(form):
     PDB_FILE_WIDGETS = ('pdbFileLabel', 'pdbFileEdit', 'pdbFileBrowseButton')
     PYMOL_OBJECT_WIDGETS = ('pymolObjectLabel', 'pymolObjectCombo')
+
+
     if form.pdbFileRadio.isChecked():
         show_widgets(form, PDB_FILE_WIDGETS)
         hide_widgets(form, PYMOL_OBJECT_WIDGETS)
@@ -54,10 +185,15 @@ def update_view(form):
         hide_widgets(form, PDB_FILE_WIDGETS)
 
 
+
+
+
 def run_prep(form):
     import subprocess
     import sys
     import threads
+
+
 
     if validate_fields(form):
         return
