@@ -5,9 +5,10 @@ import re
 import ntpath
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
+import shutil
 
 object_file_name = "ERROR: no file selected"
-
+output_folder_status = "No folder selected"
 
 def __init_plugin__(app=None):
     from pymol.plugins import addmenuitemqt
@@ -43,22 +44,6 @@ def run_plugin_gui():
     dialog.show()
 
 
-'''
-class output_folder_popup(QDialog, Ui_popup):
-    def __init__(self, parent=None):
-        super(output_folder_popup, self).__init__(parent)
-        self.setupUi(self)
-
-    def pop_up_window(self):
-        widget = output_folder_popup()
-        widget.exec_()
-'''
-
-
-def test_function():
-    print("test")
-
-
 def pop_up_window():
     popUpDialog = pymol.Qt.QtWidgets.QDialog()
     pop_up_ui_file = os.path.join(os.path.dirname(__file__), 'ui_pop_up.ui')
@@ -69,30 +54,29 @@ def pop_up_window():
     popup.popUpText.setText("A folder named {0} already exists. Continuing will the delete folder, are you sure you want to continue?"
                             .format(object_file_name))
 
-    popup.pdbFileChoice.rejected.connect(lambda: popUpDialog.close)
-    popup.pdbFileChoice.accepted.connect(lambda: delete_pdb_folder())
-    popup.renameButton.clicked.connect(lambda: rename_pdb_folder())
+    popup.cancelButton.clicked.connect(lambda: popUpDialog.close())
+    popup.continueButton.clicked.connect(lambda: delete_pdb_folder(popup))
 
     #def close_dialog():
      #   popUpDialog.close
 
     popUpDialog.exec_()
-    popUpDialog.show()
+    #popUpDialog.show()
 
-
-def rename_pdb_folder(popup):
-    print("rename folder")
 
 def delete_pdb_folder(popup):
     print("delete folder")
 
-    QMessageBox.about("Message box", popup)
     verification = QMessageBox.question(popup, 'Are you sure?', "Are you sure?", QMessageBox.Yes | QMessageBox.No,
                                         QMessageBox.No)
     if verification == QMessageBox.Yes:
-        print('Yes clicked.')
-    else:
-        print('No clicked.')
+        print('Deleting folder at: ' + output_folder_status)
+        shutil.rmtree(output_folder_status)
+
+
+        popup.close()
+
+
 
 
 
@@ -122,6 +106,7 @@ def initialize_view(form):
 
 def advanced_options(form):
     global object_file_name
+    global output_folder_status
     if form.pymolObjectCombo.isVisible():
         object_file_name = form.pymolObjectCombo.currentText()
         if not object_file_name:
@@ -130,23 +115,20 @@ def advanced_options(form):
             output_folder_status = os.path.join(os.getcwd(), object_file_name)
             print(output_folder_status + " This is the folder being checked")
             if os.path.isdir(output_folder_status):
-                print("It appears you've already (attempted to) run prep.py with {0}. "
-                      "Delete folder {0} or rename pdb if you want to run it again."
-                      .format(object_file_name))
+                pop_up_window()
 
     elif form.pdbFileEdit.isVisible():
         object_file_path = form.pdbFileEdit.text()
         if not object_file_path.endswith(".pdb"):
             print("ERROR: file selected is not a .pdb")
         else:
-            object_file_name = os.path.basename(object_file_path)
+            object_file_name_extended = os.path.basename(object_file_path)
+            object_file_name = os.path.splitext(object_file_name_extended)[0]
             print(object_file_name + " is file selected")
             output_folder_status = os.path.join(os.getcwd(), object_file_name)
             print(output_folder_status + " This is folder being checked")
             if os.path.isdir(output_folder_status):
-                print("It appears you've already (attempted to) run prep.py with {0}. "
-                      "Delete folder {0} or rename pdb if you want to run it again."
-                      .format(object_file_name))
+                pop_up_window()
     else:
         print("combo or line edit not visible: ERROR")
 
