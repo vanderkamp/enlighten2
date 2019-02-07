@@ -1,12 +1,12 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import os
 import pymol
 import re
 import ntpath
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QMessageBox
 
-
-
+object_file_name = "ERROR: no file selected"
 
 
 def __init_plugin__(app=None):
@@ -15,7 +15,6 @@ def __init_plugin__(app=None):
 
 
 def run_plugin_gui():
-
     dialog = pymol.Qt.QtWidgets.QDialog()
     ui_file = os.path.join(os.path.dirname(__file__), 'ui_form2.ui')
     form = pymol.Qt.utils.loadUi(ui_file, dialog)
@@ -27,7 +26,8 @@ def run_plugin_gui():
     bind_directory_dialog(form.outputEdit, form.outputBrowseButton)
 
     form.runPrepButton.clicked.connect(lambda: run_prep(form))
-    form.websiteButton.clicked.connect(open_enlighten_website)
+    # form.websiteButton.clicked.connect(open_enlighten_website)
+    form.websiteButton.clicked.connect(lambda: pop_up_window())
 
     form.AdvancedOptionsButton.clicked.connect(lambda: advanced_options(form))
 
@@ -39,9 +39,60 @@ def run_plugin_gui():
     pHvariable_settings(form)
     slider_settings(form)
     initialize_view(form)
-    #display_advanced_options(form)
+    # display_advanced_options(form)
     dialog.show()
 
+
+'''
+class output_folder_popup(QDialog, Ui_popup):
+    def __init__(self, parent=None):
+        super(output_folder_popup, self).__init__(parent)
+        self.setupUi(self)
+
+    def pop_up_window(self):
+        widget = output_folder_popup()
+        widget.exec_()
+'''
+
+
+def test_function():
+    print("test")
+
+
+def pop_up_window():
+    popUpDialog = pymol.Qt.QtWidgets.QDialog()
+    pop_up_ui_file = os.path.join(os.path.dirname(__file__), 'ui_pop_up.ui')
+    popup = pymol.Qt.utils.loadUi(pop_up_ui_file, popUpDialog)
+
+    global object_file_name
+
+    popup.popUpText.setText("A folder named {0} already exists. Continuing will the delete folder, are you sure you want to continue?"
+                            .format(object_file_name))
+
+    popup.pdbFileChoice.rejected.connect(lambda: popUpDialog.close)
+    popup.pdbFileChoice.accepted.connect(lambda: delete_pdb_folder())
+    popup.renameButton.clicked.connect(lambda: rename_pdb_folder())
+
+    #def close_dialog():
+     #   popUpDialog.close
+
+    popUpDialog.exec_()
+    popUpDialog.show()
+
+
+def rename_pdb_folder(popup):
+    print("rename folder")
+
+def delete_pdb_folder(popup):
+    print("delete folder")
+
+    QMessageBox.about("Message box", popup)
+    verification = QMessageBox.question(popup, 'Are you sure?', "Are you sure?", QMessageBox.Yes | QMessageBox.No,
+                                        QMessageBox.No)
+    if verification == QMessageBox.Yes:
+        print('Yes clicked.')
+    else:
+        print('No clicked.')
 
 
 
@@ -50,7 +101,7 @@ def initialize_view(form):
     form.pymolObjectRadio.setChecked(True)
     objects = pymol.cmd.get_names('objects')
     form.pymolObjectCombo.addItems(objects)
-    form.pymolObjectCombo.setCurrentIndex(len(objects)-1)
+    form.pymolObjectCombo.setCurrentIndex(len(objects) - 1)
 
     enlighten_dir = os.getenv('ENLIGHTEN',
                               "Please specify ENLIGHTEN home directory")
@@ -70,7 +121,7 @@ def initialize_view(form):
 
 
 def advanced_options(form):
-
+    global object_file_name
     if form.pymolObjectCombo.isVisible():
         object_file_name = form.pymolObjectCombo.currentText()
         if not object_file_name:
@@ -80,8 +131,8 @@ def advanced_options(form):
             print(output_folder_status + " This is the folder being checked")
             if os.path.isdir(output_folder_status):
                 print("It appears you've already (attempted to) run prep.py with {0}. "
-                       "Delete folder {0} or rename pdb if you want to run it again."
-                    .format(object_file_name))
+                      "Delete folder {0} or rename pdb if you want to run it again."
+                      .format(object_file_name))
 
     elif form.pdbFileEdit.isVisible():
         object_file_path = form.pdbFileEdit.text()
@@ -112,7 +163,6 @@ def advanced_options(form):
         form.resize(400, 295)
 
 
-
 '''
 def display_advanced_options(form):
     ADVANCED_OPTIONS_WIDGETS = ('phLabel', 'SphereSizeLabel', 'phValue',
@@ -135,22 +185,25 @@ def hide_advanced_options(form):
     form.ShowAdvancedOptionsCheck.show()
     print('Hidden')
 '''
-#'HideAdvOpLayout', 'pHandTimeLayout', , 'SphereLayout'
+
+
+# 'HideAdvOpLayout', 'pHandTimeLayout', , 'SphereLayout'
 
 
 def slider_settings(form):
     form.SphereSizeSlider.setMinimum(10)
     form.SphereSizeSlider.setMaximum(60)
     form.SphereSizeSlider.setValue(20)
-    form.SphereSizeValue.setText(str(20)+"Å")
-    #form.SphereSizeSlider.setTickInterval(20)
-    #form.SphereSizeSlider.setTickPosition(QSlider.TicksBelow)
+    form.SphereSizeValue.setText(str(20) + "Å")
+    # form.SphereSizeSlider.setTickInterval(20)
+    # form.SphereSizeSlider.setTickPosition(QSlider.TicksBelow)
 
 
 def change_slider_value(form):
     global sphereValue
     sphereValue = int(form.SphereSizeSlider.value())
     form.SphereSizeValue.setText(str(sphereValue) + ' Å')
+
 
 def change_slider_position(form):
     global sphereValue
@@ -171,11 +224,10 @@ def change_pHvariable(form):
     print('pH set to: ' + str(pH))
 
 
-#Changes view depending on selecting from PDB file or PyMOL object
+# Changes view depending on selecting from PDB file or PyMOL object
 def update_view(form):
     PDB_FILE_WIDGETS = ('pdbFileLabel', 'pdbFileEdit', 'pdbFileBrowseButton')
     PYMOL_OBJECT_WIDGETS = ('pymolObjectLabel', 'pymolObjectCombo')
-
 
     if form.pdbFileRadio.isChecked():
         show_widgets(form, PDB_FILE_WIDGETS)
@@ -185,15 +237,10 @@ def update_view(form):
         hide_widgets(form, PDB_FILE_WIDGETS)
 
 
-
-
-
 def run_prep(form):
     import subprocess
     import sys
     import threads
-
-
 
     if validate_fields(form):
         return
@@ -222,6 +269,7 @@ def run_prep(form):
                           prepThread.error)
         else:
             info_message(form, prepThread.output)
+
     prepThread.finished.connect(prep_done)
 
     form.runPrepButton.setText("Running...")
