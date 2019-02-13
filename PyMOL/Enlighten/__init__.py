@@ -7,8 +7,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
 import shutil
 
-object_file_name = "ERROR: no file selected"
-output_folder_status = "No folder selected"
+
 
 def __init_plugin__(app=None):
     from pymol.plugins import addmenuitemqt
@@ -27,8 +26,8 @@ def run_plugin_gui():
     bind_directory_dialog(form.outputEdit, form.outputBrowseButton)
 
     form.runPrepButton.clicked.connect(lambda: run_prep(form))
-    # form.websiteButton.clicked.connect(open_enlighten_website)
-    form.websiteButton.clicked.connect(lambda: pop_up_window())
+    form.websiteButton.clicked.connect(open_enlighten_website)
+    #form.websiteButton.clicked.connect(lambda: pop_up_window())
 
     form.AdvancedOptionsButton.clicked.connect(lambda: advanced_options(form))
 
@@ -40,45 +39,46 @@ def run_plugin_gui():
     pHvariable_settings(form)
     slider_settings(form)
     initialize_view(form)
-    # display_advanced_options(form)
+    #display_advanced_options(form)
+
     dialog.show()
 
-
-def pop_up_window():
+'''
+def external_advanced_options():
     popUpDialog = pymol.Qt.QtWidgets.QDialog()
     pop_up_ui_file = os.path.join(os.path.dirname(__file__), 'ui_pop_up.ui')
     popup = pymol.Qt.utils.loadUi(pop_up_ui_file, popUpDialog)
 
     global object_file_name
 
-    popup.popUpText.setText("A folder named {0} already exists. Continuing will the delete folder, are you sure you want to continue?"
+    popup.popUpText.setText("A folder named {0} already exists. Continuing will"
+                            " the delete folder, are you sure you want to "
+                            "continue?"
                             .format(object_file_name))
 
     popup.cancelButton.clicked.connect(lambda: popUpDialog.close())
     popup.continueButton.clicked.connect(lambda: delete_pdb_folder(popup))
 
-    #def close_dialog():
-     #   popUpDialog.close
-
     popUpDialog.exec_()
-    #popUpDialog.show()
+'''
+
+def pop_up_window(popup):
+    delete_pdb_verification = QMessageBox.question(popup, 'Are you sure?',
+                                        "Are you sure?",
+                                        QMessageBox.Yes | QMessageBox.No,
+                                        QMessageBox.No)
+    if delete_pdb_verification == QMessageBox.Yes:
+        delete_pdb_folder()
 
 
 def delete_pdb_folder(popup):
     print("delete folder")
-
-    verification = QMessageBox.question(popup, 'Are you sure?', "Are you sure?", QMessageBox.Yes | QMessageBox.No,
-                                        QMessageBox.No)
-    if verification == QMessageBox.Yes:
-        print('Deleting folder at: ' + output_folder_status)
+    pdb_name = '.'.join(args.pdb.name.split('.')[:-1])
+    if os.path.isdir(pdb_name):
         shutil.rmtree(output_folder_status)
-
-
-        popup.close()
-
-
-
-
+        print('Deleting folder at: ' + output_folder_status)
+    else:
+        print("Folder no longer exists")
 
 
 def initialize_view(form):
@@ -103,70 +103,29 @@ def initialize_view(form):
     hide_widgets(form, ADVANCED_OPTIONS_WIDGETS)
     form.resize(400, 295)
 
+    form.runStructButton.setEnabled(False)
+    form.runDynamButton.setEnabled(False)
+    form.advOpFrame.hide()
+
 
 def advanced_options(form):
-    global object_file_name
-    global output_folder_status
-    if form.pymolObjectCombo.isVisible():
-        object_file_name = form.pymolObjectCombo.currentText()
-        if not object_file_name:
-            print("No object is selected")
-        else:
-            output_folder_status = os.path.join(os.getcwd(), object_file_name)
-            print(output_folder_status + " This is the folder being checked")
-            if os.path.isdir(output_folder_status):
-                pop_up_window()
-
-    elif form.pdbFileEdit.isVisible():
-        object_file_path = form.pdbFileEdit.text()
-        if not object_file_path.endswith(".pdb"):
-            print("ERROR: file selected is not a .pdb")
-        else:
-            object_file_name_extended = os.path.basename(object_file_path)
-            object_file_name = os.path.splitext(object_file_name_extended)[0]
-            print(object_file_name + " is file selected")
-            output_folder_status = os.path.join(os.getcwd(), object_file_name)
-            print(output_folder_status + " This is folder being checked")
-            if os.path.isdir(output_folder_status):
-                pop_up_window()
-    else:
-        print("combo or line edit not visible: ERROR")
 
     ADVANCED_OPTIONS_WIDGETS = ('phLabel', 'SphereSizeLabel', 'phValue',
                                 'SphereSizeSlider', 'SphereSizeValue')
-    if form.AdvancedOptionsButton.text() == "Show Advanced Options":
+    if form.AdvancedOptionsButton.text() == 'Show Advanced Options':
+        form.advOpFrame.show()
         show_widgets(form, ADVANCED_OPTIONS_WIDGETS)
         form.AdvancedOptionsButton.setText('Hide Advanced Options')
-        form.resize(400, 330)
+        form.resize(405, 360)
+
 
     else:
+        form.advOpFrame.hide()
         hide_widgets(form, ADVANCED_OPTIONS_WIDGETS)
         form.AdvancedOptionsButton.setText('Show Advanced Options')
-        form.resize(400, 295)
+        form.resize(405, 295)
 
 
-'''
-def display_advanced_options(form):
-    ADVANCED_OPTIONS_WIDGETS = ('phLabel', 'SphereSizeLabel', 'phValue',
-                                'SphereSizeSlider', 'SphereSizeValue')
-    SHOWBUTTON = ('ShowAdvancedOptionsCheck')
-    HIDEBUTTON = ('HideAdvancedOptionsCheck')
-    SHOWBUTTON = ('ShowAdvancedOptionsCheck', 'timeValue')
-    HIDEBUTTON = ('HideAdvancedOptionsCheck')
-    show_widgets(form, ADVANCED_OPTIONS_WIDGETS)
-    form.HideAdvancedOptionsCheck.show()
-    form.ShowAdvancedOptionsCheck.hide()
-    print('Shown')
-
-def hide_advanced_options(form):
-    ADVANCED_OPTIONS_WIDGETS = ('phLabel', 'SphereSizeLabel', 'phValue',
-                                'SphereSizeSlider', 'SphereSizeValue')
-
-    hide_widgets(form, ADVANCED_OPTIONS_WIDGETS)
-    form.HideAdvancedOptionsCheck.hide()
-    form.ShowAdvancedOptionsCheck.show()
-    print('Hidden')
-'''
 
 
 # 'HideAdvOpLayout', 'pHandTimeLayout', , 'SphereLayout'
@@ -219,6 +178,14 @@ def update_view(form):
         hide_widgets(form, PDB_FILE_WIDGETS)
 
 
+def pdb_folder_existence(form, pdb_selected):
+    pdb_folder = write_object_to_pdb(os.path.basename(pdb_selected))
+    print("this is file name variable: " + pdb_folder)
+    output_folder = os.path.join(form.outputEdit.text, pdb_folder)
+    if os.path.isdir(output_folder):
+        pop_up_window()
+
+
 def run_prep(form):
     import subprocess
     import sys
@@ -229,8 +196,11 @@ def run_prep(form):
 
     if form.pdbFileRadio.isChecked():
         pdb_file = form.pdbFileEdit.text()
+        pdb_folder_existence(form, form.pdbFileEdit.text())
     else:
         pdb_file = write_object_to_pdb(form.pymolObjectCombo.currentText())
+        pdb_folder_existence(form, form.pymolObjectCombo.currentText())
+
 
     ligand_name = form.ligandNameEdit.text()
     ligand_charge = form.ligandChargeEdit.text()
@@ -245,18 +215,40 @@ def run_prep(form):
     def prep_done():
         form.runPrepButton.setText("Run PREP")
         form.runPrepButton.setEnabled(True)
+        form.runStructButton.setEnabled(True)
         if prepThread.error:
             error_message(form,
                           "The following errors were encountered:\n" +
                           prepThread.error)
         else:
             info_message(form, prepThread.output)
+            form.runPrepButton.setEnabled(False)
 
     prepThread.finished.connect(prep_done)
 
     form.runPrepButton.setText("Running...")
-    form.runPrepButton.setEnabled(False)
+
     prepThread.start()
+
+
+def run_struct():
+    print("running STRUCT")
+    form.runStructButton.setEnabled(False)
+
+    def struct_done():
+        print("STRUCT done")
+        form.runStructButton.setEnabled(True)
+        form.runDynamButton.setEnabled(True)
+
+
+
+def run_dynam():
+    print("running DYNAM")
+    form.runDynamButton.setEnabled(False)
+
+    def dynam_done():
+        print("DYNAM is done")
+        form.runDynamButton.setEnabled(True)
 
 
 def write_object_to_pdb(object_name):
