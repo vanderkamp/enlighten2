@@ -26,7 +26,7 @@ def run_plugin_gui():
     form.runPrepButton.clicked.connect(lambda: run_prep(form))
     form.websiteButton.clicked.connect(open_enlighten_website)
 
-    form.AdvancedOptionsButton.clicked.connect(lambda: advanced_options(form))
+    form.AdvancedOptionsButton.clicked.connect(lambda: advanced_options(form, define_adv_op_widgets()))
 
     form.SphereSizeSlider.sliderReleased.connect(lambda: change_slider_value(
         form, form.SphereSizeSlider.value()))
@@ -34,11 +34,10 @@ def run_plugin_gui():
 
     form.phValue.textChanged.connect(lambda: change_ph_variable(form,
                                                                form.phValue.text()))
-    '''
-    move code
+
     bind_directory_dialog(form.enlightenEdit, form.enlightenBrowseButton)
     bind_directory_dialog(form.amberEdit, form.amberBrowseButton)
-    '''
+
 
     adv_op_settings(form)
     initialize_view(form)
@@ -52,36 +51,43 @@ def initialize_view(form):
     objects = pymol.cmd.get_names('objects')
     form.pymolObjectCombo.addItems(objects)
     form.pymolObjectCombo.setCurrentIndex(len(objects) - 1)
-    '''
+
     enlighten_dir = os.getenv('ENLIGHTEN',
                               "Please specify ENLIGHTEN home directory")
     form.enlightenEdit.setText(enlighten_dir)
 
     amber_dir = os.getenv('AMBERHOME', "Please specify AMBER home directory")
     form.amberEdit.setText(amber_dir)
-    '''
+
     form.outputEdit.setText(os.getcwd())
     form.ligandChargeEdit.setValidator(pymol.Qt.QtGui.QIntValidator())
     form.ligandChargeEdit.setText("0")
 
-    advanced_options_widgets = ('phLabel', 'SphereSizeLabel', 'phValue',
-                                'SphereSizeSlider', 'SphereSizeValue')
-    hide_widgets(form, advanced_options_widgets)
+    hide_widgets(form, define_adv_op_widgets())
     form.resize(500, 320)
 
     form.advOpFrame.hide()
 
 
-def advanced_options(form):
-
+def define_adv_op_widgets():
     advanced_options_widgets = ('phLabel', 'SphereSizeLabel', 'phValue',
-                                'SphereSizeSlider', 'SphereSizeValue')
+                                'SphereSizeSlider', 'SphereSizeValue',
+                                'enlightenLabel', 'enlightenEdit',
+                                'enlightenBrowseButton', 'amberLabel',
+                                'amberEdit', 'amberBrowseButton')
+    return advanced_options_widgets
+
+
+def advanced_options(form, advanced_options_widgets):
+
     if form.AdvancedOptionsButton.text() == 'Advanced... ':
+        form.resize(500, 370)
         form.advOpFrame.show()
         show_widgets(form, advanced_options_widgets)
         form.AdvancedOptionsButton.setText('Advanced...')
 
     else:
+        form.resize(500, 320)
         form.advOpFrame.hide()
         hide_widgets(form, advanced_options_widgets)
         form.AdvancedOptionsButton.setText('Advanced... ')
@@ -112,15 +118,15 @@ def change_ph_variable(form, pH):
 
 
 def update_view(form):
-    PDB_FILE_WIDGETS = ('pdbFileLabel', 'pdbFileEdit', 'pdbFileBrowseButton')
-    PYMOL_OBJECT_WIDGETS = ('pymolObjectLabel', 'pymolObjectCombo')
+    pdb_file_widgets = ('pdbFileLabel', 'pdbFileEdit', 'pdbFileBrowseButton')
+    pymol_object_widgets = ('pymolObjectLabel', 'pymolObjectCombo')
 
     if form.pdbFileRadio.isChecked():
-        show_widgets(form, PDB_FILE_WIDGETS)
-        hide_widgets(form, PYMOL_OBJECT_WIDGETS)
+        show_widgets(form, pdb_file_widgets)
+        hide_widgets(form, pymol_object_widgets)
     else:
-        show_widgets(form, PYMOL_OBJECT_WIDGETS)
-        hide_widgets(form, PDB_FILE_WIDGETS)
+        show_widgets(form, pymol_object_widgets)
+        hide_widgets(form, pdb_file_widgets)
 
 
 def run_prep(form):
