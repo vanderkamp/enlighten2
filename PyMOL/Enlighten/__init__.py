@@ -26,7 +26,10 @@ def run_plugin_gui():
     form.runPrepButton.clicked.connect(lambda: run_prep(form))
     form.websiteButton.clicked.connect(open_enlighten_website)
 
-    form.AdvancedOptionsButton.clicked.connect(lambda: advanced_options(form, define_adv_op_widgets()))
+    form.AdvancedOptionsButton.clicked.connect(lambda: advanced_options(
+                                                form, define_adv_op_widgets()))
+    form.AdvancedOptionsButton.clicked.connect(lambda:
+                                                    external_advanced_options())
 
     form.SphereSizeSlider.sliderReleased.connect(lambda: change_slider_value(
         form, form.SphereSizeSlider.value()))
@@ -38,10 +41,8 @@ def run_plugin_gui():
     bind_directory_dialog(form.enlightenEdit, form.enlightenBrowseButton)
     bind_directory_dialog(form.amberEdit, form.amberBrowseButton)
 
-
     adv_op_settings(form)
     initialize_view(form)
-
 
     dialog.show()
 
@@ -108,9 +109,10 @@ def change_slider_value(form, sphereValue):
 
 
 def change_slider_position(form):
-    sphereValue = int(''.join(x for x in form.SphereSizeValue.text() if x.isdigit()))
-    form.SphereSizeSlider.setValue(int(sphereValue))
-    print("Set Sphere Size: " + str(sphereValue) + ' Å')
+    sphere_value = int(''.join(x for x in form.SphereSizeValue.text() if
+                              x.isdigit()))
+    form.SphereSizeSlider.setValue(int(sphere_value))
+    print("Set Sphere Size: " + str(sphere_value) + ' Å')
 
 
 def change_ph_variable(form, pH):
@@ -308,21 +310,24 @@ def assign_filename(lineEdit):
 def assign_directory(lineEdit):
     lineEdit.setText(pymol.Qt.QtWidgets.QFileDialog.getExistingDirectory())
 
-'''
+
 def external_advanced_options():
-    popUpDialog = pymol.Qt.QtWidgets.QDialog()
-    pop_up_ui_file = os.path.join(os.path.dirname(__file__), 'ui_pop_up.ui')
-    popup = pymol.Qt.utils.loadUi(pop_up_ui_file, popUpDialog)
+    external_options = pymol.Qt.QtWidgets.QDialog()
+    adv_op_ui_file = os.path.join(os.path.dirname(__file__), 'ui_advoptions.ui')
+    popup = pymol.Qt.utils.loadUi(adv_op_ui_file, external_options)
 
-    global object_file_name
+    popup.SphereSizeSlider.sliderReleased.connect(lambda: change_slider_value(
+        popup, popup.SphereSizeSlider.value()))
+    popup.SphereSizeValue.textChanged.connect(lambda: change_slider_position(
+        popup))
 
-    popup.popUpText.setText("A folder named {0} already exists. Continuing will"
-                            " the delete folder, are you sure you want to "
-                            "continue?"
-                            .format(object_file_name))
+    popup.phValue.textChanged.connect(lambda: change_ph_variable(popup,
+                                                               popup.phValue.text()))
 
-    popup.cancelButton.clicked.connect(lambda: popUpDialog.close())
-    popup.continueButton.clicked.connect(lambda: delete_pdb_folder(popup))
+    bind_directory_dialog(popup.enlightenEdit, popup.enlightenBrowseButton)
+    bind_directory_dialog(popup.amberEdit, popup.amberBrowseButton)
 
-    popUpDialog.exec_()
-'''
+    adv_op_settings(popup)
+
+    external_options.exec_()
+
