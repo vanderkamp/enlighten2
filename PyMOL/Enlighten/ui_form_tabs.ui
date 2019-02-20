@@ -33,6 +33,35 @@
        <item row="6" column="2" colspan="3">
         <widget class="QLineEdit" name="enlightenEdit"/>
        </item>
+       <item row="7" column="1">
+        <widget class="QLabel" name="amberLabel">
+         <property name="text">
+          <string>AMBER folder</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="5">
+        <widget class="QPushButton" name="amberBrowseButton">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>40</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>...</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="2" colspan="3">
+        <widget class="QLineEdit" name="amberEdit"/>
+       </item>
        <item row="6" column="5">
         <widget class="QPushButton" name="enlightenBrowseButton">
          <property name="sizePolicy">
@@ -58,26 +87,6 @@
           <string>Enlighten folder</string>
          </property>
         </widget>
-       </item>
-       <item row="5" column="3">
-        <widget class="QCheckBox" name="checkBox">
-         <property name="text">
-          <string>Run equilibration (struct.py)</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="4" colspan="2">
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>300</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
        </item>
        <item row="4" column="1" colspan="5">
         <layout class="QHBoxLayout" name="ligandLayout">
@@ -194,25 +203,6 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="5">
-        <widget class="QPushButton" name="outputBrowseButton">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>40</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>...</string>
-         </property>
-        </widget>
-       </item>
        <item row="1" column="2" colspan="4">
         <widget class="QComboBox" name="pymolObjectCombo">
          <property name="enabled">
@@ -233,7 +223,7 @@
          </property>
         </widget>
        </item>
-       <item row="9" column="1" colspan="5">
+       <item row="12" column="1" colspan="5">
         <layout class="QHBoxLayout" name="buttonsLayout">
          <item>
           <widget class="QPushButton" name="runPrepButton">
@@ -260,19 +250,6 @@
        </item>
        <item row="3" column="2" colspan="3">
         <widget class="QLineEdit" name="outputEdit"/>
-       </item>
-       <item row="5" column="1">
-        <spacer name="horizontalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
        </item>
        <item row="2" column="2" colspan="3">
         <widget class="QLineEdit" name="pdbFileEdit"/>
@@ -386,15 +363,8 @@
          </layout>
         </widget>
        </item>
-       <item row="7" column="1">
-        <widget class="QLabel" name="amberLabel">
-         <property name="text">
-          <string>AMBER folder</string>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="5">
-        <widget class="QPushButton" name="amberBrowseButton">
+       <item row="3" column="5">
+        <widget class="QPushButton" name="outputBrowseButton">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -412,8 +382,12 @@
          </property>
         </widget>
        </item>
-       <item row="7" column="2" colspan="3">
-        <widget class="QLineEdit" name="amberEdit"/>
+       <item row="9" column="1">
+        <widget class="QCheckBox" name="checkBox">
+         <property name="text">
+          <string>Run equilibration (struct.py)</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>

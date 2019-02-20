@@ -6,6 +6,7 @@ import ntpath
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
 import shutil
+from os import environ
 
 
 
@@ -18,6 +19,8 @@ def run_plugin_gui():
     dialog = pymol.Qt.QtWidgets.QDialog()
     ui_file = os.path.join(os.path.dirname(__file__), 'ui_form.ui')
     form = pymol.Qt.utils.loadUi(ui_file, dialog)
+
+    check_environ_variables()
 
     form.pymolObjectRadio.toggled.connect(lambda: update_view(form))
     bind_file_dialog(form.pdbFileEdit, form.pdbFileBrowseButton)
@@ -53,12 +56,7 @@ def initialize_view(form):
     form.pymolObjectCombo.addItems(objects)
     form.pymolObjectCombo.setCurrentIndex(len(objects) - 1)
 
-    enlighten_dir = os.getenv('ENLIGHTEN',
-                              "Please specify ENLIGHTEN home directory")
-    form.enlightenEdit.setText(enlighten_dir)
-
-    amber_dir = os.getenv('AMBERHOME', "Please specify AMBER home directory")
-    form.amberEdit.setText(amber_dir)
+    initiate_home_directories(form)
 
     form.outputEdit.setText(os.getcwd())
     form.ligandChargeEdit.setValidator(pymol.Qt.QtGui.QIntValidator())
@@ -68,6 +66,15 @@ def initialize_view(form):
     form.resize(500, 320)
 
     form.advOpFrame.hide()
+
+
+def initiate_home_directories(form):
+    enlighten_dir = os.getenv('ENLIGHTEN',
+                              "Please specify ENLIGHTEN home directory")
+    form.enlightenEdit.setText(enlighten_dir)
+
+    amber_dir = os.getenv('AMBERHOME', "Please specify AMBER home directory")
+    form.amberEdit.setText(amber_dir)
 
 
 def define_adv_op_widgets():
@@ -328,6 +335,52 @@ def external_advanced_options():
     bind_directory_dialog(popup.amberEdit, popup.amberBrowseButton)
 
     adv_op_settings(popup)
+    initiate_home_directories(popup)
 
-    external_options.exec_()
+    '''which should I use, exec_ or show'''
+    #external_options.exec_()
+    external_options.show()
 
+
+def check_environ_variables():
+    if environ.get('ENLIGHTEN') is None or environ.get('AMBERHOME') is \
+            None:
+        set_environ_window()
+
+
+def set_environ_window():
+    set_environmental_variables = pymol.Qt.QtWidgets.QDialog()
+    set_environ_ui_file = os.path.join(os.path.dirname(__file__),
+                                   'ui_set_environ.ui')
+    env_window = pymol.Qt.utils.loadUi(set_environ_ui_file,
+                                                set_environmental_variables)
+
+    bind_directory_dialog(env_window.enlightenEdit,
+                          env_window.enlightenBrowseButton)
+    bind_directory_dialog(env_window.amberEdit, env_window.amberBrowseButton)
+
+    env_window.setEnvironLabel.setText("Environmental variables not found: "
+                                       "Please set the location of your Amber and "
+                                       "Enlighten installation directories")
+
+    initiate_home_directories(env_window)
+
+    env_window.buttonBox.accepted.connect(lambda: set_installation_paths(
+        env_window, set_environmental_variables))
+
+    set_environmental_variables.exec_()
+
+
+def set_installation_paths(env_window, set_environmental_variables):
+    if os.path.isdir(env_window.enlightenEdit.text()):
+        os.environ["ENLIGHTEN"] = env_window.enlightenEdit.text()
+
+        if os.path.isdir(env_window.amberEdit.text()):
+            os.environ["AMBERHOME"] = env_window.amberEdit.text()
+            set_environmental_variables.close()
+        else:
+            QMessageBox.about(env_window, "Error", "Selected path for Amber is not a "
+                                         "directory")
+    else:
+        QMessageBox.about(env_window, "Error", "Selected path for Enlighten is not a "
+                                         "directory")
