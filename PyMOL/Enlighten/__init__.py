@@ -27,58 +27,21 @@ def run_plugin_gui():
 
     form.runPrepButton.clicked.connect(lambda: run_prep(form))
     form.websiteButton.clicked.connect(open_enlighten_website)
-    #form.websiteButton.clicked.connect(lambda: pop_up_window())
 
     form.AdvancedOptionsButton.clicked.connect(lambda: advanced_options(form))
 
-    form.SphereSizeSlider.sliderReleased.connect(lambda: change_slider_value(form))
+    form.SphereSizeSlider.sliderReleased.connect(lambda: change_slider_value(
+        form, form.SphereSizeSlider.value()))
     form.SphereSizeValue.textChanged.connect(lambda: change_slider_position(form))
 
-    form.phValue.textChanged.connect(lambda: change_pHvariable(form))
+    form.phValue.textChanged.connect(lambda: change_pHvariable(form, form.phValue.text))
 
-    pHvariable_settings(form)
-    slider_settings(form)
+
+    adv_op_settings(form)
     initialize_view(form)
-    #display_advanced_options(form)
+
 
     dialog.show()
-
-'''
-def external_advanced_options():
-    popUpDialog = pymol.Qt.QtWidgets.QDialog()
-    pop_up_ui_file = os.path.join(os.path.dirname(__file__), 'ui_pop_up.ui')
-    popup = pymol.Qt.utils.loadUi(pop_up_ui_file, popUpDialog)
-
-    global object_file_name
-
-    popup.popUpText.setText("A folder named {0} already exists. Continuing will"
-                            " the delete folder, are you sure you want to "
-                            "continue?"
-                            .format(object_file_name))
-
-    popup.cancelButton.clicked.connect(lambda: popUpDialog.close())
-    popup.continueButton.clicked.connect(lambda: delete_pdb_folder(popup))
-
-    popUpDialog.exec_()
-'''
-
-def pop_up_window(popup):
-    delete_pdb_verification = QMessageBox.question(popup, 'Are you sure?',
-                                        "Are you sure?",
-                                        QMessageBox.Yes | QMessageBox.No,
-                                        QMessageBox.No)
-    if delete_pdb_verification == QMessageBox.Yes:
-        delete_pdb_folder()
-
-
-def delete_pdb_folder(popup):
-    print("delete folder")
-    pdb_name = '.'.join(args.pdb.name.split('.')[:-1])
-    if os.path.isdir(pdb_name):
-        shutil.rmtree(output_folder_status)
-        print('Deleting folder at: ' + output_folder_status)
-    else:
-        print("Folder no longer exists")
 
 
 def initialize_view(form):
@@ -118,7 +81,6 @@ def advanced_options(form):
         form.AdvancedOptionsButton.setText('Hide Advanced Options')
         form.resize(405, 360)
 
-
     else:
         form.advOpFrame.hide()
         hide_widgets(form, ADVANCED_OPTIONS_WIDGETS)
@@ -126,46 +88,30 @@ def advanced_options(form):
         form.resize(405, 295)
 
 
-
-
-# 'HideAdvOpLayout', 'pHandTimeLayout', , 'SphereLayout'
-
-
-def slider_settings(form):
+def adv_op_settings(form):
     form.SphereSizeSlider.setMinimum(10)
     form.SphereSizeSlider.setMaximum(60)
     form.SphereSizeSlider.setValue(20)
     form.SphereSizeValue.setText(str(20) + "Å")
-    # form.SphereSizeSlider.setTickInterval(20)
-    # form.SphereSizeSlider.setTickPosition(QSlider.TicksBelow)
+
+    form.phValue.setText('7.0')
 
 
-def change_slider_value(form):
-    global sphereValue
-    sphereValue = int(form.SphereSizeSlider.value())
+def change_slider_value(form, sphereValue):
+    sphere_size = int(sphereValue)
     form.SphereSizeValue.setText(str(sphereValue) + ' Å')
 
 
 def change_slider_position(form):
-    global sphereValue
     sphereValue = int(''.join(x for x in form.SphereSizeValue.text() if x.isdigit()))
     form.SphereSizeSlider.setValue(int(sphereValue))
     print("Set Sphere Size: " + str(sphereValue) + ' Å')
 
 
-def pHvariable_settings(form):
-    form.phValue.setText('7.0')
-    global pH
-    pH = float(form.phValue.text())
-
-
-def change_pHvariable(form):
-    global pH
-    pH = float(form.phValue.text())
+def change_ph_variable(form, pH):
     print('pH set to: ' + str(pH))
 
 
-# Changes view depending on selecting from PDB file or PyMOL object
 def update_view(form):
     PDB_FILE_WIDGETS = ('pdbFileLabel', 'pdbFileEdit', 'pdbFileBrowseButton')
     PYMOL_OBJECT_WIDGETS = ('pymolObjectLabel', 'pymolObjectCombo')
@@ -178,14 +124,6 @@ def update_view(form):
         hide_widgets(form, PDB_FILE_WIDGETS)
 
 
-def pdb_folder_existence(form, pdb_selected):
-    pdb_folder = write_object_to_pdb(os.path.basename(pdb_selected))
-    print("this is file name variable: " + pdb_folder)
-    output_folder = os.path.join(form.outputEdit.text, pdb_folder)
-    if os.path.isdir(output_folder):
-        pop_up_window()
-
-
 def run_prep(form):
     import subprocess
     import sys
@@ -196,11 +134,16 @@ def run_prep(form):
 
     if form.pdbFileRadio.isChecked():
         pdb_file = form.pdbFileEdit.text()
-        pdb_folder_existence(form, form.pdbFileEdit.text())
+        set_pdb_folder_location(form, form.pdbFileEdit.text())
     else:
         pdb_file = write_object_to_pdb(form.pymolObjectCombo.currentText())
-        pdb_folder_existence(form, form.pymolObjectCombo.currentText())
+        set_pdb_folder_location(form, form.pymolObjectCombo.currentText())
 
+    if delete_pdb_verification is True:
+        delete_pdb_folder(output_path)
+    else:
+        print("exiting prep")
+        return
 
     ligand_name = form.ligandNameEdit.text()
     ligand_charge = form.ligandChargeEdit.text()
@@ -231,6 +174,39 @@ def run_prep(form):
     prepThread.start()
 
 
+def set_pdb_folder_location(form, pdb_selected):
+    if pdb_selected == form.pdbFileEdit.text():
+        pdb_folder = os.path.splitext(os.path.basename(str(pdb_selected)))[0]
+    else:
+        pdb_folder = pdb_selected
+
+    output_path = os.path.join(form.outputEdit.text(), pdb_folder)
+    check_pdb_folder_existence(form, output_path)
+
+
+def check_pdb_folder_existence(form, output_path):
+    if os.path.isdir(output_path):
+        pop_up_window(form, pdb_folder)
+
+
+def pop_up_window(form, pdb_folder):
+    delete_pdb_verification = QMessageBox.question(form, 'Warning',
+                                        "A folder named {0} already exists. "
+                                "Continuing will the delete folder, are you "
+                        "sure you want to continue?".format(pdb_folder),
+                                        QMessageBox.Yes | QMessageBox.No,
+                                        QMessageBox.No)
+    return delete_pdb_verification == QMessageBox.Yes
+
+
+def delete_pdb_folder(output_path):
+    if os.path.isdir(output_path):
+        shutil.rmtree(output_path)
+        print('Deleting folder at: ' + output_path)
+    else:
+        print("Folder no longer exists")
+
+
 def run_struct():
     print("running STRUCT")
     form.runStructButton.setEnabled(False)
@@ -239,7 +215,6 @@ def run_struct():
         print("STRUCT done")
         form.runStructButton.setEnabled(True)
         form.runDynamButton.setEnabled(True)
-
 
 
 def run_dynam():
@@ -346,3 +321,22 @@ def assign_filename(lineEdit):
 
 def assign_directory(lineEdit):
     lineEdit.setText(pymol.Qt.QtWidgets.QFileDialog.getExistingDirectory())
+
+'''
+def external_advanced_options():
+    popUpDialog = pymol.Qt.QtWidgets.QDialog()
+    pop_up_ui_file = os.path.join(os.path.dirname(__file__), 'ui_pop_up.ui')
+    popup = pymol.Qt.utils.loadUi(pop_up_ui_file, popUpDialog)
+
+    global object_file_name
+
+    popup.popUpText.setText("A folder named {0} already exists. Continuing will"
+                            " the delete folder, are you sure you want to "
+                            "continue?"
+                            .format(object_file_name))
+
+    popup.cancelButton.clicked.connect(lambda: popUpDialog.close())
+    popup.continueButton.clicked.connect(lambda: delete_pdb_folder(popup))
+
+    popUpDialog.exec_()
+'''
