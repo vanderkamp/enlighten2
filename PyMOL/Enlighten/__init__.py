@@ -16,13 +16,11 @@ def __init_plugin__(app=None):
 
 def run_plugin_gui():
     dialog = pymol.Qt.QtWidgets.QDialog()
-    ui_file = os.path.join(os.path.dirname(__file__), 'ui_form2.ui')
+    ui_file = os.path.join(os.path.dirname(__file__), 'ui_form.ui')
     form = pymol.Qt.utils.loadUi(ui_file, dialog)
 
     form.pymolObjectRadio.toggled.connect(lambda: update_view(form))
     bind_file_dialog(form.pdbFileEdit, form.pdbFileBrowseButton)
-    bind_directory_dialog(form.enlightenEdit, form.enlightenBrowseButton)
-    bind_directory_dialog(form.amberEdit, form.amberBrowseButton)
     bind_directory_dialog(form.outputEdit, form.outputBrowseButton)
 
     form.runPrepButton.clicked.connect(lambda: run_prep(form))
@@ -34,8 +32,13 @@ def run_plugin_gui():
         form, form.SphereSizeSlider.value()))
     form.SphereSizeValue.textChanged.connect(lambda: change_slider_position(form))
 
-    form.phValue.textChanged.connect(lambda: change_pHvariable(form, form.phValue.text))
-
+    form.phValue.textChanged.connect(lambda: change_ph_variable(form,
+                                                               form.phValue.text()))
+    '''
+    move code
+    bind_directory_dialog(form.enlightenEdit, form.enlightenBrowseButton)
+    bind_directory_dialog(form.amberEdit, form.amberBrowseButton)
+    '''
 
     adv_op_settings(form)
     initialize_view(form)
@@ -49,43 +52,39 @@ def initialize_view(form):
     objects = pymol.cmd.get_names('objects')
     form.pymolObjectCombo.addItems(objects)
     form.pymolObjectCombo.setCurrentIndex(len(objects) - 1)
-
+    '''
     enlighten_dir = os.getenv('ENLIGHTEN',
                               "Please specify ENLIGHTEN home directory")
     form.enlightenEdit.setText(enlighten_dir)
 
     amber_dir = os.getenv('AMBERHOME', "Please specify AMBER home directory")
     form.amberEdit.setText(amber_dir)
-
+    '''
     form.outputEdit.setText(os.getcwd())
     form.ligandChargeEdit.setValidator(pymol.Qt.QtGui.QIntValidator())
     form.ligandChargeEdit.setText("0")
 
-    ADVANCED_OPTIONS_WIDGETS = ('phLabel', 'SphereSizeLabel', 'phValue',
+    advanced_options_widgets = ('phLabel', 'SphereSizeLabel', 'phValue',
                                 'SphereSizeSlider', 'SphereSizeValue')
-    hide_widgets(form, ADVANCED_OPTIONS_WIDGETS)
-    form.resize(400, 295)
+    hide_widgets(form, advanced_options_widgets)
+    form.resize(500, 320)
 
-    form.runStructButton.setEnabled(False)
-    form.runDynamButton.setEnabled(False)
     form.advOpFrame.hide()
 
 
 def advanced_options(form):
 
-    ADVANCED_OPTIONS_WIDGETS = ('phLabel', 'SphereSizeLabel', 'phValue',
+    advanced_options_widgets = ('phLabel', 'SphereSizeLabel', 'phValue',
                                 'SphereSizeSlider', 'SphereSizeValue')
-    if form.AdvancedOptionsButton.text() == 'Show Advanced Options':
+    if form.AdvancedOptionsButton.text() == 'Advanced... ':
         form.advOpFrame.show()
-        show_widgets(form, ADVANCED_OPTIONS_WIDGETS)
-        form.AdvancedOptionsButton.setText('Hide Advanced Options')
-        form.resize(405, 360)
+        show_widgets(form, advanced_options_widgets)
+        form.AdvancedOptionsButton.setText('Advanced...')
 
     else:
         form.advOpFrame.hide()
-        hide_widgets(form, ADVANCED_OPTIONS_WIDGETS)
-        form.AdvancedOptionsButton.setText('Show Advanced Options')
-        form.resize(405, 295)
+        hide_widgets(form, advanced_options_widgets)
+        form.AdvancedOptionsButton.setText('Advanced... ')
 
 
 def adv_op_settings(form):
@@ -205,25 +204,6 @@ def delete_pdb_folder(output_path):
         print('Deleting folder at: ' + output_path)
     else:
         print("Folder no longer exists")
-
-
-def run_struct():
-    print("running STRUCT")
-    form.runStructButton.setEnabled(False)
-
-    def struct_done():
-        print("STRUCT done")
-        form.runStructButton.setEnabled(True)
-        form.runDynamButton.setEnabled(True)
-
-
-def run_dynam():
-    print("running DYNAM")
-    form.runDynamButton.setEnabled(False)
-
-    def dynam_done():
-        print("DYNAM is done")
-        form.runDynamButton.setEnabled(True)
 
 
 def write_object_to_pdb(object_name):
