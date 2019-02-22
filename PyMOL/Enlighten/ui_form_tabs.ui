@@ -360,6 +360,13 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Å</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
