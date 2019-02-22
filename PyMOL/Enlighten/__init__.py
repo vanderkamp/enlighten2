@@ -31,15 +31,13 @@ def run_plugin_gui():
 
     form.AdvancedOptionsButton.clicked.connect(lambda: advanced_options(
                                                 form, define_adv_op_widgets()))
-    form.AdvancedOptionsButton.clicked.connect(lambda:
-                                                    external_advanced_options())
+    form.AdvancedOptionsButton.clicked.connect(
+        lambda: external_advanced_options(form)
+    )
 
     form.SphereSizeSlider.sliderReleased.connect(lambda: change_slider_value(
         form, form.SphereSizeSlider.value()))
     form.SphereSizeValue.textChanged.connect(lambda: change_slider_position(form))
-
-    form.phValue.textChanged.connect(lambda: change_ph_variable(form,
-                                                               form.phValue.text()))
 
     bind_directory_dialog(form.enlightenEdit, form.enlightenBrowseButton)
     bind_directory_dialog(form.amberEdit, form.amberBrowseButton)
@@ -122,20 +120,15 @@ def change_slider_position(form):
     print("Set Sphere Size: " + str(sphere_value) + ' Å')
 
 
-def change_ph_variable(form, pH):
-    print('pH set to: ' + str(pH))
-
-
 def update_view(form):
-    pdb_file_widgets = ('pdbFileLabel', 'pdbFileEdit', 'pdbFileBrowseButton')
-    pymol_object_widgets = ('pymolObjectLabel', 'pymolObjectCombo')
-
+    PDB_FILE_WIDGETS = ('pdbFileLabel', 'pdbFileEdit', 'pdbFileBrowseButton')
+    PYMOL_OBJECT_WIDGETS = ('pymolObjectLabel', 'pymolObjectCombo')
     if form.pdbFileRadio.isChecked():
-        show_widgets(form, pdb_file_widgets)
-        hide_widgets(form, pymol_object_widgets)
+        show_widgets(form, PDB_FILE_WIDGETS)
+        hide_widgets(form, PYMOL_OBJECT_WIDGETS)
     else:
-        show_widgets(form, pymol_object_widgets)
-        hide_widgets(form, pdb_file_widgets)
+        show_widgets(form, PYMOL_OBJECT_WIDGETS)
+        hide_widgets(form, PDB_FILE_WIDGETS)
 
 
 def run_prep(form):
@@ -172,19 +165,16 @@ def run_prep(form):
     def prep_done():
         form.runPrepButton.setText("Run PREP")
         form.runPrepButton.setEnabled(True)
-        form.runStructButton.setEnabled(True)
         if prepThread.error:
             error_message(form,
                           "The following errors were encountered:\n" +
                           prepThread.error)
         else:
             info_message(form, prepThread.output)
-            form.runPrepButton.setEnabled(False)
-
     prepThread.finished.connect(prep_done)
 
     form.runPrepButton.setText("Running...")
-
+    form.runPrepButton.setEnabled(False)
     prepThread.start()
 
 
@@ -318,7 +308,7 @@ def assign_directory(lineEdit):
     lineEdit.setText(pymol.Qt.QtWidgets.QFileDialog.getExistingDirectory())
 
 
-def external_advanced_options():
+def external_advanced_options(form):
     external_options = pymol.Qt.QtWidgets.QDialog()
     adv_op_ui_file = os.path.join(os.path.dirname(__file__), 'ui_advoptions.ui')
     popup = pymol.Qt.utils.loadUi(adv_op_ui_file, external_options)
@@ -327,9 +317,8 @@ def external_advanced_options():
         popup, popup.SphereSizeSlider.value()))
     popup.SphereSizeValue.textChanged.connect(lambda: change_slider_position(
         popup))
-
     popup.phValue.textChanged.connect(lambda: change_ph_variable(popup,
-                                                               popup.phValue.text()))
+        popup.phValue.text()))
 
     bind_directory_dialog(popup.enlightenEdit, popup.enlightenBrowseButton)
     bind_directory_dialog(popup.amberEdit, popup.amberBrowseButton)
@@ -340,11 +329,11 @@ def external_advanced_options():
     '''which should I use, exec_ or show'''
     #external_options.exec_()
     external_options.show()
+    form.advanced_options_form = popup
 
 
 def check_environ_variables():
-    if environ.get('ENLIGHTEN') is None or environ.get('AMBERHOME') is \
-            None:
+    if not (environ.get('ENLIGHTEN') and environ.get('AMBERHOME')):
         set_environ_window()
 
 
