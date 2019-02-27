@@ -9,18 +9,34 @@ import shutil
 from os import environ
 
 
-
 def __init_plugin__(app=None):
     from pymol.plugins import addmenuitemqt
     addmenuitemqt('Enlighten', run_plugin_gui)
 
 
+class EnlightenForm(pymol.Qt.QtWidgets.QDialog):
+
+    def __init__(self):
+        super(EnlightenForm, self).__init__()
+        self.data = {
+            'ligand_name': '',
+            'ligand_charge': '0',
+            'ph': '7.0',
+            'sphere_size': '20',
+            'ENLIGHTEN': os.environ.get('ENLIGHTEN'),
+            'AMBERHOME': os.environ.get('AMBERHOME'),
+            'output_location': '',
+            'pdb_folder': ''
+        }
+
+
 def run_plugin_gui():
-    dialog = pymol.Qt.QtWidgets.QDialog()
+    dialog = EnlightenForm()
     ui_file = os.path.join(os.path.dirname(__file__), 'ui_form.ui')
     form = pymol.Qt.utils.loadUi(ui_file, dialog)
 
-    check_environ_variables()
+    if not check_environ_variables():
+        environ_popup_window(form)
 
     form.pymolObjectRadio.toggled.connect(lambda: update_view(form))
     bind_file_dialog(form.pdbFileEdit, form.pdbFileBrowseButton)
@@ -29,20 +45,9 @@ def run_plugin_gui():
     form.runPrepButton.clicked.connect(lambda: run_prep(form))
     form.websiteButton.clicked.connect(open_enlighten_website)
 
-    form.AdvancedOptionsButton.clicked.connect(lambda: advanced_options(
-                                                form, define_adv_op_widgets()))
     form.AdvancedOptionsButton.clicked.connect(
-        lambda: external_advanced_options(form)
-    )
+        lambda: advanced_popup_window(form))
 
-    form.SphereSizeSlider.sliderReleased.connect(lambda: change_slider_value(
-        form, form.SphereSizeSlider.value()))
-    form.SphereSizeValue.textChanged.connect(lambda: change_slider_position(form))
-
-    bind_directory_dialog(form.enlightenEdit, form.enlightenBrowseButton)
-    bind_directory_dialog(form.amberEdit, form.amberBrowseButton)
-
-    adv_op_settings(form)
     initialize_view(form)
 
     dialog.show()
@@ -54,70 +59,31 @@ def initialize_view(form):
     form.pymolObjectCombo.addItems(objects)
     form.pymolObjectCombo.setCurrentIndex(len(objects) - 1)
 
-    initiate_home_directories(form)
-
     form.outputEdit.setText(os.getcwd())
     form.ligandChargeEdit.setValidator(pymol.Qt.QtGui.QIntValidator())
-    form.ligandChargeEdit.setText("0")
-
-    hide_widgets(form, define_adv_op_widgets())
-    form.resize(500, 320)
-
-    form.advOpFrame.hide()
+    form.ligandChargeEdit.setText(form.data['ligand_charge'])
 
 
 def initiate_home_directories(form):
-    enlighten_dir = os.getenv('ENLIGHTEN',
+    form.data['ENLIGHTEN'] = os.getenv('ENLIGHTEN',
                               "Please specify ENLIGHTEN home directory")
-    form.enlightenEdit.setText(enlighten_dir)
+    print('ENLIGHTEN: ' + form.data['ENLIGHTEN'])
 
-    amber_dir = os.getenv('AMBERHOME', "Please specify AMBER home directory")
-    form.amberEdit.setText(amber_dir)
-
-
-def define_adv_op_widgets():
-    advanced_options_widgets = ('phLabel', 'SphereSizeLabel', 'phValue',
-                                'SphereSizeSlider', 'SphereSizeValue',
-                                'enlightenLabel', 'enlightenEdit',
-                                'enlightenBrowseButton', 'amberLabel',
-                                'amberEdit', 'amberBrowseButton')
-    return advanced_options_widgets
+    form.data['AMBERHOME'] = os.getenv('AMBERHOME', "Please specify AMBER home "
+                                           "directory")
+    print('AMBERHOME: ' + form.data['AMBERHOME'])
 
 
-def advanced_options(form, advanced_options_widgets):
+def display_home_directories(advanced_form, form):
+    advanced_form.enlightenEdit.setText(form.data['ENLIGHTEN'])
+    advanced_form.amberEdit.setText(form.data['AMBERHOME'])
 
-    if form.AdvancedOptionsButton.text() == 'Advanced... ':
-        form.resize(500, 370)
-        form.advOpFrame.show()
-        show_widgets(form, advanced_options_widgets)
-        form.AdvancedOptionsButton.setText('Advanced...')
-
-    else:
-        form.resize(500, 320)
-        form.advOpFrame.hide()
-        hide_widgets(form, advanced_options_widgets)
-        form.AdvancedOptionsButton.setText('Advanced... ')
+def change_sphere_text_edit_value(advanced_form, form, sphere_value):
+    advanced_form.SphereSizeValue.setText(str(sphere_value))
 
 
-def adv_op_settings(form):
-    form.SphereSizeSlider.setMinimum(10)
-    form.SphereSizeSlider.setMaximum(60)
-    form.SphereSizeSlider.setValue(20)
-    form.SphereSizeValue.setText(str(20) + "Å")
-
-    form.phValue.setText('7.0')
-
-
-def change_slider_value(form, sphereValue):
-    sphere_size = int(sphereValue)
-    form.SphereSizeValue.setText(str(sphereValue) + ' Å')
-
-
-def change_slider_position(form):
-    sphere_value = int(''.join(x for x in form.SphereSizeValue.text() if
-                              x.isdigit()))
-    form.SphereSizeSlider.setValue(int(sphere_value))
-    print("Set Sphere Size: " + str(sphere_value) + ' Å')
+def change_slider_position(advanced_form, form, sphere_value):
+    advanced_form.SphereSizeSlider.setValue(int(sphere_value))
 
 
 def update_view(form):
@@ -141,10 +107,16 @@ def run_prep(form):
 
     if form.pdbFileRadio.isChecked():
         pdb_file = form.pdbFileEdit.text()
-        set_pdb_folder_location(form, form.pdbFileEdit.text())
+        #set_pdb_folder_location(form, form.pdbFileEdit.text())
+        pdb_folder = os.path.splitext(os.path.basename(str(pdb_file)))[0]
     else:
-        pdb_file = write_object_to_pdb(form.pymolObjectCombo.currentText())
-        set_pdb_folder_location(form, form.pymolObjectCombo.currentText())
+        pdb_folder = write_object_to_pdb(form.pymolObjectCombo.currentText())
+        #set_pdb_folder_location(form, form.pymolObjectCombo.currentText())
+
+    output_path = os.path.join(form.outputEdit.text(), pdb_folder)
+
+    if os.path.isdir(output_path):
+        pop_up_window(form, pdb_folder)
 
     if delete_pdb_verification is True:
         delete_pdb_folder(output_path)
@@ -154,8 +126,8 @@ def run_prep(form):
 
     ligand_name = form.ligandNameEdit.text()
     ligand_charge = form.ligandChargeEdit.text()
-    enlighten = form.enlightenEdit.text()
-    amberhome = form.amberEdit.text()
+    enlighten = popup.enlightenEdit.text()
+    amberhome = popup.amberEdit.text()
     os.chdir(form.outputEdit.text())
     os.environ.update({'AMBERHOME': amberhome})
     prepThread = threads.SubprocessThread("{}/prep.py {} {} {}"
@@ -176,21 +148,6 @@ def run_prep(form):
     form.runPrepButton.setText("Running...")
     form.runPrepButton.setEnabled(False)
     prepThread.start()
-
-
-def set_pdb_folder_location(form, pdb_selected):
-    if pdb_selected == form.pdbFileEdit.text():
-        pdb_folder = os.path.splitext(os.path.basename(str(pdb_selected)))[0]
-    else:
-        pdb_folder = pdb_selected
-
-    output_path = os.path.join(form.outputEdit.text(), pdb_folder)
-    check_pdb_folder_existence(form, output_path)
-
-
-def check_pdb_folder_existence(form, output_path):
-    if os.path.isdir(output_path):
-        pop_up_window(form, pdb_folder)
 
 
 def pop_up_window(form, pdb_folder):
@@ -222,10 +179,13 @@ def open_enlighten_website():
     webbrowser.open_new("https://github.com/vanderkamp/enlighten2/")
 
 
-def validate_fields(form):
-    VALIDATORS = [pdb_validator, enlighten_validator,
-                  amber_validator, output_validator, ligand_validator]
-    results = [validator(form) for validator in VALIDATORS]
+def validate_main(form):
+    return validate_fields(form,
+                           [pdb_validator, output_validator, ligand_validator])
+
+
+def validate_fields(form, validators):
+    results = [validator(form) for validator in validators]
     errors = [result for result in results if result is not None]
     if errors:
         error_message(form,
@@ -308,36 +268,66 @@ def assign_directory(lineEdit):
     lineEdit.setText(pymol.Qt.QtWidgets.QFileDialog.getExistingDirectory())
 
 
-def external_advanced_options(form):
-    external_options = pymol.Qt.QtWidgets.QDialog()
+class ExtOptionsDialog(pymol.Qt.QtWidgets.QDialog):
+
+    def __init__(self, main_form):
+        super(ExtOptionsDialog, self).__init__()
+        self.main_form = main_form
+
+    def closeEvent(self, event):
+        self.main_form.AdvancedOptionsButton.setEnabled(True)
+
+
+def advanced_popup_window(form):
+    advanced_dialog = ExtOptionsDialog(form)
     adv_op_ui_file = os.path.join(os.path.dirname(__file__), 'ui_advoptions.ui')
-    popup = pymol.Qt.utils.loadUi(adv_op_ui_file, external_options)
+    advanced_form = pymol.Qt.utils.loadUi(adv_op_ui_file, advanced_dialog)
 
-    popup.SphereSizeSlider.sliderReleased.connect(lambda: change_slider_value(
-        popup, popup.SphereSizeSlider.value()))
-    popup.SphereSizeValue.textChanged.connect(lambda: change_slider_position(
-        popup))
-    popup.phValue.textChanged.connect(lambda: change_ph_variable(popup,
-        popup.phValue.text()))
+    form.AdvancedOptionsButton.setEnabled(False)
 
-    bind_directory_dialog(popup.enlightenEdit, popup.enlightenBrowseButton)
-    bind_directory_dialog(popup.amberEdit, popup.amberBrowseButton)
+    advanced_form.SphereSizeSlider.sliderMoved.connect(lambda:
+        change_sphere_text_edit_value(advanced_form, form,
+                                      advanced_form.SphereSizeSlider.value()))
 
-    adv_op_settings(popup)
-    initiate_home_directories(popup)
+    advanced_form.SphereSizeValue.textChanged.connect(lambda: change_slider_position(
+        advanced_form, form, advanced_form.SphereSizeValue.text()))
 
-    '''which should I use, exec_ or show'''
-    #external_options.exec_()
-    external_options.show()
-    form.advanced_options_form = popup
+    bind_directory_dialog(advanced_form.enlightenEdit, advanced_form.enlightenBrowseButton)
+    bind_directory_dialog(advanced_form.amberEdit, advanced_form.amberBrowseButton)
+
+    advanced_form.SphereSizeSlider.setMinimum(9)
+    advanced_form.SphereSizeSlider.setMaximum(61)
+    #set variables only on okay
+    advanced_form.SphereSizeSlider.setValue(int(form.data['sphere_size']))
+    advanced_form.SphereSizeValue.setText(form.data['sphere_size'])
+
+    advanced_form.phEdit.setText(form.data['ph'])
+    ph_validator = pymol.Qt.QtGui.QDoubleValidator(5.0, 14.0, 1, advanced_form.phEdit)
+    advanced_form.phEdit.setValidator(ph_validator)
+
+    advanced_form.okButton.clicked.connect(lambda: popup_ok_click(
+                                                     form, advanced_form))
+    advanced_form.okButton.clicked.connect(lambda:
+                                           set_advanced_option_variables(
+                                  form, advanced_form.SphereSizeValue.text(),
+                                           advanced_form.phEdit.text()))
+
+    display_home_directories(advanced_form, form)
+    advanced_dialog.show()
+    form.advanced_options_form = advanced_form
+
+
+def set_advanced_option_variables(form, sphere_value, ph_value):
+    form.data['sphere_value'] = str(sphere_value)
+    form.data['ph_value'] = str(ph_value)
 
 
 def check_environ_variables():
     if not (environ.get('ENLIGHTEN') and environ.get('AMBERHOME')):
-        set_environ_window()
+        return False
 
 
-def set_environ_window():
+def environ_popup_window(form):
     set_environmental_variables = pymol.Qt.QtWidgets.QDialog()
     set_environ_ui_file = os.path.join(os.path.dirname(__file__),
                                    'ui_set_environ.ui')
@@ -352,24 +342,29 @@ def set_environ_window():
                                        "Please set the location of your Amber and "
                                        "Enlighten installation directories")
 
-    initiate_home_directories(env_window)
+    display_home_directories(env_window, form)
 
-    env_window.buttonBox.accepted.connect(lambda: set_installation_paths(
-        env_window, set_environmental_variables))
+    env_window.okButton.clicked.connect(lambda: popup_ok_click(
+        form, env_window))
 
     set_environmental_variables.exec_()
 
+    #set_environmental_variables.close()
 
-def set_installation_paths(env_window, set_environmental_variables):
-    if os.path.isdir(env_window.enlightenEdit.text()):
-        os.environ["ENLIGHTEN"] = env_window.enlightenEdit.text()
 
-        if os.path.isdir(env_window.amberEdit.text()):
-            os.environ["AMBERHOME"] = env_window.amberEdit.text()
-            set_environmental_variables.close()
-        else:
-            QMessageBox.about(env_window, "Error", "Selected path for Amber is not a "
-                                         "directory")
-    else:
-        QMessageBox.about(env_window, "Error", "Selected path for Enlighten is not a "
-                                         "directory")
+def popup_ok_click(form, popup):
+
+    if not validate_paths(popup):
+        set_installation_paths(form, popup)
+        popup.close()
+
+
+def set_installation_paths(form, popup):
+
+    form.data["AMBERHOME"] = popup.amberEdit.text()
+    form.data["ENLIGHTEN"] = popup.enlightenEdit.text()
+
+
+def validate_paths(form):
+    return validate_fields(form, [amber_validator, enlighten_validator])
+
