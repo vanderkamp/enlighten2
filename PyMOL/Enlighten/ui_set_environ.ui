@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>436</width>
+    <width>498</width>
     <height>128</height>
    </rect>
   </property>
@@ -80,9 +80,9 @@
     <widget class="QLineEdit" name="amberEdit"/>
    </item>
    <item row="3" column="1">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+    <widget class="QPushButton" name="pushButton">
+     <property name="text">
+      <string>OK</string>
      </property>
     </widget>
    </item>

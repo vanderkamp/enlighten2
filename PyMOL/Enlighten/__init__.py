@@ -19,7 +19,7 @@ class EnlightenForm(pymol.Qt.QtWidgets.QDialog):
     def __init__(self):
         super(EnlightenForm, self).__init__()
         self.data = {
-            'ligand_name': '',
+            'ligand_name': 'NaN',
             'ligand_charge': '0',
             'ph': '7.0',
             'sphere_size': '20',
@@ -102,32 +102,34 @@ def run_prep(form):
     import sys
     import threads
 
-    if validate_fields(form):
+    if validate_main(form):
         return
+
+    #TODO: send charge and name variables from main form to dictionary on
+    # clicking run prep
 
     if form.pdbFileRadio.isChecked():
         pdb_file = form.pdbFileEdit.text()
-        #set_pdb_folder_location(form, form.pdbFileEdit.text())
         pdb_folder = os.path.splitext(os.path.basename(str(pdb_file)))[0]
     else:
         pdb_folder = write_object_to_pdb(form.pymolObjectCombo.currentText())
-        #set_pdb_folder_location(form, form.pymolObjectCombo.currentText())
 
     output_path = os.path.join(form.outputEdit.text(), pdb_folder)
 
     if os.path.isdir(output_path):
-        pop_up_window(form, pdb_folder)
+        delete_pdb_pop_up(form, pdb_folder)
 
-    if delete_pdb_verification is True:
+    if delete_pdb_pop_up(form, pdb_folder):
         delete_pdb_folder(output_path)
+
     else:
         print("exiting prep")
         return
 
-    ligand_name = form.ligandNameEdit.text()
-    ligand_charge = form.ligandChargeEdit.text()
-    enlighten = popup.enlightenEdit.text()
-    amberhome = popup.amberEdit.text()
+    ligand_name = form.data['ligand_name']
+    ligand_charge = form.data['ligand_charge']
+    enlighten = form.data['ENLIGHTEN']
+    amberhome = form.data['AMBERHOME']
     os.chdir(form.outputEdit.text())
     os.environ.update({'AMBERHOME': amberhome})
     prepThread = threads.SubprocessThread("{}/prep.py {} {} {}"
@@ -150,14 +152,15 @@ def run_prep(form):
     prepThread.start()
 
 
-def pop_up_window(form, pdb_folder):
+def delete_pdb_pop_up(form, pdb_folder):
     delete_pdb_verification = QMessageBox.question(form, 'Warning',
                                         "A folder named {0} already exists. "
                                 "Continuing will the delete folder, are you "
                         "sure you want to continue?".format(pdb_folder),
                                         QMessageBox.Yes | QMessageBox.No,
                                         QMessageBox.No)
-    return delete_pdb_verification == QMessageBox.Yes
+    if delete_pdb_verification == QMessageBox.Yes:
+        return True
 
 
 def delete_pdb_folder(output_path):
@@ -286,8 +289,8 @@ def advanced_popup_window(form):
     form.AdvancedOptionsButton.setEnabled(False)
 
     advanced_form.SphereSizeSlider.sliderMoved.connect(lambda:
-        change_sphere_text_edit_value(advanced_form, form,
-                                      advanced_form.SphereSizeSlider.value()))
+        change_sphere_text_edit_value (advanced_form, form,
+                                       advanced_form.SphereSizeSlider.value()))
 
     advanced_form.SphereSizeValue.textChanged.connect(lambda: change_slider_position(
         advanced_form, form, advanced_form.SphereSizeValue.text()))
@@ -323,8 +326,10 @@ def set_advanced_option_variables(form, sphere_value, ph_value):
 
 
 def check_environ_variables():
-    if not (environ.get('ENLIGHTEN') and environ.get('AMBERHOME')):
+    if not (os.environ.get('ENLIGHTEN') and os.environ.get('AMBERHOME')):
         return False
+#TODO: need to change to validate the paths, not just check if the environmental
+# variables exist
 
 
 def environ_popup_window(form):
@@ -348,8 +353,6 @@ def environ_popup_window(form):
         form, env_window))
 
     set_environmental_variables.exec_()
-
-    #set_environmental_variables.close()
 
 
 def popup_ok_click(form, popup):
