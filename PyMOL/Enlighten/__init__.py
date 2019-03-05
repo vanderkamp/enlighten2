@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 import os
 import pymol
-import re
-import ntpath
-from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
 import shutil
-from os import environ
+
 
 
 def __init_plugin__(app=None):
@@ -23,10 +20,9 @@ class EnlightenForm(pymol.Qt.QtWidgets.QDialog):
             'ligand_charge': '0',
             'ph': '7.0',
             'sphere_size': '20',
-            'ENLIGHTEN': os.environ.get('ENLIGHTEN'),
-            'AMBERHOME': os.environ.get('AMBERHOME'),
-            'output_location': '',
-            'pdb_folder': ''
+            'output_location': os.getcwd(),
+            'ENLIGHTEN': os.environ.get('ENLIGHTEN', None),
+            'AMBERHOME': os.environ.get('AMBERHOME', None),
         }
 
 
@@ -35,8 +31,11 @@ def run_plugin_gui():
     ui_file = os.path.join(os.path.dirname(__file__), 'ui_form.ui')
     form = pymol.Qt.utils.loadUi(ui_file, dialog)
 
-    if not check_environ_variables():
+    if check_path_data_set(form):
         environ_popup_window(form)
+
+    if check_path_data_set(form):
+        return
 
     form.pymolObjectRadio.toggled.connect(lambda: update_view(form))
     bind_file_dialog(form.pdbFileEdit, form.pdbFileBrowseButton)
@@ -53,37 +52,26 @@ def run_plugin_gui():
     dialog.show()
 
 
+def check_path_data_set(form):
+    return not form.data['ENLIGHTEN'] or not form.data['AMBERHOME']
+
+
 def initialize_view(form):
     form.pymolObjectRadio.setChecked(True)
     objects = pymol.cmd.get_names('objects')
     form.pymolObjectCombo.addItems(objects)
     form.pymolObjectCombo.setCurrentIndex(len(objects) - 1)
 
-    form.outputEdit.setText(os.getcwd())
+    form.outputEdit.setText(form.data['output_location'])
     form.ligandChargeEdit.setValidator(pymol.Qt.QtGui.QIntValidator())
     form.ligandChargeEdit.setText(form.data['ligand_charge'])
 
 
-def initiate_home_directories(form):
-    form.data['ENLIGHTEN'] = os.getenv('ENLIGHTEN',
-                              "Please specify ENLIGHTEN home directory")
-    print('ENLIGHTEN: ' + form.data['ENLIGHTEN'])
-
-    form.data['AMBERHOME'] = os.getenv('AMBERHOME', "Please specify AMBER home "
-                                           "directory")
-    print('AMBERHOME: ' + form.data['AMBERHOME'])
-
-
 def display_home_directories(advanced_form, form):
-    advanced_form.enlightenEdit.setText(form.data['ENLIGHTEN'])
-    advanced_form.amberEdit.setText(form.data['AMBERHOME'])
-
-def change_sphere_text_edit_value(advanced_form, form, sphere_value):
-    advanced_form.SphereSizeValue.setText(str(sphere_value))
-
-
-def change_slider_position(advanced_form, form, sphere_value):
-    advanced_form.SphereSizeSlider.setValue(int(sphere_value))
+    advanced_form.enlightenEdit.setText(form.data['ENLIGHTEN'] or
+                                        "Set path to Enlighten")
+    advanced_form.amberEdit.setText(form.data['AMBERHOME'] or
+                                    "Set path to Amber")
 
 
 def update_view(form):
@@ -114,12 +102,9 @@ def run_prep(form):
     else:
         pdb_folder = write_object_to_pdb(form.pymolObjectCombo.currentText())
 
-    output_path = os.path.join(form.outputEdit.text(), pdb_folder)
+    output_path = os.path.join(form.data['output_location'], pdb_folder)
 
-    if os.path.isdir(output_path):
-        delete_pdb_pop_up(form, pdb_folder)
-
-    if delete_pdb_pop_up(form, pdb_folder):
+    if os.path.isdir(output_path) and delete_pdb_pop_up(form, pdb_folder):
         delete_pdb_folder(output_path)
 
     else:
@@ -130,7 +115,7 @@ def run_prep(form):
     ligand_charge = form.data['ligand_charge']
     enlighten = form.data['ENLIGHTEN']
     amberhome = form.data['AMBERHOME']
-    os.chdir(form.outputEdit.text())
+    os.chdir(form.data['output_location'])
     os.environ.update({'AMBERHOME': amberhome})
     prepThread = threads.SubprocessThread("{}/prep.py {} {} {}"
                                           .format(enlighten, pdb_file,
@@ -153,14 +138,17 @@ def run_prep(form):
 
 
 def delete_pdb_pop_up(form, pdb_folder):
-    delete_pdb_verification = QMessageBox.question(form, 'Warning',
-                                        "A folder named {0} already exists. "
-                                "Continuing will the delete folder, are you "
-                        "sure you want to continue?".format(pdb_folder),
-                                        QMessageBox.Yes | QMessageBox.No,
-                                        QMessageBox.No)
-    if delete_pdb_verification == QMessageBox.Yes:
-        return True
+    delete_pdb_verification = QMessageBox.question(
+        form,
+        'Warning',
+        "A folder named {0} already exists. "
+        "Continuing will the delete folder, are you "
+        "sure you want to continue?".format(pdb_folder),
+        QMessageBox.Yes | QMessageBox.No,
+        QMessageBox.No
+    )
+    return delete_pdb_verification == QMessageBox.Yes
+
 
 
 def delete_pdb_folder(output_path):
@@ -288,12 +276,16 @@ def advanced_popup_window(form):
 
     form.AdvancedOptionsButton.setEnabled(False)
 
-    advanced_form.SphereSizeSlider.sliderMoved.connect(lambda:
-        change_sphere_text_edit_value (advanced_form, form,
-                                       advanced_form.SphereSizeSlider.value()))
+    def on_slider_moved():
+        advanced_form.SphereSizeValue.setText(str(advanced_form.SphereSizeSlider.value()))
 
-    advanced_form.SphereSizeValue.textChanged.connect(lambda: change_slider_position(
-        advanced_form, form, advanced_form.SphereSizeValue.text()))
+    advanced_form.SphereSizeSlider.sliderMoved.connect(on_slider_moved)
+
+    def on_sphere_size_text_changed():
+        advanced_form.SphereSizeSlider.setValue(int(
+            advanced_form.SphereSizeValue.text()))
+
+    advanced_form.SphereSizeValue.textChanged.connect(on_sphere_size_text_changed())
 
     bind_directory_dialog(advanced_form.enlightenEdit, advanced_form.enlightenBrowseButton)
     bind_directory_dialog(advanced_form.amberEdit, advanced_form.amberBrowseButton)
@@ -308,12 +300,8 @@ def advanced_popup_window(form):
     ph_validator = pymol.Qt.QtGui.QDoubleValidator(5.0, 14.0, 1, advanced_form.phEdit)
     advanced_form.phEdit.setValidator(ph_validator)
 
-    advanced_form.okButton.clicked.connect(lambda: popup_ok_click(
+    advanced_form.okButton.clicked.connect(lambda: adv_op_popup_ok_click(
                                                      form, advanced_form))
-    advanced_form.okButton.clicked.connect(lambda:
-                                           set_advanced_option_variables(
-                                  form, advanced_form.SphereSizeValue.text(),
-                                           advanced_form.phEdit.text()))
 
     display_home_directories(advanced_form, form)
     advanced_dialog.show()
@@ -323,13 +311,6 @@ def advanced_popup_window(form):
 def set_advanced_option_variables(form, sphere_value, ph_value):
     form.data['sphere_value'] = str(sphere_value)
     form.data['ph_value'] = str(ph_value)
-
-
-def check_environ_variables():
-    if not (os.environ.get('ENLIGHTEN') and os.environ.get('AMBERHOME')):
-        return False
-#TODO: need to change to validate the paths, not just check if the environmental
-# variables exist
 
 
 def environ_popup_window(form):
@@ -349,17 +330,29 @@ def environ_popup_window(form):
 
     display_home_directories(env_window, form)
 
-    env_window.okButton.clicked.connect(lambda: popup_ok_click(
+    env_window.okButton.clicked.connect(lambda: environ_popup_ok_click(
         form, env_window))
 
     set_environmental_variables.exec_()
 
 
-def popup_ok_click(form, popup):
+
+
+def environ_popup_ok_click(form, popup):
 
     if not validate_paths(popup):
         set_installation_paths(form, popup)
         popup.close()
+
+
+def adv_op_popup_ok_click(form, advanced_form):
+
+    if not validate_paths(advanced_form):
+        set_installation_paths(form, advanced_form)
+        set_advanced_option_variables(form,
+                                      advanced_form.SphereSizeValue.text(),
+                                      advanced_form.phEdit.text())
+        advanced_form.close()
 
 
 def set_installation_paths(form, popup):
@@ -370,4 +363,7 @@ def set_installation_paths(form, popup):
 
 def validate_paths(form):
     return validate_fields(form, [amber_validator, enlighten_validator])
+
+
+
 
