@@ -29,7 +29,6 @@ class EnlightenForm(pymol.Qt.QtWidgets.QDialog):
             self.advanced_options_form.close()
 
 
-
 def run_plugin_gui():
     dialog = EnlightenForm()
     ui_file = os.path.join(os.path.dirname(__file__), 'ui_form.ui')
@@ -53,11 +52,7 @@ def run_plugin_gui():
         form))
 
     form.runPrepButton.clicked.connect(lambda: run_prep(form))
-    #form.websiteButton.clicked.connect(open_enlighten_website)
-    #form.websiteButton.clicked.connect(lambda: test_function(form))
-    #form.websiteButton.clicked.connect(lambda: dump_parameters(form.data,
-     #                                                          "params.json"))
-    #@ /home/tom/enlighten/tutorial/setup.pml
+    form.websiteButton.clicked.connect(open_enlighten_website)
     test_function(form)
     form.AdvancedOptionsButton.clicked.connect(
         lambda: advanced_popup_window(form))
@@ -71,7 +66,6 @@ def update_form_data(form):
     form.data['output_location'] = form.outputEdit.text()
     form.data['ligand_name'] = form.ligandNameEdit.text()
     form.data['ligand_charge'] = form.ligandChargeEdit.text()
-
 
 
 def check_path_data_set(form):
@@ -108,21 +102,22 @@ def update_view(form):
 
 
 def run_prep(form):
-    import subprocess
-    import sys
     import threads
 
     if validate_main(form):
         return
 
-    #TODO: send charge and name variables from main form to dictionary on
-    # clicking run prep
-
     if form.pdbFileRadio.isChecked():
         pdb_file_path = form.pdbFileEdit.text()
         pdb_folder_name = os.path.splitext(os.path.basename(str(
             pdb_file_path)))[0]
-        #TODO: copy pdb file
+
+        if os.path.isfile(pdb_file_path):
+            shutil.copy(pdb_file_path, form.data['output_location'])
+        else:
+            print("Error: {} file selected does not exist at PDB file "
+                  "path".format(pdb_folder_name))
+
     else:
         pdb_file_path = write_object_to_pdb(form.data['output_location'],
                                        form.pymolObjectCombo.currentText())
@@ -130,8 +125,6 @@ def run_prep(form):
     pdb_file = os.path.basename(pdb_file_path)
 
     pdb_folder = os.path.join(form.data['output_location'], pdb_folder_name)
-    print("this is output path: " + pdb_folder)
-    print("this is pdb_folder: " + pdb_folder_name)
 
     if os.path.isdir(pdb_folder):
         if delete_pdb_pop_up(form, pdb_folder_name):
