@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
 import pymol
-from PyQt5.QtWidgets import QMessageBox
 import shutil
-
+import json
 
 
 def __init_plugin__(app=None):
@@ -25,6 +24,11 @@ class EnlightenForm(pymol.Qt.QtWidgets.QDialog):
             'AMBERHOME': os.environ.get('AMBERHOME', None),
         }
 
+    def closeEvent(self, event):
+        if getattr(self, 'advanced_options_form', None):
+            self.advanced_options_form.close()
+
+
 
 def run_plugin_gui():
     dialog = EnlightenForm()
@@ -41,15 +45,33 @@ def run_plugin_gui():
     bind_file_dialog(form.pdbFileEdit, form.pdbFileBrowseButton)
     bind_directory_dialog(form.outputEdit, form.outputBrowseButton)
 
-    form.runPrepButton.clicked.connect(lambda: run_prep(form))
-    form.websiteButton.clicked.connect(open_enlighten_website)
+    form.outputEdit.textChanged.connect(lambda: update_form_data(
+        form))
+    form.ligandChargeEdit.textChanged.connect(lambda: update_form_data(
+        form))
+    form.ligandNameEdit.textChanged.connect(lambda: update_form_data(
+        form))
 
+    form.runPrepButton.clicked.connect(lambda: run_prep(form))
+    #form.websiteButton.clicked.connect(open_enlighten_website)
+    #form.websiteButton.clicked.connect(lambda: test_function(form))
+    #form.websiteButton.clicked.connect(lambda: dump_parameters(form.data,
+     #                                                          "params.json"))
+    #@ /home/tom/enlighten/tutorial/setup.pml
+    test_function(form)
     form.AdvancedOptionsButton.clicked.connect(
         lambda: advanced_popup_window(form))
 
     initialize_view(form)
 
     dialog.show()
+
+
+def update_form_data(form):
+    form.data['output_location'] = form.outputEdit.text()
+    form.data['ligand_name'] = form.ligandNameEdit.text()
+    form.data['ligand_charge'] = form.ligandChargeEdit.text()
+
 
 
 def check_path_data_set(form):
@@ -97,19 +119,26 @@ def run_prep(form):
     # clicking run prep
 
     if form.pdbFileRadio.isChecked():
-        pdb_file = form.pdbFileEdit.text()
-        pdb_folder = os.path.splitext(os.path.basename(str(pdb_file)))[0]
+        pdb_file_path = form.pdbFileEdit.text()
+        pdb_folder_name = os.path.splitext(os.path.basename(str(
+            pdb_file_path)))[0]
+        #TODO: copy pdb file
     else:
-        pdb_folder = write_object_to_pdb(form.pymolObjectCombo.currentText())
+        pdb_file_path = write_object_to_pdb(form.data['output_location'],
+                                       form.pymolObjectCombo.currentText())
+        pdb_folder_name = form.pymolObjectCombo.currentText()
+    pdb_file = os.path.basename(pdb_file_path)
 
-    output_path = os.path.join(form.data['output_location'], pdb_folder)
+    pdb_folder = os.path.join(form.data['output_location'], pdb_folder_name)
+    print("this is output path: " + pdb_folder)
+    print("this is pdb_folder: " + pdb_folder_name)
 
-    if os.path.isdir(output_path) and delete_pdb_pop_up(form, pdb_folder):
-        delete_pdb_folder(output_path)
-
-    else:
-        print("exiting prep")
-        return
+    if os.path.isdir(pdb_folder):
+        if delete_pdb_pop_up(form, pdb_folder_name):
+            delete_pdb_folder(pdb_folder)
+        else:
+            print("exiting prep")
+            return
 
     ligand_name = form.data['ligand_name']
     ligand_charge = form.data['ligand_charge']
@@ -117,9 +146,13 @@ def run_prep(form):
     amberhome = form.data['AMBERHOME']
     os.chdir(form.data['output_location'])
     os.environ.update({'AMBERHOME': amberhome})
-    prepThread = threads.SubprocessThread("{}/prep.py {} {} {}"
+    params_filename = "params.json"
+    dump_parameters(form.data, params_filename)
+    prepThread = threads.SubprocessThread("{}/prep.py {} {} {} {}"
                                           .format(enlighten, pdb_file,
-                                                  ligand_name, ligand_charge))
+                                                  ligand_name, ligand_charge,
+                                                  params_filename))
+
 
     def prep_done():
         form.runPrepButton.setText("Run PREP")
@@ -137,7 +170,32 @@ def run_prep(form):
     prepThread.start()
 
 
+def test_function(form):
+    print(form.data)
+
+
+def dump_parameters(data, filename):
+    with open(filename, "w") as f:
+        json.dump(get_parameters_dictionary(data), f, indent=4)
+
+
+def get_parameters_dictionary(data):
+    return {
+        'antechamber': {
+            'ligand': data['ligand_name'],
+            'charge': float(data['ligand_charge']),
+        },
+        'propka': {
+            'ph': float(data['ph']),
+        },
+        'tleap': {
+            'solvent_radius': float(data['sphere_size'])
+        }
+    }
+
+
 def delete_pdb_pop_up(form, pdb_folder):
+    QMessageBox = pymol.Qt.QtWidgets.QMessageBox
     delete_pdb_verification = QMessageBox.question(
         form,
         'Warning',
@@ -159,8 +217,8 @@ def delete_pdb_folder(output_path):
         print("Folder no longer exists")
 
 
-def write_object_to_pdb(object_name):
-    filename = os.path.join(os.getcwd(), object_name + '.pdb')
+def write_object_to_pdb(output_location, object_name):
+    filename = os.path.join(output_location, object_name + '.pdb')
     pymol.cmd.save(filename, '({})'.format(object_name))
     return filename
 
@@ -252,11 +310,15 @@ def bind_directory_dialog(lineEdit, browseButton):
 
 
 def assign_filename(lineEdit):
-    lineEdit.setText(pymol.Qt.QtWidgets.QFileDialog.getOpenFileName()[0])
+    result = pymol.Qt.QtWidgets.QFileDialog.getOpenFileName()[0]
+    if result:
+        lineEdit.setText(result)
 
 
 def assign_directory(lineEdit):
-    lineEdit.setText(pymol.Qt.QtWidgets.QFileDialog.getExistingDirectory())
+    result = pymol.Qt.QtWidgets.QFileDialog.getExistingDirectory()
+    if result:
+        lineEdit.setText(result)
 
 
 class ExtOptionsDialog(pymol.Qt.QtWidgets.QDialog):
@@ -267,6 +329,7 @@ class ExtOptionsDialog(pymol.Qt.QtWidgets.QDialog):
 
     def closeEvent(self, event):
         self.main_form.AdvancedOptionsButton.setEnabled(True)
+        self.main_form.advanced_options_form = None
 
 
 def advanced_popup_window(form):
@@ -285,7 +348,7 @@ def advanced_popup_window(form):
         advanced_form.SphereSizeSlider.setValue(int(
             advanced_form.SphereSizeValue.text()))
 
-    advanced_form.SphereSizeValue.textChanged.connect(on_sphere_size_text_changed())
+    advanced_form.SphereSizeValue.textChanged.connect(on_sphere_size_text_changed)
 
     bind_directory_dialog(advanced_form.enlightenEdit, advanced_form.enlightenBrowseButton)
     bind_directory_dialog(advanced_form.amberEdit, advanced_form.amberBrowseButton)
@@ -294,7 +357,7 @@ def advanced_popup_window(form):
     advanced_form.SphereSizeSlider.setMaximum(61)
     #set variables only on okay
     advanced_form.SphereSizeSlider.setValue(int(form.data['sphere_size']))
-    advanced_form.SphereSizeValue.setText(form.data['sphere_size'])
+    advanced_form.SphereSizeValue.setText(str(form.data['sphere_size']))
 
     advanced_form.phEdit.setText(form.data['ph'])
     ph_validator = pymol.Qt.QtGui.QDoubleValidator(5.0, 14.0, 1, advanced_form.phEdit)
@@ -309,8 +372,8 @@ def advanced_popup_window(form):
 
 
 def set_advanced_option_variables(form, sphere_value, ph_value):
-    form.data['sphere_value'] = str(sphere_value)
-    form.data['ph_value'] = str(ph_value)
+    form.data['sphere_size'] = str(sphere_value)
+    form.data['ph'] = str(ph_value)
 
 
 def environ_popup_window(form):
