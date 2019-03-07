@@ -111,12 +111,13 @@ def run_prep(form):
         pdb_file_path = form.pdbFileEdit.text()
         pdb_folder_name = os.path.splitext(os.path.basename(str(
             pdb_file_path)))[0]
+        pdb_directory_path = os.path.splitext(os.path.dirname(str(
+            pdb_file_path)))[0]
+        output_location = form.data['output_location']
 
-        if os.path.isfile(pdb_file_path):
-            shutil.copy(pdb_file_path, form.data['output_location'])
-        else:
-            print("Error: {} file selected does not exist at PDB file "
-                  "path".format(pdb_folder_name))
+        if os.path.isfile(pdb_file_path) and pdb_directory_path != \
+                output_location:
+            shutil.copy(pdb_file_path, output_location)
 
     else:
         pdb_file_path = write_object_to_pdb(form.data['output_location'],
