@@ -109,14 +109,12 @@ def run_prep(form):
 
     if form.pdbFileRadio.isChecked():
         pdb_file_path = form.pdbFileEdit.text()
-        pdb_folder_name = os.path.splitext(os.path.basename(str(
-            pdb_file_path)))[0]
-        pdb_directory_path = os.path.splitext(os.path.dirname(str(
-            pdb_file_path)))[0]
+        pdb_folder_name = os.path.splitext(os.path.basename(pdb_file_path))[0]
+        pdb_directory_path = os.path.dirname(pdb_file_path)
         output_location = form.data['output_location']
 
-        if os.path.isfile(pdb_file_path) and pdb_directory_path != \
-                output_location:
+        # pdb_file_path already validated to be a file in validate_main
+        if pdb_directory_path != output_location:
             shutil.copy(pdb_file_path, output_location)
 
     else:
