@@ -331,8 +331,8 @@ def advanced_popup_window(form):
 
     form.AdvancedOptionsButton.setEnabled(False)
 
-    def on_slider_moved():
-        advanced_form.SphereSizeValue.setText(str(advanced_form.SphereSizeSlider.value()))
+    def on_slider_moved(value):
+        advanced_form.SphereSizeValue.setText(str(value))
 
     advanced_form.SphereSizeSlider.sliderMoved.connect(on_slider_moved)
 
@@ -345,8 +345,8 @@ def advanced_popup_window(form):
     bind_directory_dialog(advanced_form.enlightenEdit, advanced_form.enlightenBrowseButton)
     bind_directory_dialog(advanced_form.amberEdit, advanced_form.amberBrowseButton)
 
-    advanced_form.SphereSizeSlider.setMinimum(9)
-    advanced_form.SphereSizeSlider.setMaximum(61)
+    advanced_form.SphereSizeSlider.setMinimum(10)
+    advanced_form.SphereSizeSlider.setMaximum(60)
     #set variables only on okay
     advanced_form.SphereSizeSlider.setValue(int(form.data['sphere_size']))
     advanced_form.SphereSizeValue.setText(str(form.data['sphere_size']))
