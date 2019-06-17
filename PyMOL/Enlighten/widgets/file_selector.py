@@ -16,6 +16,9 @@ class FileSelector(QtWidgets.QWidget):
         self.browseButton.clicked.connect(self.browse)
         self.lineEdit.textChanged.connect(self.on_change)
 
+        self.textChanged = self.lineEdit.textChanged
+        self.setText = self.lineEdit.setText
+
     def set_directory_mode(self, value):
         self.directory_mode = value
         self.validate(self.lineEdit.text())
