@@ -2,14 +2,14 @@ import sys
 from PyQt5 import QtWidgets
 from windows.windows import WindowManager
 from windows.main import MainWindow
-from controller import Controller
+from controller import EnlightenController
 
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
     window_manager = WindowManager()
     main_window = MainWindow(window_manager)
-    controller = Controller()
+    controller = EnlightenController()
     window_manager.bind_all(controller)
 
     main_window.show()

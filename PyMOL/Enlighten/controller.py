@@ -20,3 +20,11 @@ class Controller:
 
     def _get_listeners(self, key):
         return self.listeners.get(key, [])
+
+
+class EnlightenController(Controller):
+
+    @staticmethod
+    def open_enlighten_website():
+        import webbrowser
+        webbrowser.open_new("https://github.com/vanderkamp/enlighten2/")
