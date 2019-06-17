@@ -39,27 +39,3 @@ class ManagedWindow(QtWidgets.QWidget):
             else:
                 widget.hide()
 
-    @staticmethod
-    def bind_lineEdit(controller, key, lineEdit):
-        lineEdit.textChanged.connect(controller.updater(key))
-        controller.listen(key, lineEdit.setText)
-
-    @staticmethod
-    def bind_checkBox(controller, key, checkBox):
-        checkBox.toggled.connect(controller.updater(key))
-        controller.listen(key, checkBox.setChecked)
-
-    @staticmethod
-    def bind_slider(controller, key, slider):
-        slider.valueChanged.connect(controller.updater(key))
-        controller.listen(key, slider.setValue)
-
-    @staticmethod
-    def bind_radio_button(controller, key, radioButton):
-        radioButton.toggled.connect(controller.updater(key))
-        controller.listen(key, radioButton.setChecked)
-
-    @staticmethod
-    def bind_combo_box(controller, key, comboBox):
-        comboBox.currentTextChanged.connect(controller.updater(key))
-        controller.listen(key, comboBox.setCurrentText)

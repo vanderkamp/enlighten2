@@ -47,19 +47,18 @@ class PreparationTab(ManagedWindow):
         return os.path.isfile(filename) and ext.lower() == '.pdb'
 
     def bind(self, controller):
-        # TODO: store controller and use self.controller in self.bind_ methods?
-        self.bind_radio_button(controller, 'prep.use_pdb', self.pdbFileRadio)
-        self.bind_radio_button(controller, 'prep.use_object', self.pymolObjectRadio)
+        controller.bind_radio_button('prep.use_pdb', self.pdbFileRadio)
+        controller.bind_radio_button('prep.use_object', self.pymolObjectRadio)
 
-        self.bind_combo_box(controller, 'prep.object', self.pymolObjectCombo)
+        controller.bind_combo_box('prep.object', self.pymolObjectCombo)
         controller.update('prep.object', self.pymolObjectCombo.currentText())
 
-        self.bind_lineEdit(controller, 'prep.pdb', self.pdbFileEdit)
-        self.bind_lineEdit(controller, 'prep.output_location', self.outputEdit)
+        controller.bind_lineEdit('prep.pdb', self.pdbFileEdit)
+        controller.bind_lineEdit('prep.output_location', self.outputEdit)
 
-        self.bind_lineEdit(controller, 'prep.ligand_name', self.ligandNameEdit)
-        self.bind_lineEdit(controller, 'prep.ligand_charge', self.ligandChargeEdit)
-        self.bind_checkBox(controller, 'prep.use_struct', self.structCheckBox)
+        controller.bind_lineEdit('prep.ligand_name', self.ligandNameEdit)
+        controller.bind_lineEdit('prep.ligand_charge', self.ligandChargeEdit)
+        controller.bind_checkBox('prep.use_struct', self.structCheckBox)
 
         prep_advanced = self.window_manager['prep_advanced']
         self.advancedOptionsButton.clicked.connect(prep_advanced.show)

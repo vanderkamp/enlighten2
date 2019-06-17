@@ -34,11 +34,10 @@ class PreparationAdvancedWindow(ManagedWindow):
         return True
 
     def bind(self, controller):
-        self.bind_lineEdit(controller, 'enlighten_path', self.enlightenEdit)
-        self.bind_lineEdit(controller, 'amber_path', self.amberEdit)
-        self.bind_lineEdit(controller, 'prep.advanced.ph', self.phEdit)
-        self.bind_slider(controller, 'prep.advanced.sphere_size',
-                         self.sphereSizeSlider)
+        controller.bind_lineEdit('enlighten_path', self.enlightenEdit)
+        controller.bind_lineEdit('amber_path', self.amberEdit)
+        controller.bind_lineEdit('prep.advanced.ph', self.phEdit)
+        controller.bind_slider('prep.advanced.sphere_size', self.sphereSizeSlider)
         controller.listen('prep.advanced.sphere_size',
                           lambda value: self.sphereSizeEdit.setText(str(value)))
         self.sphereSizeEdit.textChanged.connect(self.update_slider)
