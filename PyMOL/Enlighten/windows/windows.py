@@ -31,6 +31,14 @@ class ManagedWindow(QtWidgets.QWidget):
     def bind(self, controller):
         raise NotImplementedError
 
+    def toggle_group(self, widget_names, state):
+        for name in widget_names:
+            widget = getattr(self, name)
+            if state:
+                widget.show()
+            else:
+                widget.hide()
+
     @staticmethod
     def bind_lineEdit(controller, key, lineEdit):
         lineEdit.textChanged.connect(controller.updater(key))
@@ -50,3 +58,8 @@ class ManagedWindow(QtWidgets.QWidget):
     def bind_radio_button(controller, key, radioButton):
         radioButton.toggled.connect(controller.updater(key))
         controller.listen(key, radioButton.setChecked)
+
+    @staticmethod
+    def bind_combo_box(controller, key, comboBox):
+        comboBox.currentTextChanged.connect(controller.updater(key))
+        controller.listen(key, comboBox.setCurrentText)

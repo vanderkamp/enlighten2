@@ -1,14 +1,45 @@
 from .windows import ManagedWindow
+from PyQt5.QtGui import QIntValidator
 import os
+
+
+# temporary mock of pymol
+class pymol:
+    class cmd:
+        @staticmethod
+        def get_names(tmp):
+            return ['a', 'b', 'c']
 
 
 class PreparationTab(ManagedWindow):
 
+    PDB_FILE_WIDGETS = ('pdbFileLabel', 'pdbFileEdit', 'pdbFileEdit')
+    PYMOL_OBJECT_WIDGETS = ('pymolObjectLabel', 'pymolObjectCombo')
+
     def __init__(self, name, window_manager):
         path = os.path.join(os.path.dirname(__file__), 'preparation.ui')
         super().__init__(name, path, window_manager)
+        self.setup_file_selectors()
+        self.setup_radio_buttons()
+        self.setup_objects_list()
+        self.ligandChargeEdit.setValidator(QIntValidator())
+
+    def setup_file_selectors(self):
         self.pdbFileEdit.set_validator(self.pdb_validator)
         self.outputEdit.set_directory_mode(True)
+
+    def setup_radio_buttons(self):
+        self.pdbFileRadio.toggled.connect(self.on_radio_changed)
+        self.pdbFileRadio.setChecked(True)
+
+    def setup_objects_list(self):
+        objects = pymol.cmd.get_names('objects')
+        self.pymolObjectCombo.addItems(objects)
+        self.pymolObjectCombo.setCurrentIndex(len(objects) - 1)
+
+    def on_radio_changed(self, value):
+        self.toggle_group(self.PDB_FILE_WIDGETS, value)
+        self.toggle_group(self.PYMOL_OBJECT_WIDGETS, not value)
 
     @staticmethod
     def pdb_validator(filename):
@@ -16,5 +47,20 @@ class PreparationTab(ManagedWindow):
         return os.path.isfile(filename) and ext.lower() == '.pdb'
 
     def bind(self, controller):
+        # TODO: store controller and use self.controller in self.bind_ methods?
+        self.bind_radio_button(controller, 'prep.use_pdb', self.pdbFileRadio)
+        self.bind_radio_button(controller, 'prep.use_object', self.pymolObjectRadio)
+
+        self.bind_combo_box(controller, 'prep.object', self.pymolObjectCombo)
+        controller.update('prep.object', self.pymolObjectCombo.currentText())
+
+        self.bind_lineEdit(controller, 'prep.pdb', self.pdbFileEdit)
+        self.bind_lineEdit(controller, 'prep.output_location', self.outputEdit)
+
+        self.bind_lineEdit(controller, 'prep.ligand_name', self.ligandNameEdit)
+        self.bind_lineEdit(controller, 'prep.ligand_charge', self.ligandChargeEdit)
+        self.bind_checkBox(controller, 'prep.use_struct', self.structCheckBox)
+
         prep_advanced = self.window_manager['prep_advanced']
         self.advancedOptionsButton.clicked.connect(prep_advanced.show)
+        self.websiteButton.clicked.connect(controller.open_enlighten_website)
