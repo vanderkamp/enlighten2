@@ -91,7 +91,7 @@
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="AdvancedOptionsButton">
+        <widget class="QPushButton" name="advancedOptionsButton">
          <property name="text">
           <string>Advanced... </string>
          </property>

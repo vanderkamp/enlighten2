@@ -10,4 +10,4 @@ class PreparationTab(ManagedWindow):
 
     def bind(self, controller):
         prep_advanced = self.window_manager['prep_advanced']
-        self.runPrepButton.clicked.connect(prep_advanced.show)
+        self.advancedOptionsButton.clicked.connect(prep_advanced.show)
