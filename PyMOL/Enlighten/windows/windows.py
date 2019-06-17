@@ -45,3 +45,8 @@ class ManagedWindow(QtWidgets.QWidget):
     def bind_slider(controller, key, slider):
         slider.valueChanged.connect(controller.updater(key))
         controller.listen(key, slider.setValue)
+
+    @staticmethod
+    def bind_radio_button(controller, key, radioButton):
+        radioButton.toggled.connect(controller.updater(key))
+        controller.listen(key, radioButton.setChecked)
