@@ -1,5 +1,6 @@
 from PyQt5 import QtWidgets
 from .preparation import PreparationTab
+from .preparation_advanced import PreparationAdvancedWindow
 from .dynamics import DynamicsTab
 
 
@@ -11,6 +12,7 @@ class MainWindow(QtWidgets.QTabWidget):
         self.setWindowTitle('Enlighten2')
         self.addTab(PreparationTab('prep', window_manager), 'Preparation')
         self.addTab(DynamicsTab('dynam', window_manager), 'Dynamics')
+        PreparationAdvancedWindow('prep_advanced', window_manager)
         self.setMinimumSize(self.sizeHint())
 
     def closeEvent(self, event):
