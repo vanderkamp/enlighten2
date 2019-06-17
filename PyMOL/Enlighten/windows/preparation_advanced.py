@@ -1,4 +1,5 @@
 from .windows import ManagedWindow
+from PyQt5.QtGui import QIntValidator, QDoubleValidator
 import os
 
 
@@ -7,6 +8,43 @@ class PreparationAdvancedWindow(ManagedWindow):
     def __init__(self, name, window_manager):
         path = os.path.join(os.path.dirname(__file__), 'preparation_advanced.ui')
         super().__init__(name, path, window_manager)
+        self.setup_file_selectors()
+        self.phEdit.setValidator(QDoubleValidator(0.0, 14.0, 1, self.phEdit))
+        self.sphereSizeEdit.setValidator(QIntValidator())
+
+    def setup_file_selectors(self):
+        self.enlightenEdit.set_directory_mode(True)
+        self.enlightenEdit.set_validator(self.enlighten_validator)
+        self.amberEdit.set_directory_mode(True)
+        self.amberEdit.set_validator(self.amber_validator)
+
+    @staticmethod
+    def enlighten_validator(path):
+        return (os.path.isdir(path) and
+                os.path.isfile(os.path.join(path, 'prep.py')))
+
+    @staticmethod
+    def amber_validator(path):
+        amber_bin_path = os.path.join(path, 'bin')
+        if not os.path.isdir(amber_bin_path):
+            return False
+        for filename in ('antechamber', 'pdb4amber', 'reduce'):
+            if not os.path.isfile(os.path.join(amber_bin_path, filename)):
+                return False
+        return True
 
     def bind(self, controller):
-        pass
+        self.bind_lineEdit(controller, 'enlighten_path', self.enlightenEdit)
+        self.bind_lineEdit(controller, 'amber_path', self.amberEdit)
+        self.bind_lineEdit(controller, 'prep.advanced.ph', self.phEdit)
+        self.bind_slider(controller, 'prep.advanced.sphere_size',
+                         self.sphereSizeSlider)
+        controller.listen('prep.advanced.sphere_size',
+                          lambda value: self.sphereSizeEdit.setText(str(value)))
+        self.sphereSizeEdit.textChanged.connect(self.update_slider)
+
+    def update_slider(self, value):
+        try:
+            self.sphereSizeSlider.setValue(int(value))
+        except ValueError:
+            pass
