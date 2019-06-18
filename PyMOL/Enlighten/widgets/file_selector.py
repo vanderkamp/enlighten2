@@ -10,22 +10,23 @@ class FileSelector(QtWidgets.QWidget):
         ui_file = os.path.join(os.path.dirname(__file__), 'file_selector.ui')
         uic.loadUi(ui_file, self)
 
+        self.text = self.lineEdit.text
+        self.textChanged = self.lineEdit.textChanged
+        self.setText = self.lineEdit.setText
+
         self.pristine = True
         self.directory_mode = False
         self.validator = None
         self.browseButton.clicked.connect(self.browse)
-        self.lineEdit.textChanged.connect(self.on_change)
-
-        self.textChanged = self.lineEdit.textChanged
-        self.setText = self.lineEdit.setText
+        self.textChanged.connect(self.on_change)
 
     def set_directory_mode(self, value):
         self.directory_mode = value
-        self.validate(self.lineEdit.text())
+        self.validate(self.text())
 
     def set_validator(self, value):
         self.validator = value
-        self.validate(self.lineEdit.text())
+        self.validate(self.text())
 
     def on_change(self, value):
         self.pristine = False
@@ -53,4 +54,4 @@ class FileSelector(QtWidgets.QWidget):
         else:
             result = QtWidgets.QFileDialog.getOpenFileName()[0]
         if result:
-            self.lineEdit.setText(result)
+            self.setText(result)
