@@ -28,6 +28,20 @@ class NotEmptyValidator(Validator):
         return "Must not be empty"
 
 
+class IntegerValidator(Validator):
+
+    @staticmethod
+    def validate(value):
+        try:
+            int(value)
+            return True
+        except ValueError:
+            return False
+
+    def tooltip(self):
+        return "Must be an integer"
+
+
 class FileValidator(Validator):
 
     @staticmethod
