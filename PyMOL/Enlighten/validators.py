@@ -22,7 +22,7 @@ class FileValidator(Validator):
 
     @staticmethod
     def validate(value):
-        os.path.isfile(value)
+        return os.path.isfile(value)
 
     def tooltip(self):
         return "Not a valid file"
@@ -32,7 +32,7 @@ class DirectoryValidator(Validator):
 
     @staticmethod
     def validate(value):
-        os.path.isdir(value)
+        return os.path.isdir(value)
 
     def tooltip(self):
         return "Not a valid directory"
