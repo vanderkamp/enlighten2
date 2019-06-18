@@ -33,7 +33,7 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QLineEdit" name="lineEdit"/>
+    <widget class="ValidatedLineEdit" name="lineEdit"/>
    </item>
    <item>
     <widget class="QPushButton" name="browseButton">
@@ -50,6 +50,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ValidatedLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>widgets.validated_line_edit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

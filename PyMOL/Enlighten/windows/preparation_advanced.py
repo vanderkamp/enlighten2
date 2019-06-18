@@ -1,6 +1,7 @@
 from .windows import ManagedWindow
 from PyQt5.QtGui import QIntValidator, QDoubleValidator
 import os
+from validators import EnlightenValidator, AmberValidator
 
 
 class PreparationAdvancedWindow(ManagedWindow):
@@ -15,32 +16,9 @@ class PreparationAdvancedWindow(ManagedWindow):
 
     def setup_file_selectors(self):
         self.enlightenEdit.set_directory_mode(True)
-        self.enlightenEdit.set_validator(self.enlighten_validator)
-        self.enlightenEdit.set_invalid_tooltip(
-            "Not a valid Enlighten path. Check that\n"
-            "the path contains prep.py script."
-        )
+        self.enlightenEdit.set_validator(EnlightenValidator())
         self.amberEdit.set_directory_mode(True)
-        self.amberEdit.set_validator(self.amber_validator)
-        self.amberEdit.set_invalid_tooltip(
-            "Not a valid Amber path. Check that the path contains 'bin'\n"
-            "directory with antechamber, pdb4amber and reduce executables."
-        )
-
-    @staticmethod
-    def enlighten_validator(path):
-        return (os.path.isdir(path) and
-                os.path.isfile(os.path.join(path, 'prep.py')))
-
-    @staticmethod
-    def amber_validator(path):
-        amber_bin_path = os.path.join(path, 'bin')
-        if not os.path.isdir(amber_bin_path):
-            return False
-        for filename in ('antechamber', 'pdb4amber', 'reduce'):
-            if not os.path.isfile(os.path.join(amber_bin_path, filename)):
-                return False
-        return True
+        self.amberEdit.set_validator(AmberValidator())
 
     def bind(self, controller):
         controller.bind_lineEdit('enlighten_path', self.enlightenEdit)

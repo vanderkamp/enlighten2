@@ -1,6 +1,7 @@
 from .windows import ManagedWindow
 from PyQt5.QtGui import QIntValidator
 import os
+from validators import PdbValidator
 
 
 # temporary mock of pymol
@@ -25,10 +26,8 @@ class PreparationTab(ManagedWindow):
         self.ligandChargeEdit.setValidator(QIntValidator())
 
     def setup_file_selectors(self):
-        self.pdbFileEdit.set_validator(self.pdb_validator)
-        self.pdbFileEdit.set_invalid_tooltip("Not a valid PDB file")
+        self.pdbFileEdit.set_validator(PdbValidator())
         self.outputEdit.set_directory_mode(True)
-        self.outputEdit.set_invalid_tooltip("Not a valid directory")
 
     def setup_radio_buttons(self):
         self.pdbFileRadio.toggled.connect(self.on_radio_changed)
@@ -42,11 +41,6 @@ class PreparationTab(ManagedWindow):
     def on_radio_changed(self, value):
         self.toggle_group(self.PDB_FILE_WIDGETS, value)
         self.toggle_group(self.PYMOL_OBJECT_WIDGETS, not value)
-
-    @staticmethod
-    def pdb_validator(filename):
-        ext = os.path.splitext(filename)[-1]
-        return os.path.isfile(filename) and ext.lower() == '.pdb'
 
     def bind(self, controller):
         controller.bind_radio_button('prep.use_pdb', self.pdbFileRadio)
