@@ -13,7 +13,7 @@ class MainWindow(QtWidgets.QTabWidget):
         self.addTab(PreparationTab('prep', window_manager), 'Preparation')
         self.addTab(DynamicsTab('dynam', window_manager), 'Dynamics')
         PreparationAdvancedWindow('prep_advanced', window_manager)
-        self.setMinimumSize(self.sizeHint())
+        self.setFixedSize(self.sizeHint())
 
     def closeEvent(self, event):
         self.window_manager.close_all()
