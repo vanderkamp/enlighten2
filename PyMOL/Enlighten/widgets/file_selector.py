@@ -23,11 +23,11 @@ class FileSelector(QtWidgets.QWidget):
 
     def set_directory_mode(self, value):
         self.directory_mode = value
-        self.validate(self.text())
+        self.validate()
 
     def set_validator(self, value):
         self.validator = value
-        self.validate(self.text())
+        self.validate()
 
     def set_invalid_tooltip(self, tooltip):
         self.invalidTooltip = tooltip
@@ -36,7 +36,7 @@ class FileSelector(QtWidgets.QWidget):
         self.pristine = False
         self.validate(value)
 
-    def validate(self, value):
+    def validate(self, value=None):
         if self.pristine:
             return
         if self.is_valid(value):
@@ -46,7 +46,9 @@ class FileSelector(QtWidgets.QWidget):
             self.setToolTip(self.invalidTooltip)
             self.setStyleSheet("QLineEdit {background-color: #FFAFAF;}")
 
-    def is_valid(self, value):
+    def is_valid(self, value=None):
+        if value is None:
+            value = self.text()
         if self.validator:
             return self.validator(value)
         if self.directory_mode:
