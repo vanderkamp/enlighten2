@@ -17,6 +17,7 @@ class FileSelector(QtWidgets.QWidget):
         self.pristine = True
         self.directory_mode = False
         self.validator = None
+        self.invalidTooltip = ''
         self.browseButton.clicked.connect(self.browse)
         self.textChanged.connect(self.on_change)
 
@@ -28,6 +29,9 @@ class FileSelector(QtWidgets.QWidget):
         self.validator = value
         self.validate(self.text())
 
+    def set_invalid_tooltip(self, tooltip):
+        self.invalidTooltip = tooltip
+
     def on_change(self, value):
         self.pristine = False
         self.validate(value)
@@ -36,8 +40,10 @@ class FileSelector(QtWidgets.QWidget):
         if self.pristine:
             return
         if self.is_valid(value):
+            self.setToolTip('')
             self.setStyleSheet("QLineEdit {background-color: #FFFFFF;}")
         else:
+            self.setToolTip(self.invalidTooltip)
             self.setStyleSheet("QLineEdit {background-color: #FFAFAF;}")
 
     def is_valid(self, value):

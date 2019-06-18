@@ -16,8 +16,16 @@ class PreparationAdvancedWindow(ManagedWindow):
     def setup_file_selectors(self):
         self.enlightenEdit.set_directory_mode(True)
         self.enlightenEdit.set_validator(self.enlighten_validator)
+        self.enlightenEdit.set_invalid_tooltip(
+            "Not a valid Enlighten path. Check that\n"
+            "the path contains prep.py script."
+        )
         self.amberEdit.set_directory_mode(True)
         self.amberEdit.set_validator(self.amber_validator)
+        self.amberEdit.set_invalid_tooltip(
+            "Not a valid Amber path. Check that the path contains 'bin'\n"
+            "directory with antechamber, pdb4amber and reduce executables."
+        )
 
     @staticmethod
     def enlighten_validator(path):

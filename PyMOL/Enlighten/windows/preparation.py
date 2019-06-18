@@ -26,7 +26,9 @@ class PreparationTab(ManagedWindow):
 
     def setup_file_selectors(self):
         self.pdbFileEdit.set_validator(self.pdb_validator)
+        self.pdbFileEdit.set_invalid_tooltip("Not a valid PDB file")
         self.outputEdit.set_directory_mode(True)
+        self.outputEdit.set_invalid_tooltip("Not a valid directory")
 
     def setup_radio_buttons(self):
         self.pdbFileRadio.toggled.connect(self.on_radio_changed)
