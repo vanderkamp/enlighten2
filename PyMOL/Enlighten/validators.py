@@ -18,6 +18,16 @@ class Validator:
         return ''
 
 
+class NotEmptyValidator(Validator):
+
+    @staticmethod
+    def validate(value):
+        return len(value) > 0
+
+    def tooltip(self):
+        return "Must not be empty"
+
+
 class FileValidator(Validator):
 
     @staticmethod

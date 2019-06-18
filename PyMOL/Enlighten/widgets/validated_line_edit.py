@@ -7,7 +7,7 @@ class ValidatedLineEdit(QtWidgets.QLineEdit):
         super().__init__(*args)
         self.pristine = True
         self.validator = None
-        self.textChanged.connect(self.validate)
+        self.textChanged.connect(self.on_change)
 
     def set_validator(self, validator):
         self.validator = validator

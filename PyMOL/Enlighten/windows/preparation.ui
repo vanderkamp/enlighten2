@@ -23,7 +23,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="ligandNameEdit">
+        <widget class="ValidatedLineEdit" name="ligandNameEdit">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -200,6 +200,11 @@
   </layout>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>ValidatedLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>widgets.validated_line_edit.h</header>
+  </customwidget>
   <customwidget>
    <class>FileSelector</class>
    <extends>QLineEdit</extends>

@@ -1,7 +1,7 @@
 from .windows import ManagedWindow
 from PyQt5.QtGui import QIntValidator
 import os
-from validators import PdbValidator
+from validators import NotEmptyValidator, PdbValidator
 
 
 # temporary mock of pymol
@@ -24,6 +24,7 @@ class PreparationTab(ManagedWindow):
         self.setup_radio_buttons()
         self.setup_objects_list()
         self.ligandChargeEdit.setValidator(QIntValidator())
+        self.ligandNameEdit.set_validator(NotEmptyValidator())
 
     def setup_file_selectors(self):
         self.pdbFileEdit.set_validator(PdbValidator())
