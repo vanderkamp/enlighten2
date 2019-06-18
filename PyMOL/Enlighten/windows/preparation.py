@@ -13,7 +13,7 @@ class pymol:
 
 class PreparationTab(ManagedWindow):
 
-    PDB_FILE_WIDGETS = ('pdbFileLabel', 'pdbFileEdit', 'pdbFileEdit')
+    PDB_FILE_WIDGETS = ('pdbFileLabel', 'pdbFileEdit')
     PYMOL_OBJECT_WIDGETS = ('pymolObjectLabel', 'pymolObjectCombo')
 
     def __init__(self, name, window_manager):
