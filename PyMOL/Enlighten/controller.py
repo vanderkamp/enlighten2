@@ -51,3 +51,11 @@ class EnlightenController(PyQtController):
     def open_enlighten_website():
         import webbrowser
         webbrowser.open_new("https://github.com/vanderkamp/enlighten2/")
+
+    def run_prep(self):
+        from windows.terminal import TerminalWindow
+        from PyQt5.QtCore import QProcess
+        process = QProcess()
+        terminal = TerminalWindow(process, 'Prep')
+        process.start('./mock_prep.py')
+        terminal.exec()

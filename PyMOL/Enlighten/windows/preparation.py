@@ -61,3 +61,4 @@ class PreparationTab(ManagedWindow):
         prep_advanced = self.window_manager['prep_advanced']
         self.advancedOptionsButton.clicked.connect(prep_advanced.show)
         self.websiteButton.clicked.connect(controller.open_enlighten_website)
+        self.runPrepButton.clicked.connect(controller.run_prep)
