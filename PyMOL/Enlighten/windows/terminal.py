@@ -11,4 +11,6 @@ class TerminalWindow(QtWidgets.QDialog):
         self.terminal.attach(process)
 
     def closeEvent(self, event):
-        self.process.kill()
+        self.process.terminate()
+        self.process.waitForFinished()
+        event.accept()
