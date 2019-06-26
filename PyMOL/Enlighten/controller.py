@@ -1,3 +1,7 @@
+from windows.terminal import TerminalWindow
+from PyQt5.QtCore import QProcess
+
+
 class Controller:
 
     def __init__(self):
@@ -53,9 +57,11 @@ class EnlightenController(PyQtController):
         webbrowser.open_new("https://github.com/vanderkamp/enlighten2/")
 
     def run_prep(self):
-        from windows.terminal import TerminalWindow
-        from PyQt5.QtCore import QProcess
+        self.run_in_terminal('Prep', './mock_prep.py')
+
+    @staticmethod
+    def run_in_terminal(title, command):
         process = QProcess()
-        terminal = TerminalWindow(process, 'Prep')
-        process.start('./mock_prep.py')
+        terminal = TerminalWindow(process, title)
+        process.start(command)
         terminal.exec()
