@@ -32,3 +32,4 @@ class Terminal(QtWidgets.QTextEdit):
         cursor.movePosition(cursor.End)
         cursor.insertHtml('<font color="{}">{}</font><br>'.format(color, text))
         self.ensureCursorVisible()
+        print(text, end='')
