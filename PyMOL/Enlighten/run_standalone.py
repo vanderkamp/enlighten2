@@ -9,8 +9,7 @@ def main():
     app = QtWidgets.QApplication(sys.argv)
     window_manager = WindowManager()
     main_window = MainWindow(window_manager)
-    controller = EnlightenController()
-    window_manager.bind_all(controller)
+    window_manager.bind_all(EnlightenController())
 
     main_window.show()
     sys.exit(app.exec_())
