@@ -25,7 +25,7 @@ class NotEmptyValidator(Validator):
         return len(value) > 0
 
     def tooltip(self):
-        return "Must not be empty"
+        return "Field must not be empty"
 
 
 class IntegerValidator(Validator):
@@ -39,7 +39,7 @@ class IntegerValidator(Validator):
             return False
 
     def tooltip(self):
-        return "Must be an integer"
+        return "{} is not an integer".format(self.value)
 
 
 class FileValidator(Validator):
@@ -49,7 +49,7 @@ class FileValidator(Validator):
         return os.path.isfile(value)
 
     def tooltip(self):
-        return "Not a valid file"
+        return "{} is not a valid file".format(self.value)
 
 
 class DirectoryValidator(Validator):
