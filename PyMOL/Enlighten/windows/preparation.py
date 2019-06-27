@@ -2,6 +2,7 @@ from .windows import ManagedWindow
 from PyQt5.QtGui import QIntValidator
 import os
 from validators import NotEmptyValidator, IntegerValidator, PdbValidator
+from widgets.form import Form
 
 
 # temporary mock of pymol
@@ -61,4 +62,17 @@ class PreparationTab(ManagedWindow):
         prep_advanced = self.window_manager['prep_advanced']
         self.advancedOptionsButton.clicked.connect(prep_advanced.show)
         self.websiteButton.clicked.connect(controller.open_enlighten_website)
-        self.runPrepButton.clicked.connect(controller.run_prep)
+        # self.runPrepButton.clicked.connect(controller.run_prep)
+
+        object_form_widgets = [
+            self.outputSelector.lineEdit, self.ligandNameEdit, self.ligandChargeEdit,
+            prep_advanced.enlightenSelector.lineEdit, prep_advanced.amberSelector.lineEdit,
+        ]
+        pdb_form_widgets = [self.pdbFileSelector.lineEdit, ] + object_form_widgets
+
+        self.pdb_form = Form(pdb_form_widgets, self.runPrepButton)
+        controller.listen('prep.use_pdb', self.pdb_form.set_active)
+        # object_form = Form(object_form_widgets, self.runPrepButton)
+        # controller.listen('prep.use_object', self.object_form.set_active)
+
+
