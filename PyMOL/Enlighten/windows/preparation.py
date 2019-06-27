@@ -25,8 +25,8 @@ class PreparationTab(ManagedWindow):
         self.setup_radio_buttons()
         self.setup_objects_list()
         self.ligandChargeEdit.setValidator(QIntValidator())
-        self.ligandChargeEdit.set_validator(IntegerValidator())
-        self.ligandNameEdit.set_validator(NotEmptyValidator())
+        self.ligandChargeEdit.set_validator(IntegerValidator('Ligand charge'))
+        self.ligandNameEdit.set_validator(NotEmptyValidator('Ligand name'))
 
     def setup_file_selectors(self):
         self.pdbFileSelector.lineEdit.set_validator(PdbValidator())

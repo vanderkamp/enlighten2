@@ -20,15 +20,21 @@ class Validator:
 
 class NotEmptyValidator(Validator):
 
+    def __init__(self, name='Field'):
+        self.name = name
+
     @staticmethod
     def validate(value):
         return len(value) > 0
 
     def tooltip(self):
-        return "Field must not be empty"
+        return "{} must not be empty".format(self.name)
 
 
 class IntegerValidator(Validator):
+
+    def __init__(self, name='Field'):
+        self.name = name
 
     @staticmethod
     def validate(value):
@@ -39,7 +45,7 @@ class IntegerValidator(Validator):
             return False
 
     def tooltip(self):
-        return "{} is not an integer".format(self.value)
+        return "{} '{}' is not an integer".format(self.name, self.value)
 
 
 class FileValidator(Validator):
