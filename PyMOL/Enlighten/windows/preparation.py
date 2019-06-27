@@ -62,17 +62,24 @@ class PreparationTab(ManagedWindow):
         prep_advanced = self.window_manager['prep_advanced']
         self.advancedOptionsButton.clicked.connect(prep_advanced.show)
         self.websiteButton.clicked.connect(controller.open_enlighten_website)
-        # self.runPrepButton.clicked.connect(controller.run_prep)
 
+        # TODO: uncomment fields in production
         object_form_widgets = [
-            self.outputSelector.lineEdit, self.ligandNameEdit, self.ligandChargeEdit,
-            prep_advanced.enlightenSelector.lineEdit, prep_advanced.amberSelector.lineEdit,
+            # self.outputSelector.lineEdit,
+            self.ligandNameEdit, self.ligandChargeEdit,
+            # prep_advanced.enlightenSelector.lineEdit, prep_advanced.amberSelector.lineEdit,
         ]
-        pdb_form_widgets = [self.pdbFileSelector.lineEdit, ] + object_form_widgets
+        object_form = Form(fields=object_form_widgets,
+                           button=self.runPrepButton,
+                           submit_callback=controller.run_prep)
+        object_form.set_active(False)
+        controller.listen('prep.use_object', object_form.set_active)
 
-        self.pdb_form = Form(pdb_form_widgets, self.runPrepButton)
-        controller.listen('prep.use_pdb', self.pdb_form.set_active)
-        # object_form = Form(object_form_widgets, self.runPrepButton)
-        # controller.listen('prep.use_object', self.object_form.set_active)
+        pdb_form_widgets = [self.pdbFileSelector.lineEdit, ] + object_form_widgets
+        pdb_form = Form(fields=pdb_form_widgets,
+                        button=self.runPrepButton,
+                        submit_callback=controller.run_prep)
+        controller.listen('prep.use_pdb', pdb_form.set_active)
+
 
 

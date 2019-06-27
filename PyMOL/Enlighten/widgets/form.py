@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QMessageBox
 
 class Form:
 
-    def __init__(self, fields, button, active=True):
+    def __init__(self, fields, button, submit_callback, active=True):
         """
         Not a widget itself, but adds a form-like behaviour to a set of
         ValidatedLineEdit widgets and a button: when the button is clicked for
@@ -16,12 +16,14 @@ class Form:
         self.button = button
         self.pristine = True
         self.active = active
+        self.submit_callback = submit_callback
         button.clicked.connect(self.on_button_click)
         for field in fields:
             field.textChanged.connect(self.on_field_change)
 
     def set_active(self, value):
         self.active = value
+        self.on_field_change()
 
     def on_button_click(self):
         if not self.active:
@@ -33,10 +35,12 @@ class Form:
             QMessageBox.critical(self.button.parent(), "Error",
                                  self.error_message(errors))
             self.button.setEnabled(False)
+        else:
+            self.submit_callback()
 
-    def on_field_change(self, value):
-        if not self.pristine and self.active:
-            self.button.setEnabled(not len(self.get_errors()))
+    def on_field_change(self, value=None):
+        if self.active:
+            self.button.setEnabled(not len(self.invalid_fields()))
 
     def get_errors(self):
         self.validate_fields()
