@@ -19,7 +19,7 @@ class ValidatedLineEdit(QtWidgets.QLineEdit):
         except AttributeError:
             return ''
 
-    def on_change(self, value):
+    def on_change(self, value=None):
         self.pristine = False
         self.validate(value)
 
