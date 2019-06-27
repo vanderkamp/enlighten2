@@ -183,10 +183,10 @@
       </layout>
      </item>
      <item row="2" column="2" colspan="3">
-      <widget class="FileSelector" name="pdbFileEdit"/>
+      <widget class="FileSelector" name="pdbFileSelector"/>
      </item>
      <item row="3" column="2" colspan="3">
-      <widget class="FileSelector" name="outputEdit"/>
+      <widget class="FileSelector" name="outputSelector"/>
      </item>
      <item row="6" column="1" colspan="2">
       <widget class="QCheckBox" name="structCheckBox">

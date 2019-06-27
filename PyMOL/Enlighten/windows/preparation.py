@@ -14,7 +14,7 @@ class pymol:
 
 class PreparationTab(ManagedWindow):
 
-    PDB_FILE_WIDGETS = ('pdbFileLabel', 'pdbFileEdit')
+    PDB_FILE_WIDGETS = ('pdbFileLabel', 'pdbFileSelector')
     PYMOL_OBJECT_WIDGETS = ('pymolObjectLabel', 'pymolObjectCombo')
 
     def __init__(self, name, window_manager):
@@ -28,8 +28,8 @@ class PreparationTab(ManagedWindow):
         self.ligandNameEdit.set_validator(NotEmptyValidator())
 
     def setup_file_selectors(self):
-        self.pdbFileEdit.set_validator(PdbValidator())
-        self.outputEdit.set_directory_mode(True)
+        self.pdbFileSelector.lineEdit.set_validator(PdbValidator())
+        self.outputSelector.set_directory_mode(True)
 
     def setup_radio_buttons(self):
         self.pdbFileRadio.toggled.connect(self.on_radio_changed)
@@ -51,8 +51,8 @@ class PreparationTab(ManagedWindow):
         controller.bind_combo_box('prep.object', self.pymolObjectCombo)
         controller.update('prep.object', self.pymolObjectCombo.currentText())
 
-        controller.bind_lineEdit('prep.pdb', self.pdbFileEdit)
-        controller.bind_lineEdit('prep.output_location', self.outputEdit)
+        controller.bind_file_selector('prep.pdb', self.pdbFileSelector)
+        controller.bind_file_selector('prep.output_location', self.outputSelector)
 
         controller.bind_lineEdit('prep.ligand_name', self.ligandNameEdit)
         controller.bind_lineEdit('prep.ligand_charge', self.ligandChargeEdit)

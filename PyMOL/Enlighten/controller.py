@@ -48,6 +48,10 @@ class PyQtController(Controller):
         comboBox.currentTextChanged.connect(self.updater(key))
         self.listen(key, comboBox.setCurrentText)
 
+    def bind_file_selector(self, key, fileSelector):
+        fileSelector.lineEdit.textChanged.connect(self.updater(key))
+        self.listen(key, fileSelector.lineEdit.setText)
+
 
 class EnlightenController(PyQtController):
 

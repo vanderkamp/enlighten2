@@ -112,10 +112,10 @@
     </layout>
    </item>
    <item row="2" column="1" colspan="2">
-    <widget class="FileSelector" name="amberEdit"/>
+    <widget class="FileSelector" name="amberSelector"/>
    </item>
    <item row="1" column="1" colspan="2">
-    <widget class="FileSelector" name="enlightenEdit"/>
+    <widget class="FileSelector" name="enlightenSelector"/>
    </item>
   </layout>
  </widget>

@@ -15,14 +15,14 @@ class PreparationAdvancedWindow(ManagedWindow):
         self.sphereSizeEdit.setValidator(QIntValidator())
 
     def setup_file_selectors(self):
-        self.enlightenEdit.set_directory_mode(True)
-        self.enlightenEdit.set_validator(EnlightenValidator())
-        self.amberEdit.set_directory_mode(True)
-        self.amberEdit.set_validator(AmberValidator())
+        self.enlightenSelector.set_directory_mode(True)
+        self.enlightenSelector.lineEdit.set_validator(EnlightenValidator())
+        self.amberSelector.set_directory_mode(True)
+        self.amberSelector.lineEdit.set_validator(AmberValidator())
 
     def bind(self, controller):
-        controller.bind_lineEdit('enlighten_path', self.enlightenEdit)
-        controller.bind_lineEdit('amber_path', self.amberEdit)
+        controller.bind_file_selector('enlighten_path', self.enlightenSelector)
+        controller.bind_file_selector('amber_path', self.amberSelector)
         controller.bind_lineEdit('prep.advanced.ph', self.phEdit)
         controller.bind_slider('prep.advanced.sphere_size', self.sphereSizeSlider)
         controller.listen('prep.advanced.sphere_size',
