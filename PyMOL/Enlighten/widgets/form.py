@@ -40,7 +40,7 @@ class Form:
 
     def on_field_change(self, value=None):
         if self.active:
-            self.button.setEnabled(not len(self.invalid_fields()))
+            self.button.setEnabled(not len(self.invalid_fields()) or self.pristine)
 
     def get_errors(self):
         self.validate_fields()
