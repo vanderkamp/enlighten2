@@ -61,7 +61,9 @@ class EnlightenController(PyQtController):
         webbrowser.open_new("https://github.com/vanderkamp/enlighten2/")
 
     def run_prep(self):
-        self.run_in_terminal('Prep', './mock_prep.py')
+        import os
+        path = os.path.join(os.path.dirname(__file__), 'mock_prep.py')
+        self.run_in_terminal('Prep', path)
 
     @staticmethod
     def run_in_terminal(title, command):
