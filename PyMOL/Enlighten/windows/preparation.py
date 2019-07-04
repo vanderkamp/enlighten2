@@ -65,7 +65,7 @@ class PreparationTab(ManagedWindow):
 
         # TODO: uncomment fields in production
         object_form_widgets = [
-            # self.outputSelector.lineEdit,
+            self.outputSelector.lineEdit,
             self.ligandNameEdit, self.ligandChargeEdit,
             # prep_advanced.enlightenSelector.lineEdit, prep_advanced.amberSelector.lineEdit,
         ]
