@@ -1,5 +1,5 @@
 from .windows import ManagedWindow
-from PyQt5.QtGui import QIntValidator, QDoubleValidator
+from qt_wrapper import QtGui
 import os
 from validators import EnlightenValidator, AmberValidator
 
@@ -11,8 +11,8 @@ class PreparationAdvancedWindow(ManagedWindow):
         super().__init__(name, path, window_manager)
         self.setFixedSize(self.size())
         self.setup_file_selectors()
-        self.phEdit.setValidator(QDoubleValidator(0.0, 14.0, 1, self.phEdit))
-        self.sphereSizeEdit.setValidator(QIntValidator())
+        self.phEdit.setValidator(QtGui.QDoubleValidator(0.0, 14.0, 1, self.phEdit))
+        self.sphereSizeEdit.setValidator(QtGui.QIntValidator())
 
     def setup_file_selectors(self):
         self.enlightenSelector.set_directory_mode(True)

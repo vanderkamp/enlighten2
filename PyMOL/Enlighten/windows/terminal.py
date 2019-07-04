@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets, uic
+from qt_wrapper import QtWidgets, uic
 
 
 class TerminalWindow(QtWidgets.QDialog):

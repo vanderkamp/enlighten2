@@ -1,5 +1,5 @@
 from windows.terminal import TerminalWindow
-from PyQt5.QtCore import QProcess
+from qt_wrapper import QtCore
 
 
 class Controller:
@@ -65,7 +65,7 @@ class EnlightenController(PyQtController):
 
     @staticmethod
     def run_in_terminal(title, command):
-        process = QProcess()
+        process = QtCore.QProcess()
         terminal = TerminalWindow(process, title)
         process.start(command)
         terminal.exec()

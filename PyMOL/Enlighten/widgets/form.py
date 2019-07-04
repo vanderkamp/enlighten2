@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QMessageBox
+from qt_wrapper import QtWidgets
 
 
 class Form:
@@ -32,8 +32,8 @@ class Form:
         errors = self.get_errors()
         print(errors)
         if len(errors):
-            QMessageBox.critical(self.button.parent(), "Error",
-                                 self.error_message(errors))
+            QtWidgets.QMessageBox.critical(self.button.parent(), "Error",
+                                           self.error_message(errors))
             self.button.setEnabled(False)
         else:
             self.submit_callback()

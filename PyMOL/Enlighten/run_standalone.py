@@ -1,5 +1,5 @@
 import sys
-from PyQt5 import QtWidgets
+from qt_wrapper import QtWidgets
 from windows.windows import WindowManager
 from windows.main import MainWindow
 from controller import EnlightenController

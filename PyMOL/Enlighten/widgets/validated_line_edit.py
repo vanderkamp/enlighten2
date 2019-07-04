@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets
+from qt_wrapper import QtWidgets
 
 
 class ValidatedLineEdit(QtWidgets.QLineEdit):

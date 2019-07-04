@@ -1,5 +1,5 @@
 from .windows import ManagedWindow
-from PyQt5.QtGui import QIntValidator
+from qt_wrapper import QtGui
 import os
 from validators import NotEmptyValidator, IntegerValidator, PdbValidator
 from widgets.form import Form
@@ -24,7 +24,7 @@ class PreparationTab(ManagedWindow):
         self.setup_file_selectors()
         self.setup_radio_buttons()
         self.setup_objects_list()
-        self.ligandChargeEdit.setValidator(QIntValidator())
+        self.ligandChargeEdit.setValidator(QtGui.QIntValidator())
         self.ligandChargeEdit.set_validator(IntegerValidator('Ligand charge'))
         self.ligandNameEdit.set_validator(NotEmptyValidator('Ligand name'))
 
