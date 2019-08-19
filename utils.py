@@ -13,6 +13,11 @@ def dump_to_file(file, contents):
         f.write(contents)
 
 
+def parse_template(template, params):
+    with open(template) as f:
+        return f.read().format(**params)
+
+
 def set_working_directory(working_directory):
     if os.path.exists(working_directory):
         shutil.rmtree(working_directory)
