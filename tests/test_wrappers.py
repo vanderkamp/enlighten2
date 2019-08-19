@@ -161,9 +161,9 @@ class TestTleapWrapper(unittest.TestCase):
         with self.assertRaises(FileNotFoundError) as context:
             wrappers.get_tleap_includes(['test1', 'test2'],
                                         ['res1', 'res3'])
-        self.assertEquals(str(context.exception),
-                          "Cannot find topology (res3.prepc) "
-                          "for residue res3. Exiting...")
+        self.assertEqual(str(context.exception),
+                         "Cannot find topology (res3.prepc) "
+                         "for residue res3. Exiting...")
 
     @mock.patch('wrappers.utils')
     @mock.patch('wrappers.os.system')
