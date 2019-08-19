@@ -8,6 +8,11 @@ def check_file(name, message=None):
         raise FileNotFoundError(message or "File " + name + " not found.")
 
 
+def dump_to_file(file, contents):
+    with open(file, 'w') as f:
+        f.write(contents)
+
+
 def set_working_directory(working_directory):
     if os.path.exists(working_directory):
         shutil.rmtree(working_directory)
