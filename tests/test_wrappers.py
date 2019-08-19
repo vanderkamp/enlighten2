@@ -200,3 +200,33 @@ class TestTleapWrapper(unittest.TestCase):
         generated_input.seek(0)
         with open('tests/test_files/sphere.in') as f:
             self.assertEqual(generated_input.read(), f.read())
+
+
+class TestSanderWrapper(unittest.TestCase):
+
+    @mock.patch('wrappers.utils')
+    @mock.patch('wrappers.os.path')
+    @mock.patch('wrappers.os')
+    def test_sander_call(self, mock_os, mock_os_path, mock_utils):
+        setup_mock(mock_os, mock_os_path)
+        params = {'bellymask': 'testmask'}
+
+        def side_effect(*args):
+            return 'sander/minh_ibelly.in'
+
+        mock_os_path.join.side_effect = side_effect
+        wrappers.SanderWrapper(prefix="test",
+                               template_name="minh_ibelly",
+                               crd="crd",
+                               prmtop="prmtop",
+                               params=params,
+                               working_directory='test_dir')
+
+        mock_utils.parse_template.assert_has_calls([
+            mock.call('sander/minh_ibelly.in', params)
+        ])
+        mock_utils.run_in_shell.assert_has_calls([
+            mock.call("sander -O -i test.in -p prmtop -c crd "
+                      "-o test.log -r test.rst -ref crd",
+                      'sander.log')
+        ])

@@ -272,3 +272,22 @@ def get_tleap_includes(include, nonprot_residues):
     return '\n'.join(INCLUDE_COMMANDS[key].format(name)
                      for key, include_list in include_lists.items()
                      for name in include_list)
+
+
+class SanderWrapper(object):
+
+    def __init__(self, prefix, template_name, crd, prmtop,
+                 params, working_directory):
+
+        utils.set_working_directory(working_directory)
+
+        enlighten_path = os.path.dirname(__import__(__name__).__file__)
+        templates_directory = os.path.join(enlighten_path, 'sander')
+        template_path = os.path.join(templates_directory, template_name + '.in')
+        template_contents = utils.parse_template(template_path, params)
+        utils.dump_to_file('{}.in'.format(prefix), template_contents)
+
+        command = ('sander -O -i {prefix}.in -p {prmtop} -c {crd} '
+                   '-o {prefix}.log -r {prefix}.rst -ref {crd}')
+        utils.run_in_shell(command.format(prefix=prefix, crd=crd, prmtop=prmtop),
+                           'sander.log')
