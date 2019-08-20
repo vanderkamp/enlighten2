@@ -47,3 +47,24 @@ def run_in_shell(command, output):
         proc = subprocess.Popen(command, shell=True, stdout=f,
                                 stderr=subprocess.STDOUT)
         proc.wait()
+
+
+def run_at_path(path, command):
+    cwd = os.getcwd()
+    set_working_directory(path)
+    exit_code = run(command)
+    os.chdir(cwd)
+    return exit_code
+
+
+def run(command):
+    out = open('out', 'w')
+    err = open('err', 'w')
+    try:
+        subprocess.run(command.split(), stdout=out, stderr=err, check=True)
+        exit_code = 0
+    except subprocess.CalledProcessError as e:
+        exit_code = e.returncode
+    out.close()
+    err.close()
+    return exit_code
