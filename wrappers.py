@@ -287,14 +287,14 @@ class SanderWrapper(object):
         utils.dump_to_file(template_file, self._get_template(template, params))
 
         command = ('{amberhome}/bin/sander -O -i {prefix}.in -p {prmtop} '
-                   '-c {crd} -o {prefix}.log -r {prefix}.ncrst -ref {crd}')
+                   '-c {crd} -o {prefix}.log -r {prefix}.rst -ref {crd}')
         self.exit_code = utils.run_at_path(
             command.format(amberhome=get_amberhome(), prefix=prefix,
                            crd=crd, prmtop=prmtop),
             working_directory
         )
 
-        self.output_crd = self._full_path('{}.ncrst'.format(prefix))
+        self.output_crd = self._full_path('{}.rst'.format(prefix))
 
     def _full_path(self, filename):
         return os.path.join(self.working_directory, filename)
