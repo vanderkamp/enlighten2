@@ -1,6 +1,7 @@
 import os
 import shutil
 import subprocess
+import os
 
 
 def check_file(name, message=None):
@@ -49,9 +50,9 @@ def run_in_shell(command, output):
         proc.wait()
 
 
-def run_at_path(path, command):
+def run_at_path(command, path):
     cwd = os.getcwd()
-    set_working_directory(path)
+    os.chdir(path)
     exit_code = run(command)
     os.chdir(cwd)
     return exit_code

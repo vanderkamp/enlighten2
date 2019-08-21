@@ -215,8 +215,9 @@ class TestSanderWrapper(unittest.TestCase):
             return 'sander/minh_ibelly.in'
 
         mock_os_path.join.side_effect = side_effect
+        mock_os.environ = {'AMBERHOME': 'amberhome'}
         wrappers.SanderWrapper(prefix="test",
-                               template_name="minh_ibelly",
+                               template="minh_ibelly",
                                crd="crd",
                                prmtop="prmtop",
                                params=params,
@@ -225,8 +226,8 @@ class TestSanderWrapper(unittest.TestCase):
         mock_utils.parse_template.assert_has_calls([
             mock.call('sander/minh_ibelly.in', params)
         ])
-        mock_utils.run_in_shell.assert_has_calls([
-            mock.call("sander -O -i test.in -p prmtop -c crd "
-                      "-o test.log -r test.rst -ref crd",
-                      'sander.log')
+        mock_utils.run_at_path.assert_has_calls([
+            mock.call("amberhome/bin/sander -O -i test.in -p prmtop -c crd "
+                      "-o test.log -r test.ncrst -ref crd",
+                      'test_dir')
         ])

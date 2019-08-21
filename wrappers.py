@@ -276,18 +276,31 @@ def get_tleap_includes(include, nonprot_residues):
 
 class SanderWrapper(object):
 
-    def __init__(self, prefix, template_name, crd, prmtop,
-                 params, working_directory):
+    def __init__(self, prefix, template, crd, prmtop, params, working_directory):
 
-        utils.set_working_directory(working_directory)
+        self.prefix = prefix
 
+        os.mkdir(working_directory)
+        self.working_directory = os.path.abspath(working_directory)
+
+        template_file = self._full_path('{}.in'.format(prefix))
+        utils.dump_to_file(template_file, self._get_template(template, params))
+
+        command = ('{amberhome}/bin/sander -O -i {prefix}.in -p {prmtop} '
+                   '-c {crd} -o {prefix}.log -r {prefix}.ncrst -ref {crd}')
+        self.exit_code = utils.run_at_path(
+            command.format(amberhome=get_amberhome(), prefix=prefix,
+                           crd=crd, prmtop=prmtop),
+            working_directory
+        )
+
+        self.output_crd = self._full_path('{}.ncrst'.format(prefix))
+
+    def _full_path(self, filename):
+        return os.path.join(self.working_directory, filename)
+
+    @staticmethod
+    def _get_template(template, params):
         enlighten_path = os.path.dirname(__import__(__name__).__file__)
-        templates_directory = os.path.join(enlighten_path, 'sander')
-        template_path = os.path.join(templates_directory, template_name + '.in')
-        template_contents = utils.parse_template(template_path, params)
-        utils.dump_to_file('{}.in'.format(prefix), template_contents)
-
-        command = ('sander -O -i {prefix}.in -p {prmtop} -c {crd} '
-                   '-o {prefix}.log -r {prefix}.rst -ref {crd}')
-        utils.run_in_shell(command.format(prefix=prefix, crd=crd, prmtop=prmtop),
-                           'sander.log')
+        template_path = os.path.join(enlighten_path, 'sander', template + '.in')
+        return utils.parse_template(template_path, params)
