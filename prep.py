@@ -8,6 +8,34 @@ import utils
 import sys
 import os
 
+
+def get_ligand_atoms(pdb, ligand_name, ligand_index):
+
+    ligands = pdb.get_residues_by_name(ligand_name)
+    if len(ligands) == 0:
+        raise ValueError("No ligands found")
+
+    if ligand_index > len(ligands):
+        raise ValueError("ligand_index is larger than the number of ligands")
+
+    ligand_atoms = ligands[ligand_index - 1]
+    if len(ligands) > 1:
+        print("More than one ligand detected. Using coordinates from the ligand"
+              " with chainID={} and resSeq={}"
+              .format(ligand_atoms[0]['chainID'], ligand_atoms[0]['resSeq']))
+
+    return ligand_atoms
+
+
+def run_propka(pdb, ph, ph_offset):
+    if shutil.which('propka31'):
+        return wrappers.PropkaWrapper(pdb, ph, ph_offset).pdb
+    else:
+        print("propka31 cannot be found in $PATH.\n"
+              "WARNING: all ASP/GLU will be treated as unprotonated.")
+        return pdb
+
+
 parser = argparse.ArgumentParser(
     description=""
     "Prepares the simulation system by performing the following actions:\n"
@@ -67,20 +95,8 @@ if os.path.exists(pdb_name):
 utils.set_working_directory(pdb_name)
 
 pdb = pdb_utils.Pdb(args.pdb)
-
-ligands = pdb.get_residues_by_name(ligand_name)
-if len(ligands) == 0:
-    raise ValueError("No ligands found")
-
 ligand_index = params['antechamber']['ligand_index']
-if ligand_index > len(ligands):
-    raise ValueError("ligand_index is larger than the number of ligands")
-
-ligand_atoms = ligands[ligand_index-1]
-if len(ligands) > 1:
-    print("More than one ligand detected. Using coordinates from the ligand"
-          " with chainID={} and resSeq={}"
-          .format(ligand_atoms[0]['chainID'], ligand_atoms[0]['resSeq']))
+ligand_atoms = get_ligand_atoms(pdb, ligand_name, ligand_index)
 
 # Only generate ligand frcmod if it is not found in include paths
 ligand_frcmod = utils.file_in_paths(ligand_name + '.frcmod',
@@ -103,15 +119,9 @@ params['tleap']['water_pdb'] = reduceResults.waterPdb
 
 # Run propka31 if requested and found
 if params['propka']['with_propka']:
-    if shutil.which('propka31'):
-        pdb = wrappers.PropkaWrapper(
-            pdb,
-            ph=params['propka']['ph'],
-            ph_offset=params['propka']['ph_offset']
-        ).pdb
-    else:
-        print("propka31 cannot be found in $PATH.\n"
-              "WARNING: all ASP/GLU will be treated as unprotonated.")
+    pdb = run_propka(pdb=pdb,
+                     ph=params['propka']['ph'],
+                     ph_offset=params['propka']['ph_offset'])
 
 ligand = pdb.get_residues_by_name(ligand_name)[ligand_index-1]
 params['tleap']['name'] = os.path.basename(pdb_name)
