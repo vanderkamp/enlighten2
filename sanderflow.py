@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import sys
 from wrappers import SanderWrapper
 from functools import reduce
 from collections import namedtuple
@@ -33,5 +34,6 @@ def run(prmtop, crd, params):
     else:
         err_file = os.path.join(os.getcwd(), result, '{}.log'.format(result))
         print("sander failed at step '{}'. Check {} for more information"
-              .format(result, err_file))
+              .format(result, err_file),
+              file=sys.stderr)
         return False, result
