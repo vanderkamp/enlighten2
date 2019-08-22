@@ -14,8 +14,7 @@ parser = argparse.ArgumentParser(
     " - ligand parameterisation (with antechamber/prmchk2)\n"
     " - pdb protonation (apart from ligands, they need to "
     "   be protonated already!)\n"
-    " - tleap to solvate and write starting parm7/rst7 (top/rst)\n\n"
-    "Is meant to be followed by relax.py",
+    " - tleap to solvate and write starting parm7/rst7 (top/rst)\n\n",
     formatter_class=argparse.RawDescriptionHelpFormatter
 )
 

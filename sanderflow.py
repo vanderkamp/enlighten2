@@ -29,9 +29,9 @@ def run(prmtop, crd, params):
     if isinstance(result, SystemFiles):
         print("sanderflow finished successfully. Final coordinates are in {}"
               .format(result.crd))
-        return None
+        return True, result
     else:
         err_file = os.path.join(os.getcwd(), result, '{}.log'.format(result))
         print("sander failed at step '{}'. Check {} for more information"
               .format(result, err_file))
-        return result
+        return False, result
