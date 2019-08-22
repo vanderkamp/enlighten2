@@ -46,6 +46,7 @@ parser = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter
 )
 
+parser.add_argument("name", help="name of the job")
 parser.add_argument("pdb", help="protonated PDB file",
                     type=argparse.FileType())
 parser.add_argument("ligand",
@@ -56,7 +57,7 @@ parser.add_argument("params", help="JSON file with advanced parameters",
 
 args = parser.parse_args()
 
-pdb_name = '.'.join(args.pdb.name.split('.')[:-1])
+job_name = args.name
 ligand_name = args.ligand
 ligand_charge = args.charge
 
@@ -85,14 +86,14 @@ if args.params is not None:
     args.params.close()
 
 
-print("Starting PREP protocol in {}/".format(pdb_name))
+print("Starting PREP protocol in {}/".format(job_name))
 
-if os.path.exists(pdb_name):
+if os.path.exists(job_name):
     print("It appears you've already (attempted to) run prep.py with {0}. "
           "Delete folder {0} or rename pdb if you want to run it again."
-          .format(pdb_name))
+          .format(job_name))
     sys.exit()
-utils.set_working_directory(pdb_name)
+utils.set_working_directory(job_name)
 
 pdb = pdb_utils.Pdb(args.pdb)
 ligand_index = params['antechamber']['ligand_index']
@@ -124,7 +125,7 @@ if params['propka']['with_propka']:
                      ph_offset=params['propka']['ph_offset'])
 
 ligand = pdb.get_residues_by_name(ligand_name)[ligand_index-1]
-params['tleap']['name'] = os.path.basename(pdb_name)
+params['tleap']['name'] = os.path.basename(job_name)
 params['tleap']['pdb'] = pdb
 params['tleap']['ligand'] = ligand
 wrappers.TleapWrapper(params['tleap']['template'],

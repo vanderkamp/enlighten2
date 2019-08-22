@@ -14,6 +14,6 @@ mol_xwat = combine {{mol xwat}}
 # solvate with a sphere of TIP3P
 solvatecap mol_xwat TIP3PBOX mol_xwat.{center} {solvent_radius} {solvent_closeness}
 # save parm & crd, with PyMOL compatible extensions
-saveamberparm mol_xwat {name}.sp{solvent_radius:.0f}.top {name}.sp{solvent_radius:.0f}.rst
-savepdb mol_xwat {name}.sp{solvent_radius:.0f}.pdb
+saveamberparm mol_xwat {name}.top {name}.rst
+savepdb mol_xwat {name}.pdb
 quit

@@ -7,8 +7,8 @@ def run(params, template):
 
 
 def check(params):
-    top_file = "{name}.sp{solvent_radius:.0f}.top".format(**params)
-    rst_file = "{name}.sp{solvent_radius:.0f}.rst".format(**params)
+    top_file = "{name}.top".format(**params)
+    rst_file = "{name}.rst".format(**params)
     if os.path.isfile(top_file) and os.path.isfile(rst_file):
         print("Generated topology (prmtop) file {}".format(top_file))
         print("Generated coordinate (inpcrd) file {}".format(rst_file))
