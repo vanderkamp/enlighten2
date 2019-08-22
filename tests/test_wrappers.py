@@ -228,6 +228,6 @@ class TestSanderWrapper(unittest.TestCase):
         ])
         mock_utils.run_at_path.assert_has_calls([
             mock.call("amberhome/bin/sander -O -i test.in -p prmtop -c crd "
-                      "-o test.log -r test.ncrst -ref crd",
+                      "-o test.log -r test.rst -ref crd",
                       'test_dir')
         ])
