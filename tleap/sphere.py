@@ -13,5 +13,5 @@ def check(params):
         print("Generated topology (prmtop) file {}".format(top_file))
         print("Generated coordinate (inpcrd) file {}".format(rst_file))
     else:
-        print("Something went wrong, check {}/tleap.log."
+        print("Something went wrong, check {}/tleap/tleap.log."
               .format(params['name']))
