@@ -1,4 +1,5 @@
 import os
+import sys
 
 
 def run(params, template):
@@ -14,4 +15,4 @@ def check(params):
         print("Generated coordinate (inpcrd) file {}".format(rst_file))
     else:
         print("Something went wrong, check {}/tleap/tleap.log."
-              .format(params['name']))
+              .format(params['name']), file=sys.stderr)
