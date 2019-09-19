@@ -84,6 +84,8 @@ params = {
 if args.params is not None:
     params = utils.merge_dicts_of_dicts(params, json.load(args.params))
     args.params.close()
+    params['tleap']['include'] = [os.path.abspath(path)
+                                  for path in params['tleap']['include']]
 
 
 print("Starting PREP protocol in {}/".format(job_name))
