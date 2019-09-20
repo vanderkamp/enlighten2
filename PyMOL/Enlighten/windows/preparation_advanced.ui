@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>436</width>
-    <height>107</height>
+    <height>150</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,7 +28,7 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="0" colspan="3">
+   <item row="4" column="0" colspan="3">
     <layout class="QHBoxLayout" name="pHandSphereLayout">
      <item>
       <widget class="QLabel" name="phLabel">
@@ -117,6 +117,16 @@
    <item row="1" column="1" colspan="2">
     <widget class="FileSelector" name="enlightenSelector"/>
    </item>
+   <item row="3" column="1" colspan="2">
+    <widget class="AtomSelector" name="atomSelector"/>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="atomLabel">
+     <property name="text">
+      <string>Sphere center</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -124,6 +134,11 @@
    <class>FileSelector</class>
    <extends>QLineEdit</extends>
    <header>widgets.file_selector.h</header>
+  </customwidget>
+  <customwidget>
+   <class>AtomSelector</class>
+   <extends>QLineEdit</extends>
+   <header>widgets.atom_selector.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
