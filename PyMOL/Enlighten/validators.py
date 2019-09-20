@@ -107,3 +107,34 @@ class AmberValidator(Validator):
         return "'{}' is not a valid Amber path.\n"\
                "Check that the path contains 'bin' directory with "\
                "antechamber, pdb4amber and reduce executables.".format(self.value)
+
+
+class AtomValidator(Validator):
+
+    @classmethod
+    def validate(cls, value):
+        if not value:
+            return True
+        try:
+            res, name = cls._split_value(value)
+        except AttributeError:
+            return False
+
+        try:
+            return cls._validate_with_pymol(res, name)
+        except ImportError:
+            return True
+
+    @staticmethod
+    def _split_value(value):
+        import re
+        return re.match('([0-9]+).([a-zA-Z0-9]+)$', value).groups()
+
+    @staticmethod
+    def _validate_with_pymol(res, name):
+        import pymol
+        selection = 'resi {} and name {}'.format(res, name)
+        return pymol.cmd.count_atoms(selection) == 1
+
+    def tooltip(self):
+        return "Selection {} has zero or more than one atom.".format(self.value)
