@@ -1,3 +1,6 @@
 {
-	"tleap": {"include": [".."]}
+	"tleap": {
+		"include": [".."],
+		"center": "312.C5"
+	}
 }
