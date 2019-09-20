@@ -3,7 +3,7 @@ import sys
 
 
 def run(params, template):
-    params['center'] = '{resSeq}.{name}'.format(**params['ligand'][0])
+    params['center'] = params.get('center', params['ligand'][0]['resSeq'])
     return template.format(**params)
 
 
