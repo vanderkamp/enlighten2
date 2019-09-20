@@ -30,7 +30,7 @@ class PyQtController(Controller):
 
     def bind_lineEdit(self, key, lineEdit):
         lineEdit.textChanged.connect(self.updater(key))
-        self.listen(key, lineEdit.setText)
+        self.listen(key, self.lineEdit_text_updater)
 
     def bind_checkBox(self, key, checkBox):
         checkBox.toggled.connect(self.updater(key))
@@ -53,6 +53,15 @@ class PyQtController(Controller):
 
     def bind_atom_selector(self, key, atomSelector):
         self.bind_lineEdit(key, atomSelector.lineEdit)
+
+    @classmethod
+    def lineEdit_text_updater(cls, lineEdit):
+        return lambda value: cls._set_text_if_changed(lineEdit, value)
+
+    @staticmethod
+    def _set_text_if_changed(lineEdit, value):
+        if lineEdit.text() != value:
+            lineEdit.setText(value)
 
 
 class EnlightenController(PyQtController):
