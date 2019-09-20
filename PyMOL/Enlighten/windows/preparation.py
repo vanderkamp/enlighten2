@@ -5,14 +5,6 @@ from validators import NotEmptyValidator, IntegerValidator, PdbValidator
 from widgets.form import Form
 
 
-# temporary mock of pymol
-class pymol:
-    class cmd:
-        @staticmethod
-        def get_names(tmp):
-            return ['a', 'b', 'c']
-
-
 class PreparationTab(ManagedWindow):
 
     PDB_FILE_WIDGETS = ('pdbFileLabel', 'pdbFileSelector')
@@ -37,9 +29,13 @@ class PreparationTab(ManagedWindow):
         self.pdbFileRadio.setChecked(True)
 
     def setup_objects_list(self):
-        objects = pymol.cmd.get_names('objects')
-        self.pymolObjectCombo.addItems(objects)
-        self.pymolObjectCombo.setCurrentIndex(len(objects) - 1)
+        try:
+            import pymol
+            objects = pymol.cmd.get_names('objects')
+            self.pymolObjectCombo.addItems(objects)
+            self.pymolObjectCombo.setCurrentIndex(len(objects) - 1)
+        except ImportError:
+            self.pymolObjectRadio.setEnabled(False)
 
     def on_radio_changed(self, value):
         self.toggle_group(self.PDB_FILE_WIDGETS, value)
