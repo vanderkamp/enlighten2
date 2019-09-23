@@ -45,7 +45,6 @@ class PreparationTab(ManagedWindow):
             self.pymolObjectRadio.setEnabled(False)
 
     def on_radio_changed(self, value):
-        print("CHECKED", value)
         self.toggle_group(self.PDB_FILE_WIDGETS, value)
         self.toggle_group(self.PYMOL_OBJECT_WIDGETS, not value)
 
