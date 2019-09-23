@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>475</width>
+    <height>233</height>
+   </rect>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="4" column="1" colspan="4">
+      <layout class="QHBoxLayout" name="ligandLayout">
+       <item>
+        <widget class="QLabel" name="ligandNameLabel">
+         <property name="text">
+          <string>Ligand Name</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="ValidatedLineEdit" name="ligandNameEdit">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>50</width>
+           <height>16777215</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="ligandSpacer1">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="ligandChargeLabel">
+         <property name="text">
+          <string>Ligand Charge</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="ValidatedLineEdit" name="ligandChargeEdit">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>50</width>
+           <height>16777215</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="ligandSpacer2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="advancedOptionsButton">
+         <property name="text">
+          <string>Advanced... </string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLabel" name="pdbFileLabel">
+       <property name="text">
+        <string>PDB file</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2" colspan="3">
+      <widget class="QComboBox" name="pymolObjectCombo">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLabel" name="pymolObjectLabel">
+       <property name="text">
+        <string>PyMOL object</string>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="1" colspan="4">
+      <layout class="QHBoxLayout" name="buttonsLayout">
+       <item>
+        <widget class="QPushButton" name="runPrepButton">
+         <property name="text">
+          <string>Run PREP</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="websiteButton">
+         <property name="text">
+          <string>Enlighten Website</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="3" column="1">
+      <widget class="QLabel" name="outputLabel">
+       <property name="text">
+        <string>Output folder</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" colspan="4">
+      <layout class="QHBoxLayout" name="radioLayout">
+       <item>
+        <widget class="QRadioButton" name="pdbFileRadio">
+         <property name="text">
+          <string>Choose from file</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="pymolObjectRadio">
+         <property name="text">
+          <string>Choose from PyMOL object</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+     <item row="2" column="2" colspan="3">
+      <widget class="FileSelector" name="pdbFileSelector"/>
+     </item>
+     <item row="3" column="2" colspan="3">
+      <widget class="FileSelector" name="outputSelector"/>
+     </item>
+     <item row="6" column="1" colspan="2">
+      <widget class="QCheckBox" name="structCheckBox">
+       <property name="text">
+        <string>Run equilibration (struct.py)</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ValidatedLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>widgets.validated_line_edit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>FileSelector</class>
+   <extends>QLineEdit</extends>
+   <header>widgets.file_selector.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
