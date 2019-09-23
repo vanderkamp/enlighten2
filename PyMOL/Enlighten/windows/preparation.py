@@ -37,6 +37,7 @@ class PreparationTab(ManagedWindow):
 
     def setup_objects_list(self):
         if WITH_PYMOL:
+            import pymol
             objects = pymol.cmd.get_names('objects')
             self.pymolObjectCombo.addItems(objects)
             self.pymolObjectCombo.setCurrentIndex(len(objects) - 1)

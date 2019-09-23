@@ -12,8 +12,8 @@ class AtomSelector(QtWidgets.QWidget):
         uic.loadUi(ui_file, self)
 
         self.lineEdit.set_validator(AtomValidator())
-
         if WITH_PYMOL:
+            import pymol
             self.get_model = pymol.cmd.get_model
             self.loadButton.clicked.connect(self.load)
         else:
