@@ -245,9 +245,11 @@ class TleapWrapper(object):
         utils.run_in_shell('tleap -f tleap.in', 'tleap.log')
 
         try:
-            template_module.check(params)
+            template_module.check(params, self)
         except AttributeError:
             pass
+
+        os.chdir('..')
 
 
 def get_tleap_includes(include, nonprot_residues):

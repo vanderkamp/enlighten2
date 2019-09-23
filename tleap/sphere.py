@@ -7,7 +7,7 @@ def run(params, template):
     return template.format(**params)
 
 
-def check(params):
+def check(params, tleap_wrapper):
     top_file = "{name}.top".format(**params)
     rst_file = "{name}.rst".format(**params)
     if os.path.isfile(top_file) and os.path.isfile(rst_file):
@@ -16,3 +16,5 @@ def check(params):
     else:
         print("Something went wrong, check {}/tleap/tleap.log."
               .format(params['name']), file=sys.stderr)
+    tleap_wrapper.top = os.path.abspath(top_file)
+    tleap_wrapper.rst = os.path.abspath(rst_file)

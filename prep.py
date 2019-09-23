@@ -130,8 +130,10 @@ ligand = pdb.get_residues_by_name(ligand_name)[ligand_index-1]
 params['tleap']['name'] = os.path.basename(job_name)
 params['tleap']['pdb'] = pdb
 params['tleap']['ligand'] = ligand
-wrappers.TleapWrapper(params['tleap']['template'],
-                      params['tleap']['include'],
-                      reduceResults.nonprot_residues,
-                      params['tleap'])
+tleap = wrappers.TleapWrapper(params['tleap']['template'],
+                              params['tleap']['include'],
+                              reduceResults.nonprot_residues,
+                              params['tleap'])
+os.system("cp {} .".format(tleap.top))
+os.system("cp {} .".format(tleap.rst))
 print("Finished PREP protocol.")
