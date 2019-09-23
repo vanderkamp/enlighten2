@@ -1,5 +1,5 @@
 from .windows import ManagedWindow
-from qt_wrapper import QtGui
+from qt_wrapper import QtGui, WITH_PYMOL
 import os
 from validators import NotEmptyValidator, IntegerValidator, PdbValidator
 from widgets.form import Form
@@ -25,24 +25,22 @@ class PreparationTab(ManagedWindow):
         self.outputSelector.set_directory_mode(True)
 
     def setup_radio_buttons(self):
-        try:
-            import pymol
+        if WITH_PYMOL:
             self.pdbFileRadio.setChecked(False)
             self.pymolObjectRadio.setChecked(True)
             self.on_radio_changed(False)
-        except ImportError:
+        else:
             self.pdbFileRadio.setChecked(True)
             self.pymolObjectRadio.setChecked(False)
             self.on_radio_changed(True)
         self.pdbFileRadio.toggled.connect(self.on_radio_changed)
 
     def setup_objects_list(self):
-        try:
-            import pymol
+        if WITH_PYMOL:
             objects = pymol.cmd.get_names('objects')
             self.pymolObjectCombo.addItems(objects)
             self.pymolObjectCombo.setCurrentIndex(len(objects) - 1)
-        except ImportError:
+        else:
             self.pymolObjectRadio.setEnabled(False)
 
     def on_radio_changed(self, value):

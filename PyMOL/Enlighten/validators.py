@@ -1,4 +1,5 @@
 import os
+from qt_wrapper import WITH_PYMOL
 
 
 class Validator:
@@ -120,9 +121,9 @@ class AtomValidator(Validator):
         except AttributeError:
             return False
 
-        try:
+        if WITH_PYMOL:
             return cls._validate_with_pymol(res, name)
-        except ImportError:
+        else:
             return True
 
     @staticmethod

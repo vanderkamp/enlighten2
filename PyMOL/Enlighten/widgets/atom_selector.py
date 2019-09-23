@@ -1,4 +1,4 @@
-from qt_wrapper import QtWidgets, uic
+from qt_wrapper import QtWidgets, uic, WITH_PYMOL
 import os
 from validators import AtomValidator
 
@@ -13,11 +13,10 @@ class AtomSelector(QtWidgets.QWidget):
 
         self.lineEdit.set_validator(AtomValidator())
 
-        try:
-            import pymol
+        if WITH_PYMOL:
             self.get_model = pymol.cmd.get_model
             self.loadButton.clicked.connect(self.load)
-        except ImportError:
+        else:
             self.loadButton.setEnabled(False)
 
     def load(self):
