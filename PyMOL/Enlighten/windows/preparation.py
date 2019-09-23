@@ -25,12 +25,16 @@ class PreparationTab(ManagedWindow):
         self.outputSelector.set_directory_mode(True)
 
     def setup_radio_buttons(self):
-        self.pdbFileRadio.toggled.connect(self.on_radio_changed)
         try:
             import pymol
+            self.pdbFileRadio.setChecked(False)
             self.pymolObjectRadio.setChecked(True)
+            self.on_radio_changed(False)
         except ImportError:
             self.pdbFileRadio.setChecked(True)
+            self.pymolObjectRadio.setChecked(False)
+            self.on_radio_changed(True)
+        self.pdbFileRadio.toggled.connect(self.on_radio_changed)
 
     def setup_objects_list(self):
         try:
@@ -42,6 +46,7 @@ class PreparationTab(ManagedWindow):
             self.pymolObjectRadio.setEnabled(False)
 
     def on_radio_changed(self, value):
+        print("CHECKED", value)
         self.toggle_group(self.PDB_FILE_WIDGETS, value)
         self.toggle_group(self.PYMOL_OBJECT_WIDGETS, not value)
 
