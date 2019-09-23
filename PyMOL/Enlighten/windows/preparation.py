@@ -26,7 +26,11 @@ class PreparationTab(ManagedWindow):
 
     def setup_radio_buttons(self):
         self.pdbFileRadio.toggled.connect(self.on_radio_changed)
-        self.pdbFileRadio.setChecked(True)
+        try:
+            import pymol
+            self.pymolObjectRadio.setChecked(True)
+        except ImportError:
+            self.pdbFileRadio.setChecked(True)
 
     def setup_objects_list(self):
         try:
