@@ -75,13 +75,14 @@ class PreparationTab(ManagedWindow):
         object_form = Form(fields=object_form_widgets,
                            button=self.runPrepButton,
                            submit_callback=controller.run_prep)
-        object_form.set_active(False)
+        object_form.set_active(self.pymolObjectRadio.isChecked())
         controller.listen('prep.use_object', object_form.set_active)
 
         pdb_form_widgets = [self.pdbFileSelector.lineEdit, ] + object_form_widgets
         pdb_form = Form(fields=pdb_form_widgets,
                         button=self.runPrepButton,
                         submit_callback=controller.run_prep)
+        pdb_form.set_active(self.pdbFileRadio.isChecked())
         controller.listen('prep.use_pdb', pdb_form.set_active)
 
 
