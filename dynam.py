@@ -72,11 +72,11 @@ dynam_params = [
 ]
 
 tleap_dir = os.path.abspath(os.path.join(args.system, 'tleap'))
-prmtop = "{}/{}.sp20.top".format(tleap_dir, args.system)
+prmtop = "{}/{}.top".format(tleap_dir, args.system)
 mode = 'relax' if args.relax else 'dynam'
 
 if mode == 'relax':
-    crd = "{}/{}.sp20.rst".format(tleap_dir, args.system)
+    crd = "{}/{}.rst".format(tleap_dir, args.system)
     sanderflow_params = relax_params
     working_dir = '{}/{}'.format(args.system, 'relax')
 else:
