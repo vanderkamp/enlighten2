@@ -76,6 +76,12 @@ class EnlightenController(PyQtController):
         path = os.path.join(os.path.dirname(__file__), 'mock_prep.py')
         self.run_in_terminal('Prep', path)
 
+    def run_dynam(self):
+        pass
+
+    def load_trajectory(self):
+        pass
+
     @staticmethod
     def run_in_terminal(title, command):
         process = QtCore.QProcess()
