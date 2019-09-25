@@ -4,6 +4,7 @@ import os
 
 class SystemList(QtWidgets.QListWidget):
     selected = QtCore.pyqtSignal(QtWidgets.QListWidgetItem)
+    unselected = QtCore.pyqtSignal()
 
     def __init__(self, *args):
         super().__init__(*args)
@@ -19,7 +20,7 @@ class SystemList(QtWidgets.QListWidget):
     def _on_select(self):
         selected_system = self.selected_system()
         if not selected_system:
-            return
+            return self.unselected.emit()
         self.selected.emit(selected_system)
 
     def selected_system(self):
