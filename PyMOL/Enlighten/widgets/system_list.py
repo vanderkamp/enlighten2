@@ -1,18 +1,26 @@
-from qt_wrapper import QtWidgets, QtGui
+from qt_wrapper import QtWidgets, QtGui, QtCore
 import os
 
 
 class SystemList(QtWidgets.QListWidget):
+    selected = QtCore.pyqtSignal(QtWidgets.QListWidgetItem)
 
     def __init__(self, *args):
         super().__init__(*args)
         self.directory = None
+        self.itemSelectionChanged.connect(self._on_select)
 
     def set_directory(self, directory):
         self.directory = directory
         self.clear()
         for system in _find_systems(directory):
             self.addItem(SystemItem(system))
+
+    def _on_select(self):
+        selected_system = self.selected_system()
+        if not selected_system:
+            return
+        self.selected.emit(selected_system)
 
     def selected_system(self):
         try:
