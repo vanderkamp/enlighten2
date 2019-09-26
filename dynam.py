@@ -27,7 +27,6 @@ parser = argparse.ArgumentParser(
 )
 
 parser.add_argument("system", help="name of the simulation system (as in prep.py)")
-parser.add_argument("ligand", help="name of the ligand")
 parser.add_argument('-relax', action='store_true')
 parser.add_argument("params", help="additional parameters",
                     type=argparse.FileType(), nargs='?')
@@ -50,10 +49,13 @@ if args.params is not None:
     params = {**params, **json.load(args.params)}
     args.params.close()
 
-if params["central_atom"] is None:
-    bellymask = ":{} <@{}".format(args.ligand, params["belly_radius"])
-else:
-    bellymask = "@{} <@{}".format(params["central_atom"], params["belly_radius"])
+prep_params_path = os.path.join(args.system, 'tleap', 'params')
+if os.path.isfile(prep_params_path):
+    with open(prep_params_path, 'r') as f:
+        params = {**params, **json.load(f)}
+
+bellymask = ":{} <@{}".format(params["central_atom"].replace('.', '@'),
+                              params["belly_radius"])
 
 belly = {"bellymask": bellymask}
 
