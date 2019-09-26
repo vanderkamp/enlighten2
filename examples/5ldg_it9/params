@@ -1,6 +1,6 @@
 {
 	"tleap": {
-		"include": [".."],
+		"include": ["."],
 		"center": "312.C5"
 	}
 }
