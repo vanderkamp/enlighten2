@@ -49,7 +49,7 @@ class Pdb4AmberReduceWrapper(object):
         pdb.to_filename('input.pdb')
 
         pdb4amber_command = (amberhome + "/bin/pdb4amber "
-                             "-i input.pdb -o pdb4amber.pdb --nohyd --dry")
+                             "-i input.pdb -o pdb4amber.pdb --nohyd")
         utils.run_in_shell(pdb4amber_command, 'pdb4amber.out')
 
         reduce_command = (amberhome + "/bin/reduce "
@@ -79,10 +79,6 @@ class Pdb4AmberReduceWrapper(object):
         self.pdb.atoms = [atom for atom in self.pdb.atoms
                           if (atom['resName'] not in self.nonprot_residues or
                               'new' not in atom['extras'])]
-
-        # store crystalline waters
-        with open('pdb4amber_water.pdb') as f:
-            self.waterPdb = pdb_utils.Pdb(f)
 
         os.chdir('..')
 
@@ -239,7 +235,6 @@ class TleapWrapper(object):
         )
 
         params['pdb'].to_filename('input.pdb')
-        params['water_pdb'].to_filename('water.pdb')
         with open('tleap.in', 'w') as f:
             f.write(template_module.run(params, template_contents))
         utils.run_in_shell('tleap -f tleap.in', 'tleap.log')

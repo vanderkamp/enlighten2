@@ -4,16 +4,10 @@ source leaprc.gaff
 {include}
 # load the prepared pdb (sslinks should be automatically recognised through CYX & CONECT records in pdb)
 mol = loadpdb input.pdb
-# save parm & crd of unsolvated system with PyMOL compatible extensions
-saveamberparm mol {name}.dry.top {name}.dry.rst
-savepdb mol {name}.dry.pdb
-# load the crystal waters
-xwat = loadpdb water.pdb
-mol_xwat = combine {{mol xwat}}
 ##### Up to here, tleap.in is the same (independent of using box or
 # solvate with a sphere of TIP3P
-solvatecap mol_xwat TIP3PBOX mol_xwat.{center} {solvent_radius} {solvent_closeness}
+solvatecap mol TIP3PBOX mol.{center} {solvent_radius} {solvent_closeness}
 # save parm & crd, with PyMOL compatible extensions
-saveamberparm mol_xwat {name}.top {name}.rst
-savepdb mol_xwat {name}.pdb
+saveamberparm mol {name}.top {name}.rst
+savepdb mol {name}.pdb
 quit

@@ -118,7 +118,6 @@ pdb_utils.modify_atoms(ligand_atoms, 'chainID', ligand_chainID)
 # Run pdb4amber and reduce
 reduceResults = wrappers.Pdb4AmberReduceWrapper(pdb)
 pdb = reduceResults.pdb
-params['tleap']['water_pdb'] = reduceResults.waterPdb
 
 # Run propka31 if requested and found
 if params['propka']['with_propka']:
