@@ -3,6 +3,7 @@ import shutil
 import pdb_utils
 import utils
 import tleap
+import json
 
 
 def get_amberhome():
@@ -244,6 +245,9 @@ class TleapWrapper(object):
         except AttributeError:
             pass
 
+        if 'export' in params:
+            with open('params', 'w') as f:
+                json.dump(params['export'], f)
         os.chdir('..')
 
 
