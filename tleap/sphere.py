@@ -3,7 +3,7 @@ import sys
 
 
 def run(params, template):
-    params['center'] = params.get('center', params['ligand'][0]['resSeq'])
+    params['center'] = params.get('center', str(params['ligand'][0]['resSeq']))
     params['export'] = {'central_atom': params['center']}
     return template.format(**params)
 
