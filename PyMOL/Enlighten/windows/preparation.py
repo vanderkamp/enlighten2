@@ -19,6 +19,7 @@ class PreparationTab(ManagedWindow):
         self.ligandChargeEdit.setValidator(QtGui.QIntValidator())
         self.ligandChargeEdit.set_validator(IntegerValidator('Ligand charge'))
         self.ligandNameEdit.set_validator(NotEmptyValidator('Ligand name'))
+        self.systemNameEdit.set_validator(NotEmptyValidator('System name'))
 
     def setup_file_selectors(self):
         self.pdbFileSelector.lineEdit.set_validator(PdbValidator())
@@ -60,6 +61,7 @@ class PreparationTab(ManagedWindow):
 
         controller.bind_lineEdit('prep.ligand_name', self.ligandNameEdit)
         controller.bind_lineEdit('prep.ligand_charge', self.ligandChargeEdit)
+        controller.bind_lineEdit('prep.system_name', self.systemNameEdit)
         controller.bind_checkBox('prep.use_struct', self.structCheckBox)
 
         prep_advanced = self.window_manager['prep_advanced']
@@ -69,7 +71,7 @@ class PreparationTab(ManagedWindow):
         # TODO: uncomment fields in production
         object_form_widgets = [
             self.outputSelector.lineEdit,
-            self.ligandNameEdit, self.ligandChargeEdit,
+            self.ligandNameEdit, self.ligandChargeEdit, self.systemNameEdit,
             # prep_advanced.enlightenSelector.lineEdit, prep_advanced.amberSelector.lineEdit,
         ]
         object_form = Form(fields=object_form_widgets,

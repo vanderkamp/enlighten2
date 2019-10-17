@@ -13,7 +13,7 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="4" column="1" colspan="4">
+     <item row="5" column="1" colspan="4">
       <layout class="QHBoxLayout" name="ligandLayout">
        <item>
         <widget class="QLabel" name="ligandNameLabel">
@@ -126,7 +126,7 @@
        </property>
       </widget>
      </item>
-     <item row="9" column="1" colspan="4">
+     <item row="10" column="1" colspan="4">
       <layout class="QHBoxLayout" name="buttonsLayout">
        <item>
         <widget class="QPushButton" name="runPrepButton">
@@ -188,12 +188,22 @@
      <item row="3" column="2" colspan="3">
       <widget class="FileSelector" name="outputSelector"/>
      </item>
-     <item row="6" column="1" colspan="2">
+     <item row="7" column="1" colspan="2">
       <widget class="QCheckBox" name="structCheckBox">
        <property name="text">
         <string>Run equilibration (struct.py)</string>
        </property>
       </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QLabel" name="systemNameLabel">
+       <property name="text">
+        <string>System name</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="2" colspan="3">
+      <widget class="ValidatedLineEdit" name="systemNameEdit"/>
      </item>
     </layout>
    </item>
