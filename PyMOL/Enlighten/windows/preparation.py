@@ -23,7 +23,7 @@ class PreparationTab(ManagedWindow):
 
     def setup_file_selectors(self):
         self.pdbFileSelector.lineEdit.set_validator(PdbValidator())
-        self.outputSelector.set_directory_mode(True)
+        self.workingDirSelector.set_directory_mode(True)
 
     def setup_radio_buttons(self):
         if WITH_PYMOL:
@@ -57,7 +57,7 @@ class PreparationTab(ManagedWindow):
         controller.update('prep.object', self.pymolObjectCombo.currentText())
 
         controller.bind_file_selector('prep.pdb', self.pdbFileSelector)
-        controller.bind_file_selector('prep.output_location', self.outputSelector)
+        controller.bind_file_selector('prep.working_dir', self.workingDirSelector)
 
         controller.bind_lineEdit('prep.ligand_name', self.ligandNameEdit)
         controller.bind_lineEdit('prep.ligand_charge', self.ligandChargeEdit)
@@ -70,7 +70,7 @@ class PreparationTab(ManagedWindow):
 
         # TODO: uncomment fields in production
         object_form_widgets = [
-            self.outputSelector.lineEdit,
+            self.workingDirSelector.lineEdit,
             self.ligandNameEdit, self.ligandChargeEdit, self.systemNameEdit,
             # prep_advanced.enlightenSelector.lineEdit, prep_advanced.amberSelector.lineEdit,
         ]
