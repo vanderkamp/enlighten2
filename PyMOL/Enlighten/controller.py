@@ -1,5 +1,7 @@
 from windows.terminal import TerminalWindow
 from qt_wrapper import QtCore
+import os
+import json
 
 
 class Controller:
@@ -72,9 +74,48 @@ class EnlightenController(PyQtController):
         webbrowser.open_new("https://github.com/vanderkamp/enlighten2/")
 
     def run_prep(self):
-        import os
-        path = os.path.join(os.path.dirname(__file__), 'mock_prep.py')
-        self.run_in_terminal('Prep', path)
+
+        if self.state.get('prep.use_object'):
+            pdb = self.state['prep.object'] + '.pdb'
+            self.write_object_to_pdb(
+                self.state['prep.object'],
+                os.path.join(self.state['prep.working_dir'], pdb)
+            )
+        else:
+            pdb = os.path.basename(self.state['prep.pdb'])
+            os.system("cp {} {}".format(self.state['prep.pdb'],
+                                        self.state['prep.working_dir']))
+
+        self.dump_prep_params()
+        prep_command = (
+            "prep.py {system_name} {pdb} {ligand_name} {ligand_charge} params"
+        ).format(
+            system_name=self.state['prep.system_name'],
+            pdb=pdb,
+            ligand_name=self.state['prep.ligand_name'],
+            ligand_charge=self.state['prep.ligand_charge']
+        )
+
+        command = self.docker_command(self.state['prep.working_dir'],
+                                      prep_command)
+        self.run_in_terminal("Prep", command)
+
+    def dump_prep_params(self):
+        params = {
+            'propka': {
+                'ph': float(self.state['prep.advanced.ph'])
+            },
+            'tleap': {
+                'solvent_radius': self.state['prep.advanced.sphere_size']
+            }
+        }
+        center = self.state['prep.advanced.center']
+        if center != '':
+            params['tleap']['center'] = center
+        filename = os.path.join(self.state['prep.working_dir'], 'params')
+        with open(filename, 'w') as f:
+            json.dump(params, f)
+
 
     def run_dynam(self):
         pass
@@ -83,8 +124,23 @@ class EnlightenController(PyQtController):
         pass
 
     @staticmethod
+    def write_object_to_pdb(object_name, filename):
+        import pymol
+        pymol.cmd.save(filename, '({})'.format(object_name))
+
+    @staticmethod
     def run_in_terminal(title, command):
         process = QtCore.QProcess()
         terminal = TerminalWindow(process, title)
         process.start(command)
+        process.finished.connect(terminal.close)
         terminal.exec()
+
+    @staticmethod
+    def docker_command(working_dir, command):
+        return "docker run -t -v {dir}:/tmp -u {uid}:{gid} " \
+               "kzinovjev/enlighten2 " \
+               "/bin/bash -lc \"{command}\"".format(dir=working_dir,
+                                                    uid=os.geteuid(),
+                                                    gid=os.getegid(),
+                                                    command=command)
