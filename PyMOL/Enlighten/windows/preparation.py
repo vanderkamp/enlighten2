@@ -68,11 +68,9 @@ class PreparationTab(ManagedWindow):
         self.advancedOptionsButton.clicked.connect(prep_advanced.show)
         self.websiteButton.clicked.connect(controller.open_enlighten_website)
 
-        # TODO: uncomment fields in production
         object_form_widgets = [
             self.workingDirSelector.lineEdit,
             self.ligandNameEdit, self.ligandChargeEdit, self.systemNameEdit,
-            # prep_advanced.enlightenSelector.lineEdit, prep_advanced.amberSelector.lineEdit,
         ]
         object_form = Form(fields=object_form_widgets,
                            button=self.runPrepButton,
