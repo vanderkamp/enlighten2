@@ -23,12 +23,15 @@ class PreparationAdvancedWindow(ManagedWindow):
     def bind(self, controller):
         controller.bind_file_selector('enlighten_path', self.enlightenSelector)
         controller.bind_file_selector('amber_path', self.amberSelector)
-        controller.bind_atom_selector('center', self.atomSelector)
+        controller.bind_atom_selector('prep.advanced.center', self.atomSelector)
         controller.bind_lineEdit('prep.advanced.ph', self.phEdit)
         controller.bind_slider('prep.advanced.sphere_size', self.sphereSizeSlider)
         controller.listen('prep.advanced.sphere_size',
                           lambda value: self.sphereSizeEdit.setText(str(value)))
         self.sphereSizeEdit.textChanged.connect(self.update_slider)
+        controller.update('prep.advanced.center', '')
+        controller.update('prep.advanced.ph', '7.0')
+        controller.update('prep.advanced.sphere_size', 20)
 
     def update_slider(self, value):
         try:
