@@ -30,6 +30,9 @@ class Terminal(QtWidgets.QTextEdit):
     def print_text(self, text, color):
         cursor = self.textCursor()
         cursor.movePosition(cursor.End)
-        cursor.insertHtml('<font color="{}">{}</font><br>'.format(color, text))
+        cursor.insertHtml(
+            '<font color="{}">{}</font><br>'.format(color,
+                                                    text.replace('\n', '<br/>'))
+        )
         self.ensureCursorVisible()
         print(text, end='')
