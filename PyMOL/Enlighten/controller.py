@@ -30,7 +30,7 @@ class PyQtController(Controller):
 
     def bind_lineEdit(self, key, lineEdit):
         lineEdit.textChanged.connect(self.updater(key))
-        self.listen(key, self.lineEdit_text_updater)
+        self.listen(key, self.lineEdit_text_updater(lineEdit))
 
     def bind_checkBox(self, key, checkBox):
         checkBox.toggled.connect(self.updater(key))
