@@ -136,10 +136,10 @@ class EnlightenController(PyQtController):
         process.finished.connect(terminal.close)
         terminal.exec()
 
-    @staticmethod
-    def docker_command(working_dir, command):
+    @classmethod
+    def docker_command(cls, working_dir, command):
         if os.name == 'nt':
-            working_dir = working_dir.replace('C:/', '//c/')
+            working_dir = cls.parse_win_path(working_dir)
             return "docker run -t -v {dir}:/tmp " \
                    "kzinovjev/enlighten2 " \
                    "/bin/bash -lc \"{command}\"".format(dir=working_dir,
@@ -150,3 +150,9 @@ class EnlightenController(PyQtController):
                                                     uid=os.geteuid(),
                                                     gid=os.getegid(),
                                                     command=command)
+
+    @staticmethod
+    def parse_win_path(path):
+        drive = path[0]
+        return path.replace('{}:/'.format(drive),
+                            '//{}/'.format(drive.lower()))
