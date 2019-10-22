@@ -89,6 +89,7 @@ if args.params is not None:
 
 
 print("Starting PREP protocol in {}/".format(job_name))
+sys.stdout.flush()
 
 if os.path.exists(job_name):
     print("It appears you've already (attempted to) run prep.py with {0}. "
@@ -108,6 +109,7 @@ antechamber = wrappers.AntechamberWrapper(
     pdb_utils.Pdb(atoms=ligand_atoms), ligand_name, ligand_charge,
     create_frcmod=ligand_frcmod is None
 )
+sys.stdout.flush()
 if ligand_frcmod is None:
     params['tleap']['include'].append(antechamber.working_directory)
 
@@ -117,6 +119,7 @@ pdb_utils.modify_atoms(ligand_atoms, 'chainID', ligand_chainID)
 
 # Run pdb4amber and reduce
 reduceResults = wrappers.Pdb4AmberReduceWrapper(pdb)
+sys.stdout.flush()
 pdb = reduceResults.pdb
 
 # Run propka31 if requested and found
@@ -124,6 +127,7 @@ if params['propka']['with_propka']:
     pdb = run_propka(pdb=pdb,
                      ph=params['propka']['ph'],
                      ph_offset=params['propka']['ph_offset'])
+sys.stdout.flush()
 
 ligand = pdb.get_residues_by_name(ligand_name)[ligand_index-1]
 params['tleap']['name'] = os.path.basename(job_name)
@@ -133,6 +137,7 @@ tleap = wrappers.TleapWrapper(params['tleap']['template'],
                               params['tleap']['include'],
                               reduceResults.nonprot_residues,
                               params['tleap'])
+sys.stdout.flush()
 os.system("cp {} .".format(tleap.top))
 os.system("cp {} .".format(tleap.rst))
 print("Finished PREP protocol.")
