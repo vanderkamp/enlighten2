@@ -139,7 +139,8 @@ class EnlightenController(PyQtController):
     @classmethod
     def docker_command(cls, working_dir, command):
         if os.name == 'nt':
-            working_dir = cls.parse_win_path(working_dir)
+            if os.environ.get('DOCKER_TOOLBOX_INSTALL_PATH'):
+                working_dir = cls.parse_win_path(working_dir)
             return "docker run -t -v {dir}:/tmp " \
                    "kzinovjev/enlighten2 " \
                    "/bin/bash -lc \"{command}\"".format(dir=working_dir,
