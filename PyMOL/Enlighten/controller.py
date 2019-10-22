@@ -133,7 +133,12 @@ class EnlightenController(PyQtController):
         process = QtCore.QProcess()
         terminal = TerminalWindow(process, title)
         process.start(command)
-        process.finished.connect(terminal.close)
+
+        def on_finished():
+            if not process.exitCode():
+                terminal.close()
+
+        process.finished.connect(on_finished)
         terminal.exec()
 
     @classmethod
