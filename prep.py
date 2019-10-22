@@ -93,8 +93,8 @@ print("Starting PREP protocol in {}/".format(job_name))
 if os.path.exists(job_name):
     print("It appears you've already (attempted to) run prep.py with {0}. "
           "Delete folder {0} or rename pdb if you want to run it again."
-          .format(job_name))
-    sys.exit()
+          .format(job_name), file=sys.stderr)
+    sys.exit(1)
 utils.set_working_directory(job_name)
 
 pdb = pdb_utils.Pdb(args.pdb)
