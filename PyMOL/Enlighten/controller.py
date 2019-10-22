@@ -1,5 +1,5 @@
 from windows.terminal import TerminalWindow
-from qt_wrapper import QtCore
+from qt_wrapper import QtCore, WITH_PYMOL
 import os
 import json
 
@@ -95,10 +95,20 @@ class EnlightenController(PyQtController):
             ligand_name=self.state['prep.ligand_name'],
             ligand_charge=self.state['prep.ligand_charge']
         )
-
         command = self.docker_command(self.state['prep.working_dir'],
                                       prep_command)
-        self.run_in_terminal("Prep", command)
+        self.run_in_terminal("Prep", command, self.load_structure_after_prep)
+
+    def load_structure_after_prep(self):
+        if not WITH_PYMOL:
+            return
+        system_name = self.state['prep.system_name']
+        system_dir = os.path.join(self.state['prep.working_dir'], system_name)
+        rst_name = system_name + '.rst'
+        top_name = system_name + '.top'
+        rst = os.path.join(system_dir, rst_name)
+        top = os.path.join(system_dir, top_name)
+        self.load_trajectory(rst, top, system_name + ' (prep)')
 
     def dump_prep_params(self):
         params = {
@@ -116,29 +126,32 @@ class EnlightenController(PyQtController):
         with open(filename, 'w') as f:
             json.dump(params, f)
 
-
     def run_dynam(self):
         pass
 
-    def load_trajectory(self):
-        pass
+    @staticmethod
+    def load_trajectory(rst, top, name):
+        import pymol
+        pymol.cmd.load(top, name)
+        pymol.cmd.load(rst, name)
 
     @staticmethod
     def write_object_to_pdb(object_name, filename):
         import pymol
         pymol.cmd.save(filename, '({})'.format(object_name))
 
-    @staticmethod
-    def run_in_terminal(title, command):
+    @classmethod
+    def run_in_terminal(cls, title, command, on_finished):
         process = QtCore.QProcess()
         terminal = TerminalWindow(process, title)
         process.start(command)
 
-        def on_finished():
+        def finished_callback():
             if not process.exitCode():
                 terminal.close()
+                on_finished()
 
-        process.finished.connect(on_finished)
+        process.finished.connect(finished_callback)
         terminal.exec()
 
     @classmethod
