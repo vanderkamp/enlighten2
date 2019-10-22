@@ -138,6 +138,12 @@ class EnlightenController(PyQtController):
 
     @staticmethod
     def docker_command(working_dir, command):
+        if os.name == 'nt':
+            working_dir = working_dir.replace('C:/', '//c/')
+            return "docker run -t -v {dir}:/tmp " \
+                   "kzinovjev/enlighten2 " \
+                   "/bin/bash -lc \"{command}\"".format(dir=working_dir,
+                                                        command=command)
         return "docker run -t -v {dir}:/tmp -u {uid}:{gid} " \
                "kzinovjev/enlighten2 " \
                "/bin/bash -lc \"{command}\"".format(dir=working_dir,
