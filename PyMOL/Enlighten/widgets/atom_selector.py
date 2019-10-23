@@ -22,7 +22,7 @@ class AtomSelector(QtWidgets.QWidget):
     def load(self):
         try:
             atom = self.get_model('pk1').atom[0]
-            self.lineEdit.setText(' '.join(str(x) for x in atom.coord))
+            self.lineEdit.setText(' '.join('{:.3f}'.format(x) for x in atom.coord))
         except IndexError:
             return
 
