@@ -99,7 +99,8 @@ class AtomValidator(Validator):
     @staticmethod
     def _split_value(value):
         import re
-        return re.match('([0-9]+).([a-zA-Z0-9]+)$', value).groups()
+        number_query = '([+-]?\d+(?:\.\d+)?)'
+        return re.match(' '.join([number_query]*3) + '$', value).groups()
 
     @staticmethod
     def _validate_with_pymol(res, name):
