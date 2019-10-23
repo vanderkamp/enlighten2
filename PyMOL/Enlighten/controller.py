@@ -138,7 +138,11 @@ class EnlightenController(PyQtController):
     @staticmethod
     def write_object_to_pdb(object_name, filename):
         import pymol
+        # Keep original value to cause no side effects
+        pdb_use_ter_records = pymol.cmd.get('pdb_use_ter_records')
+        pymol.cmd.set('pdb_use_ter_records', 'off')
         pymol.cmd.save(filename, '({})'.format(object_name))
+        pymol.cmd.set('pdb_use_ter_records', pdb_use_ter_records)
 
     @classmethod
     def run_in_terminal(cls, title, command, on_finished):
