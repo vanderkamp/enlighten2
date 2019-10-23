@@ -4,6 +4,7 @@ import pdb_utils
 import utils
 import tleap
 import json
+import sys
 
 
 def get_amberhome():
@@ -241,7 +242,9 @@ class TleapWrapper(object):
         utils.run_in_shell('tleap -f tleap.in', 'tleap.log')
 
         try:
-            template_module.check(params, self)
+            check_result = template_module.check(params, self)
+            if check_result:
+                sys.exit(check_result)
         except AttributeError:
             pass
 

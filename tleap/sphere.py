@@ -17,5 +17,7 @@ def check(params, tleap_wrapper):
     else:
         print("Something went wrong, check {}/tleap/tleap.log."
               .format(params['name']), file=sys.stderr)
+        return 1
     tleap_wrapper.top = os.path.abspath(top_file)
     tleap_wrapper.rst = os.path.abspath(rst_file)
+    return 0
