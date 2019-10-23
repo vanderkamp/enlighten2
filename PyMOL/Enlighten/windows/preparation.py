@@ -50,6 +50,8 @@ class PreparationTab(ManagedWindow):
         self.toggle_group(self.PYMOL_OBJECT_WIDGETS, not value)
 
     def bind(self, controller):
+        controller.update('prep.use_pdb', self.pdbFileRadio.isChecked())
+        controller.update('prep.use_object', self.pymolObjectRadio.isChecked())
         controller.bind_radio_button('prep.use_pdb', self.pdbFileRadio)
         controller.bind_radio_button('prep.use_object', self.pymolObjectRadio)
 
