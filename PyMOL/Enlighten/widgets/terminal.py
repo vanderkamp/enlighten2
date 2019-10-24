@@ -20,7 +20,7 @@ class Terminal(QtWidgets.QTextEdit):
         self.process = None
 
     def output_ready(self):
-        text = self.process.readAllStandardOutput().data().decode('utf-8')
+        text = self.process.readAllStandardOutput().data().decode('utf-8').strip()
         self.print_text(text, 'white')
 
     def error_ready(self):
@@ -35,4 +35,4 @@ class Terminal(QtWidgets.QTextEdit):
                                                     text.replace('\n', '<br/>'))
         )
         self.ensureCursorVisible()
-        print(text, end='')
+        print(text)
