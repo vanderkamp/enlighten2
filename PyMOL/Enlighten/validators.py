@@ -87,14 +87,9 @@ class AtomValidator(Validator):
         if not value:
             return True
         try:
-            res, name = cls._split_value(value)
+            return len(cls._split_value(value)) == 3
         except AttributeError:
             return False
-
-        if WITH_PYMOL:
-            return cls._validate_with_pymol(res, name)
-        else:
-            return True
 
     @staticmethod
     def _split_value(value):
@@ -102,11 +97,5 @@ class AtomValidator(Validator):
         number_query = '([+-]?\d+(?:\.\d+)?)'
         return re.match(' '.join([number_query]*3) + '$', value).groups()
 
-    @staticmethod
-    def _validate_with_pymol(res, name):
-        import pymol
-        selection = 'resi {} and name {}'.format(res, name)
-        return pymol.cmd.count_atoms(selection) == 1
-
     def tooltip(self):
-        return "Selection {} has zero or more than one atom.".format(self.value)
+        return "Not valid XYZ coordinates".format(self.value)
