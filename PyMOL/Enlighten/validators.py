@@ -80,7 +80,7 @@ class PdbValidator(Validator):
         return "'{}' is not a valid PDB file".format(self.value)
 
 
-class AtomValidator(Validator):
+class XYZValidator(Validator):
 
     @classmethod
     def validate(cls, value):

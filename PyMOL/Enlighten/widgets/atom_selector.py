@@ -1,6 +1,6 @@
 from qt_wrapper import QtWidgets, uic, WITH_PYMOL
 import os
-from validators import AtomValidator
+from validators import XYZValidator
 
 
 class AtomSelector(QtWidgets.QWidget):
@@ -11,7 +11,7 @@ class AtomSelector(QtWidgets.QWidget):
         ui_file = os.path.join(os.path.dirname(__file__), 'atom_selector.ui')
         uic.loadUi(ui_file, self)
 
-        self.lineEdit.set_validator(AtomValidator())
+        self.lineEdit.set_validator(XYZValidator())
         if WITH_PYMOL:
             import pymol
             self.get_model = pymol.cmd.get_model
