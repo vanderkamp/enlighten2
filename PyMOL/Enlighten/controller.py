@@ -14,7 +14,6 @@ class Controller:
         if self.state.get(key) == value:
             return
         self.state[key] = value
-        print(self.state)
         for listener in self._get_listeners(key):
             listener(value)
 
@@ -169,7 +168,6 @@ class EnlightenController(PyQtController):
 
     @staticmethod
     def load_trajectory(rst, top, name, format='rst'):
-        print(rst, top)
         if not WITH_PYMOL:
             return
         import pymol
