@@ -43,7 +43,7 @@ class DynamicsTab(ManagedWindow):
     def bind(self, controller):
         controller.bind_file_selector('working_dir', self.directorySelector)
         self.systemList.selected.connect(
-            lambda item: controller.update('dynam.path', item.path)
+            lambda item: controller.update('dynam.system_name', item.name)
         )
         self.systemList.selected.connect(
             lambda item: controller.update('dynam.tag', item.tag)

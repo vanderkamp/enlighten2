@@ -37,8 +37,8 @@ class SystemItem(QtWidgets.QListWidgetItem):
                        'DYNAM': QtGui.QColor('#70ff70')}
 
     def __init__(self, path):
-        super().__init__(os.path.basename(path))
-        self.path = path
+        self.name = os.path.basename(path)
+        super().__init__(self.name)
         self.tag = _system_tag(path)
         self.setBackground(self.BACKGROUND_DICT[self.tag])
 
