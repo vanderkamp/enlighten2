@@ -1,7 +1,8 @@
 from windows.terminal import TerminalWindow
-from qt_wrapper import QtCore, WITH_PYMOL
+from qt_wrapper import QtCore, QtWidgets, WITH_PYMOL
 import os
 import json
+import shutil
 
 
 class Controller:
@@ -74,6 +75,14 @@ class EnlightenController(PyQtController):
 
     def run_prep(self):
 
+        system_path = os.path.join(self.state['working_dir'],
+                                   self.state['prep.system_name'])
+        if os.path.isdir(system_path):
+            if self.delete_directory_dialog(system_path):
+                shutil.rmtree(system_path)
+            else:
+                return
+
         if self.state.get('prep.use_object'):
             pdb = self.state['prep.object'] + '.pdb'
             self.write_object_to_pdb(
@@ -97,6 +106,17 @@ class EnlightenController(PyQtController):
         command = self.docker_command(self.state['working_dir'],
                                       prep_command)
         self.run_in_terminal("Prep", command, self.after_prep)
+
+    @staticmethod
+    def delete_directory_dialog(path):
+        dialog = QtWidgets.QMessageBox()
+        dialog.setIcon(QtWidgets.QMessageBox.Question)
+        dialog.setWindowTitle("Warning")
+        dialog.setText("Folder {} exists. Remove?".format(path))
+        dialog.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+        dialog.setDefaultButton(QtWidgets.QMessageBox.No)
+        dialog.setEscapeButton(QtWidgets.QMessageBox.No)
+        return dialog.exec_() == QtWidgets.QMessageBox.Yes
 
     def after_prep(self):
         if self.state.get('prep.relax'):
