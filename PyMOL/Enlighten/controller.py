@@ -78,7 +78,8 @@ class EnlightenController(PyQtController):
         system_path = os.path.join(self.state['working_dir'],
                                    self.state['prep.system_name'])
         if os.path.isdir(system_path):
-            if self.delete_directory_dialog(system_path):
+            message = "Folder {} exists. Remove?".format(system_path)
+            if self.dialog(message):
                 shutil.rmtree(system_path)
             else:
                 return
@@ -108,11 +109,11 @@ class EnlightenController(PyQtController):
         self.run_in_terminal("Prep", command, self.after_prep)
 
     @staticmethod
-    def delete_directory_dialog(path):
+    def dialog(message):
         dialog = QtWidgets.QMessageBox()
         dialog.setIcon(QtWidgets.QMessageBox.Question)
         dialog.setWindowTitle("Warning")
-        dialog.setText("Folder {} exists. Remove?".format(path))
+        dialog.setText(message)
         dialog.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
         dialog.setDefaultButton(QtWidgets.QMessageBox.No)
         dialog.setEscapeButton(QtWidgets.QMessageBox.No)
@@ -142,6 +143,12 @@ class EnlightenController(PyQtController):
         filename = os.path.join(self.state['working_dir'], 'params')
         with open(filename, 'w') as f:
             json.dump(params, f)
+
+    def remove_system(self):
+        if self.dialog("Are you sure?"):
+            path = os.path.join(self.state['working_dir'],
+                                self.state['dynam.system_name'])
+            shutil.rmtree(path)
 
     def run_dynam(self):
         if self.state['dynam.tag'] == 'PREP':

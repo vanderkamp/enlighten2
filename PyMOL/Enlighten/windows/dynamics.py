@@ -51,6 +51,7 @@ class DynamicsTab(ManagedWindow):
         )
         self.runButton.clicked.connect(self.run_and_update(controller.run_dynam))
         self.loadButton.clicked.connect(controller.load_dynam)
+        self.removeButton.clicked.connect(self.run_and_update(controller.remove_system))
 
     def run_and_update(self, callback):
         def result():
