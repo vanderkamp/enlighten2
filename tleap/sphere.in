@@ -6,7 +6,7 @@ source leaprc.gaff
 mol = loadpdb input.pdb
 ##### Up to here, tleap.in is the same (independent of using box or
 # solvate with a sphere of TIP3P
-solvatecap mol TIP3PBOX {center} {solvent_radius} {solvent_closeness}
+solvatecap mol TIP3PBOX {{{center}}} {solvent_radius} {solvent_closeness}
 # save parm & crd, with PyMOL compatible extensions
 saveamberparm mol {name}.top {name}.rst
 savepdb mol {name}.pdb

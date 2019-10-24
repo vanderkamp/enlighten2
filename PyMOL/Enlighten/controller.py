@@ -121,7 +121,7 @@ class EnlightenController(PyQtController):
         }
         center = self.state['prep.advanced.center']
         if center != '':
-            params['tleap']['center'] = '{' + center + '}'
+            params['tleap']['center'] = center
         filename = os.path.join(self.state['prep.working_dir'], 'params')
         with open(filename, 'w') as f:
             json.dump(params, f)

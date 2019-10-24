@@ -1,11 +1,12 @@
 import os
 import sys
+import pdb_utils
 
 
 def run(params, template):
-    params['center'] = params.get('center',
-                                  'mol.' + str(params['ligand'][0]['resSeq']))
-    params['export'] = {'central_atom': params['center']}
+    if not params.get('center'):
+        center = pdb_utils.atoms_center(params['ligand'])
+        params['center'] = ' '.join('{:.3f}'.format(x) for x in center)
     return template.format(**params)
 
 
@@ -21,4 +22,17 @@ def check(params, tleap_wrapper):
         return 1
     tleap_wrapper.top = os.path.abspath(top_file)
     tleap_wrapper.rst = os.path.abspath(rst_file)
+
+    central_atom = closest_atom("{name}.pdb".format(**params), params['center'])
+    params['export'] = {'central_atom': '{resSeq}@{name}'.format(**central_atom),
+                        'belly_radius': params['solvent_radius'] - 10}
     return 0
+
+
+def closest_atom(pdb_filename, center):
+    with open(pdb_filename, 'r') as f:
+        return pdb_utils.Pdb(f).closest_atom(center_to_xyz(center))
+
+
+def center_to_xyz(center):
+    return [float(x) for x in center.split()]

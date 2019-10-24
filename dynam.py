@@ -54,7 +54,7 @@ if os.path.isfile(prep_params_path):
     with open(prep_params_path, 'r') as f:
         params = {**params, **json.load(f)}
 
-bellymask = ":{} <@{}".format(params["central_atom"].replace('.', '@'),
+bellymask = ":{} <@{}".format(params["central_atom"],
                               params["belly_radius"])
 
 belly = {"bellymask": bellymask}
