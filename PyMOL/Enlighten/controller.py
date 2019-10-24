@@ -125,7 +125,7 @@ class EnlightenController(PyQtController):
             return self.run_dynam()
         self.load_system(self.state['working_dir'],
                          self.state['prep.system_name'],
-                         'prep')
+                         'PREP')
 
     def dump_prep_params(self):
         params = {
