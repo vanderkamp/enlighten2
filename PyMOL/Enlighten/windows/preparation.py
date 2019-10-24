@@ -59,7 +59,7 @@ class PreparationTab(ManagedWindow):
         controller.update('prep.object', self.pymolObjectCombo.currentText())
 
         controller.bind_file_selector('prep.pdb', self.pdbFileSelector)
-        controller.bind_file_selector('prep.working_dir', self.workingDirSelector)
+        controller.bind_file_selector('working_dir', self.workingDirSelector)
 
         controller.bind_lineEdit('prep.ligand_name', self.ligandNameEdit)
         controller.bind_lineEdit('prep.ligand_charge', self.ligandChargeEdit)

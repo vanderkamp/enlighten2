@@ -79,12 +79,12 @@ class EnlightenController(PyQtController):
             pdb = self.state['prep.object'] + '.pdb'
             self.write_object_to_pdb(
                 self.state['prep.object'],
-                os.path.join(self.state['prep.working_dir'], pdb)
+                os.path.join(self.state['working_dir'], pdb)
             )
         else:
             pdb = os.path.basename(self.state['prep.pdb'])
             os.system("cp {} {}".format(self.state['prep.pdb'],
-                                        self.state['prep.working_dir']))
+                                        self.state['working_dir']))
 
         self.dump_prep_params()
         prep_command = (
@@ -95,7 +95,7 @@ class EnlightenController(PyQtController):
             ligand_name=self.state['prep.ligand_name'],
             ligand_charge=self.state['prep.ligand_charge']
         )
-        command = self.docker_command(self.state['prep.working_dir'],
+        command = self.docker_command(self.state['working_dir'],
                                       prep_command)
         self.run_in_terminal("Prep", command, self.load_structure_after_prep)
 
@@ -103,7 +103,7 @@ class EnlightenController(PyQtController):
         if not WITH_PYMOL:
             return
         system_name = self.state['prep.system_name']
-        system_dir = os.path.join(self.state['prep.working_dir'], system_name)
+        system_dir = os.path.join(self.state['working_dir'], system_name)
         rst_name = system_name + '.rst'
         top_name = system_name + '.top'
         rst = os.path.join(system_dir, rst_name)
@@ -122,7 +122,7 @@ class EnlightenController(PyQtController):
         center = self.state['prep.advanced.center']
         if center != '':
             params['tleap']['center'] = center
-        filename = os.path.join(self.state['prep.working_dir'], 'params')
+        filename = os.path.join(self.state['working_dir'], 'params')
         with open(filename, 'w') as f:
             json.dump(params, f)
 
