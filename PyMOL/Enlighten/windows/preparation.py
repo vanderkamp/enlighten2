@@ -64,7 +64,7 @@ class PreparationTab(ManagedWindow):
         controller.bind_lineEdit('prep.ligand_name', self.ligandNameEdit)
         controller.bind_lineEdit('prep.ligand_charge', self.ligandChargeEdit)
         controller.bind_lineEdit('prep.system_name', self.systemNameEdit)
-        controller.bind_checkBox('prep.use_struct', self.structCheckBox)
+        controller.bind_checkBox('prep.relax', self.structCheckBox)
 
         prep_advanced = self.window_manager['prep_advanced']
         self.advancedOptionsButton.clicked.connect(prep_advanced.show)

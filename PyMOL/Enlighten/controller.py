@@ -97,18 +97,16 @@ class EnlightenController(PyQtController):
         )
         command = self.docker_command(self.state['working_dir'],
                                       prep_command)
-        self.run_in_terminal("Prep", command, self.load_structure_after_prep)
+        self.run_in_terminal("Prep", command, self.after_prep)
 
-    def load_structure_after_prep(self):
-        if not WITH_PYMOL:
-            return
-        system_name = self.state['prep.system_name']
-        system_dir = os.path.join(self.state['working_dir'], system_name)
-        rst_name = system_name + '.rst'
-        top_name = system_name + '.top'
-        rst = os.path.join(system_dir, rst_name)
-        top = os.path.join(system_dir, top_name)
-        self.load_trajectory(rst, top, system_name + ' (prep)')
+    def after_prep(self):
+        if self.state.get('prep.relax'):
+            self.update('dynam.system_name', self.state['prep.system_name'])
+            self.update('dynam.tag', 'PREP')
+            return self.run_dynam()
+        self.load_system(self.state['working_dir'],
+                         self.state['prep.system_name'],
+                         'prep')
 
     def dump_prep_params(self):
         params = {
@@ -127,10 +125,41 @@ class EnlightenController(PyQtController):
             json.dump(params, f)
 
     def run_dynam(self):
-        pass
+        if self.state['dynam.tag'] == 'PREP':
+            arg, title = '-relax', 'Relax'
+        else:
+            arg, title = '', 'Dynam'
+        dynam_command = "dynam.py {system_name} {arg}".format(
+            system_name=self.state['dynam.system_name'],
+            arg=arg
+        )
+        command = self.docker_command(self.state['working_dir'],
+                                      dynam_command)
+        self.run_in_terminal(title, command, self.after_dynam)
+
+    def after_dynam(self):
+        tag = 'relax' if self.state['dynam.tag'] == 'PREP' else 'dynam'
+        self.load_system(self.state['working_dir'],
+                         self.state['dynam.system_name'],
+                         tag)
+
+    @classmethod
+    def load_system(cls, working_dir, system_name, step):
+        system_dir = os.path.join(working_dir, system_name)
+        if step == 'prep':
+            rst_name = os.path.join('tleap', system_name + '.rst')
+        else:
+            rst_name = os.path.join(step, system_name + '_{}.rst'.format(step))
+        top_name = system_name + '.top'
+        rst = os.path.join(system_dir, rst_name)
+        top = os.path.join(system_dir, top_name)
+        cls.load_trajectory(rst, top, system_name + ' ({})'.format(step))
 
     @staticmethod
     def load_trajectory(rst, top, name):
+        print(rst, top)
+        if not WITH_PYMOL:
+            return
         import pymol
         pymol.cmd.load(top, name)
         pymol.cmd.load(rst, name)
