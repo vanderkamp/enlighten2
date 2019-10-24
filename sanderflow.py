@@ -13,6 +13,7 @@ def run_sander_step(system_files, params):
 
     if not isinstance(system_files, SystemFiles):
         return system_files
+    print("Running step {}".format(params['name']), flush=True)
     sander_wrapper = SanderWrapper(prefix=params['name'],
                                    template=params['template'],
                                    crd=system_files.crd,
