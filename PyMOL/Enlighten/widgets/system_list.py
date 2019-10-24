@@ -11,6 +11,10 @@ class SystemList(QtWidgets.QListWidget):
         self.directory = None
         self.itemSelectionChanged.connect(self._on_select)
 
+    def update(self):
+        if self.directory:
+            self.set_directory(self.directory)
+
     def set_directory(self, directory):
         self.directory = directory
         self.clear()

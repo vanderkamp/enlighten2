@@ -11,7 +11,7 @@ class MainWindow(QtWidgets.QTabWidget):
         self.window_manager = window_manager
         self.setWindowTitle('Enlighten2')
         self.addTab(PreparationTab('prep', window_manager), 'Preparation')
-        self.addTab(DynamicsTab('dynam', window_manager), 'Dynamics')
+        self.addTab(DynamicsTab('dynam', window_manager, self), 'Dynamics')
         PreparationAdvancedWindow('prep_advanced', window_manager)
         self.setFixedSize(self.sizeHint())
 

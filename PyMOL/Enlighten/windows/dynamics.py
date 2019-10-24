@@ -4,13 +4,14 @@ import os
 
 class DynamicsTab(ManagedWindow):
 
-    def __init__(self, name, window_manager):
+    def __init__(self, name, window_manager, main):
         path = os.path.join(os.path.dirname(__file__), 'dynamics.ui')
         super().__init__(name, path, window_manager)
         self.directorySelector.set_directory_mode(True)
         self.directorySelector.lineEdit.textChanged.connect(self.systemList.set_directory)
         self.systemList.selected.connect(self.select_system)
         self.systemList.unselected.connect(self.unselect_system)
+        main.currentChanged.connect(self.systemList.update)
         self.unselect_system()
 
     def select_system(self, item):
@@ -48,5 +49,11 @@ class DynamicsTab(ManagedWindow):
         self.systemList.selected.connect(
             lambda item: controller.update('dynam.tag', item.tag)
         )
-        self.runButton.clicked.connect(controller.run_dynam)
+        self.runButton.clicked.connect(self.run_and_update(controller.run_dynam))
         self.loadButton.clicked.connect(controller.load_trajectory)
+
+    def run_and_update(self, callback):
+        def result():
+            callback()
+            self.systemList.update()
+        return result
