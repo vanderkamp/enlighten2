@@ -138,31 +138,43 @@ class EnlightenController(PyQtController):
         self.run_in_terminal(title, command, self.after_dynam)
 
     def after_dynam(self):
-        tag = 'relax' if self.state['dynam.tag'] == 'PREP' else 'dynam'
+        tag = 'RELAX' if self.state['dynam.tag'] == 'PREP' else 'DYNAM'
         self.load_system(self.state['working_dir'],
                          self.state['dynam.system_name'],
                          tag)
 
+    def load_dynam(self):
+        self.load_system(self.state['working_dir'],
+                         self.state['dynam.system_name'],
+                         self.state['dynam.tag'])
+
     @classmethod
-    def load_system(cls, working_dir, system_name, step):
+    def load_system(cls, working_dir, system_name, tag):
         system_dir = os.path.join(working_dir, system_name)
-        if step == 'prep':
+        step = tag.lower()
+        if tag == 'PREP':
             rst_name = os.path.join('tleap', system_name + '.rst')
+            format = 'rst'
+        elif tag == 'RELAX':
+            rst_name = os.path.join('relax', system_name + '_{}.rst'.format(step))
+            format = 'rst'
         else:
-            rst_name = os.path.join(step, system_name + '_{}.rst'.format(step))
+            rst_name = os.path.join('dynam', 'md', 'mdcrd')
+            format = 'trj'
         top_name = system_name + '.top'
         rst = os.path.join(system_dir, rst_name)
         top = os.path.join(system_dir, top_name)
-        cls.load_trajectory(rst, top, system_name + ' ({})'.format(step))
+        name = system_name + ' ({})'.format(step)
+        cls.load_trajectory(rst, top, name, format)
 
     @staticmethod
-    def load_trajectory(rst, top, name):
+    def load_trajectory(rst, top, name, format='rst'):
         print(rst, top)
         if not WITH_PYMOL:
             return
         import pymol
         pymol.cmd.load(top, name)
-        pymol.cmd.load(rst, name)
+        pymol.cmd.load(rst, name, format=format)
 
     @staticmethod
     def write_object_to_pdb(object_name, filename):
