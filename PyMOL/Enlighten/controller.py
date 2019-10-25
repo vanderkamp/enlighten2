@@ -134,7 +134,8 @@ class EnlightenController(PyQtController):
                 'ph': float(self.state['prep.advanced.ph'])
             },
             'tleap': {
-                'solvent_radius': self.state['prep.advanced.sphere_size']
+                'solvent_radius': self.state['prep.advanced.sphere_size'],
+                'include': ['.']
             }
         }
         center = self.state['prep.advanced.center']
