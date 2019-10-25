@@ -155,11 +155,16 @@ class PropkaWrapper(object):
                     lambda atom: 'new' in atom['extras']
                 ))
 
-                # Also remove HZ1 atoms from deprotonated LYS
+                # Also remove HZ1 atoms from deprotonated LYS and CYS
                 if pka_entry['resName'] == 'LYS':
                     self.pdb.remove_atom(pdb_utils.find_atom(
                         residues[hash],
                         lambda atom: atom['name'] == 'HZ1'
+                    ))
+                if pka_entry['resName'] == 'CYS':
+                    self.pdb.remove_atom(pdb_utils.find_atom(
+                        residues[hash],
+                        lambda atom: atom['name'] == 'HG'
                     ))
 
         PRINT_PKA_FORMAT = "{resName:>6}{resSeq:>4}{chainID:>2}{pKa:>9.2f}"
