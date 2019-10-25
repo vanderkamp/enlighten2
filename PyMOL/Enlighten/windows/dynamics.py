@@ -34,7 +34,7 @@ class DynamicsTab(ManagedWindow):
         self.runButton.setEnabled(True)
         self.loadButton.setEnabled(True)
         self.runButton.setText('Run dynamics')
-        self.loadButton.setText('Load trajectory')
+        self.loadButton.setText('Load system')
 
     def dynam_system_selected(self):
         self.runButton.setEnabled(False)
