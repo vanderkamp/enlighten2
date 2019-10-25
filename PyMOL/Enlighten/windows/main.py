@@ -1,4 +1,4 @@
-from qt_wrapper import QtWidgets
+from qt_wrapper import QtWidgets, QtCore
 from .preparation import PreparationTab
 from .preparation_advanced import PreparationAdvancedWindow
 from .dynamics import DynamicsTab
@@ -8,6 +8,7 @@ class MainWindow(QtWidgets.QTabWidget):
 
     def __init__(self, window_manager):
         super().__init__()
+        self.setWindowFlag(QtCore.Qt.WindowStaysOnTopHint)
         self.window_manager = window_manager
         self.setWindowTitle('Enlighten2')
         self.addTab(PreparationTab('prep', window_manager), 'Preparation')

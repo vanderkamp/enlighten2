@@ -1,4 +1,4 @@
-from qt_wrapper import QtWidgets, uic
+from qt_wrapper import QtWidgets, QtCore, uic
 
 
 class WindowManager:
@@ -25,6 +25,7 @@ class ManagedWindow(QtWidgets.QWidget):
 
     def __init__(self, name, ui, window_manager):
         super().__init__()
+        self.setWindowFlag(QtCore.Qt.WindowStaysOnTopHint)
         self.window_manager = window_manager
         window_manager.add(name, uic.loadUi(ui, self))
 
