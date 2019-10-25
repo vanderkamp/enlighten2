@@ -8,7 +8,7 @@ from widgets.form import Form
 class PreparationTab(ManagedWindow):
 
     PDB_FILE_WIDGETS = ('pdbFileLabel', 'pdbFileSelector')
-    PYMOL_OBJECT_WIDGETS = ('pymolObjectLabel', 'pymolObjectCombo')
+    PYMOL_OBJECT_WIDGETS = ('pymolObjectLabel', 'pymolObjectCombo', 'refreshObjectsButton')
 
     def __init__(self, name, window_manager):
         path = os.path.join(os.path.dirname(__file__), 'preparation.ui')
@@ -40,6 +40,7 @@ class PreparationTab(ManagedWindow):
         if WITH_PYMOL:
             import pymol
             objects = pymol.cmd.get_names('objects')
+            self.pymolObjectCombo.clear()
             self.pymolObjectCombo.addItems(objects)
             self.pymolObjectCombo.setCurrentIndex(len(objects) - 1)
         else:
@@ -67,6 +68,7 @@ class PreparationTab(ManagedWindow):
         controller.bind_checkBox('prep.relax', self.structCheckBox)
 
         prep_advanced = self.window_manager['prep_advanced']
+        self.refreshObjectsButton.clicked.connect(self.setup_objects_list)
         self.advancedOptionsButton.clicked.connect(prep_advanced.show)
         self.websiteButton.clicked.connect(controller.open_enlighten_website)
 

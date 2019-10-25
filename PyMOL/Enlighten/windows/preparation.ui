@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>475</width>
-    <height>264</height>
+    <height>267</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -106,19 +106,6 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="2" colspan="3">
-      <widget class="QComboBox" name="pymolObjectCombo">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="1">
       <widget class="QLabel" name="pymolObjectLabel">
        <property name="text">
@@ -204,6 +191,45 @@
      </item>
      <item row="4" column="2" colspan="3">
       <widget class="ValidatedLineEdit" name="systemNameEdit"/>
+     </item>
+     <item row="1" column="2" colspan="3">
+      <layout class="QHBoxLayout" name="pymolObjectLayout">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QComboBox" name="pymolObjectCombo">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="refreshObjectsButton">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>30</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>⟲</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>
