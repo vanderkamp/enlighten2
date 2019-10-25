@@ -25,9 +25,10 @@ class ManagedWindow(QtWidgets.QWidget):
 
     def __init__(self, name, ui, window_manager):
         super().__init__()
-        self.setWindowFlag(QtCore.Qt.WindowStaysOnTopHint)
+        self.setWindowFlag(QtCore.Qt.Tool)
         self.window_manager = window_manager
         window_manager.add(name, uic.loadUi(ui, self))
+        move_to_center(self)
 
     def bind(self, controller):
         raise NotImplementedError
@@ -40,3 +41,11 @@ class ManagedWindow(QtWidgets.QWidget):
             else:
                 widget.hide()
 
+
+def move_to_center(window):
+    center = QtWidgets.QDesktopWidget().availableGeometry().center()
+    window_size = window.size()
+    print(center, window_size)
+    print(center.x(), center.y(), window_size.width(), window_size.height())
+    window.move(center.x() - window_size.width() / 2,
+                center.y() - window_size.height() / 2)
