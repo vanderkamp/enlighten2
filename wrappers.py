@@ -33,10 +33,10 @@ class AntechamberWrapper(object):
 
         self.working_directory = os.getcwd()
         if create_frcmod:
-            parmck_command = (amberhome + "/bin/parmchk2 " +
-                              "-i {name}.prepc -f prepc -o {name}.frcmod"
-                              .format(name=name))
-            utils.run_in_shell(parmck_command, 'parmchk2.out')
+            parmchk_command = (amberhome + "/bin/parmchk2 " +
+                               "-i {name}.prepc -f prepc -o {name}.frcmod"
+                               .format(name=name))
+            utils.run_in_shell(parmchk_command, 'parmchk2.out')
             # TODO: check for ATTN warnings
 
         os.chdir('..')
