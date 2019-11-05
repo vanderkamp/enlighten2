@@ -23,23 +23,37 @@ class DynamicsTab(ManagedWindow):
     def unselect_system(self):
         self.runButton.setEnabled(False)
         self.loadButton.setEnabled(False)
+        self.hideTimeInput()
 
     def prep_system_selected(self):
         self.runButton.setEnabled(True)
         self.loadButton.setEnabled(True)
+        self.hideTimeInput()
         self.runButton.setText('Run relaxation')
         self.loadButton.setText('Load system')
 
     def relax_system_selected(self):
         self.runButton.setEnabled(True)
         self.loadButton.setEnabled(True)
+        self.showTimeInput()
         self.runButton.setText('Run dynamics')
         self.loadButton.setText('Load system')
 
     def dynam_system_selected(self):
         self.runButton.setEnabled(False)
         self.loadButton.setEnabled(True)
+        self.hideTimeInput()
         self.loadButton.setText('Load trajectory')
+
+    def showTimeInput(self):
+        self.timeLabel1.show()
+        self.timeLabel2.show()
+        self.timeEdit.show()
+
+    def hideTimeInput(self):
+        self.timeLabel1.hide()
+        self.timeLabel2.hide()
+        self.timeEdit.hide()
 
     def bind(self, controller):
         controller.bind_file_selector('working_dir', self.directorySelector)
