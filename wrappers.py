@@ -5,6 +5,8 @@ import utils
 import tleap
 import json
 import sys
+import threading
+from md_monitor import run_md_monitor
 
 
 def get_amberhome():
@@ -292,7 +294,8 @@ def get_tleap_includes(include, nonprot_residues):
 
 class SanderWrapper(object):
 
-    def __init__(self, prefix, template, crd, prmtop, params, working_directory):
+    def __init__(self, prefix, template, crd, prmtop, params, working_directory,
+                 monitor=False):
 
         self.prefix = prefix
 
@@ -302,6 +305,13 @@ class SanderWrapper(object):
         template_file = self._full_path('{}.in'.format(prefix))
         utils.dump_to_file(template_file, self._get_template(template, params))
 
+        if monitor:
+            mdinfo = os.path.join(self.working_directory, 'mdinfo')
+            log = os.path.join(self.working_directory, prefix + '.log')
+            monitor_thread = threading.Thread(target=run_md_monitor,
+                                              args=(mdinfo, log))
+            monitor_thread.start()
+
         command = ('{amberhome}/bin/sander -O -i {prefix}.in -p {prmtop} '
                    '-c {crd} -o {prefix}.log -r {prefix}.rst -ref {crd}')
         self.exit_code = utils.run_at_path(
@@ -309,6 +319,9 @@ class SanderWrapper(object):
                            crd=crd, prmtop=prmtop),
             working_directory
         )
+
+        if monitor:
+            monitor_thread.join()
 
         self.output_crd = self._full_path('{}.rst'.format(prefix))
 

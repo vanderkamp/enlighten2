@@ -19,7 +19,8 @@ def run_sander_step(system_files, params):
                                    crd=system_files.crd,
                                    prmtop=system_files.prmtop,
                                    params=params.get('params', {}),
-                                   working_directory=params['name'])
+                                   working_directory=params['name'],
+                                   monitor=params.get('monitor'))
     if sander_wrapper.exit_code:
         return sander_wrapper.prefix
     return sander_wrapper.exit_code or SystemFiles(system_files.prmtop,

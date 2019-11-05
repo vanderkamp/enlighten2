@@ -69,7 +69,7 @@ relax_params = [
 
 dynam_params = [
     {"name": "heat", "template": "heat", "params": belly},
-    {"name": "md", "template": "md", "params": belly},
+    {"name": "md", "template": "md", "params": belly, "monitor": True},
     {"name": "minimize", "template": "min", "params": belly},
 ]
 
