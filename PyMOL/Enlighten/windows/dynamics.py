@@ -62,6 +62,7 @@ class DynamicsTab(ManagedWindow):
     def bind(self, controller):
         controller.bind_file_selector('working_dir', self.directorySelector)
         controller.bind_lineEdit('dynam.simulation_time', self.timeEdit)
+        controller.update('dynam.simulation_time', '50')
         self.systemList.selected.connect(
             lambda item: controller.update('dynam.system_name', item.name)
         )
