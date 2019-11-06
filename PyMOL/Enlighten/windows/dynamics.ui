@@ -103,7 +103,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="timeEdit">
+          <widget class="ValidatedLineEdit" name="timeEdit">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -209,6 +209,11 @@
    <class>SystemList</class>
    <extends>QLineEdit</extends>
    <header>widgets.system_list.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ValidatedLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>widgets.validated_line_edit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

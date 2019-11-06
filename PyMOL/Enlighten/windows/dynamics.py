@@ -1,4 +1,6 @@
 from .windows import ManagedWindow
+from qt_wrapper import QtGui
+from validators import PositiveIntegerValidator
 import os
 
 
@@ -12,6 +14,8 @@ class DynamicsTab(ManagedWindow):
         self.systemList.selected.connect(self.select_system)
         self.systemList.unselected.connect(self.unselect_system)
         main.currentChanged.connect(self.systemList.update)
+        self.timeEdit.setValidator(QtGui.QIntValidator())
+        self.timeEdit.set_validator(PositiveIntegerValidator('Simulation length'))
         self.unselect_system()
 
     def select_system(self, item):
