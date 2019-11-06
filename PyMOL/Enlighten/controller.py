@@ -1,8 +1,9 @@
 from windows.terminal import TerminalWindow
-from qt_wrapper import QtCore, QtWidgets, WITH_PYMOL
+from qt_wrapper import QtWidgets, WITH_PYMOL
 import os
 import json
 import shutil
+from docker_process import DockerProcess
 
 
 class Controller:
@@ -104,9 +105,10 @@ class EnlightenController(PyQtController):
             ligand_name=self.state['prep.ligand_name'],
             ligand_charge=self.state['prep.ligand_charge']
         )
-        command = self.docker_command(self.state['working_dir'],
-                                      prep_command)
-        self.run_in_terminal("Prep", command, self.after_prep)
+        self.run_in_terminal("Prep",
+                             self.state['working_dir'],
+                             prep_command,
+                             self.after_prep)
 
     @staticmethod
     def dialog(message):
@@ -162,9 +164,10 @@ class EnlightenController(PyQtController):
             arg=arg,
             params="dynam.params"
         )
-        command = self.docker_command(self.state['working_dir'],
-                                      dynam_command)
-        self.run_in_terminal(title, command, self.after_dynam)
+        self.run_in_terminal(title,
+                             self.state['working_dir'],
+                             dynam_command,
+                             self.after_dynam)
 
     def dump_dynam_params(self):
         params = {'steps': int(self.state['dynam.simulation_time']) * 500}
@@ -220,10 +223,10 @@ class EnlightenController(PyQtController):
         pymol.cmd.set('pdb_use_ter_records', pdb_use_ter_records)
 
     @classmethod
-    def run_in_terminal(cls, title, command, on_finished):
-        process = QtCore.QProcess()
+    def run_in_terminal(cls, title, working_dir, command, on_finished):
+        process = DockerProcess()
         terminal = TerminalWindow(process, title)
-        process.start(command)
+        process.start(working_dir, command)
 
         def finished_callback():
             if not process.exitCode():
@@ -232,25 +235,3 @@ class EnlightenController(PyQtController):
 
         process.finished.connect(finished_callback)
         terminal.exec()
-
-    @classmethod
-    def docker_command(cls, working_dir, command):
-        if os.name == 'nt':
-            if os.environ.get('DOCKER_TOOLBOX_INSTALL_PATH'):
-                working_dir = cls.parse_win_path(working_dir)
-            return "docker run --rm -v {dir}:/tmp " \
-                   "kzinovjev/enlighten2 " \
-                   "/bin/bash -lc \"{command}\"".format(dir=working_dir,
-                                                        command=command)
-        return "docker run --rm -v {dir}:/tmp -u {uid}:{gid} " \
-               "kzinovjev/enlighten2 " \
-               "/bin/bash -lc \"{command}\"".format(dir=working_dir,
-                                                    uid=os.geteuid(),
-                                                    gid=os.getegid(),
-                                                    command=command)
-
-    @staticmethod
-    def parse_win_path(path):
-        drive = path[0]
-        return path.replace('{}:/'.format(drive),
-                            '//{}/'.format(drive.lower()))
