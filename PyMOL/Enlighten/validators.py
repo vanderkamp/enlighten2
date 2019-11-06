@@ -49,6 +49,22 @@ class IntegerValidator(Validator):
         return "{} '{}' is not an integer".format(self.name, self.value)
 
 
+class PositiveIntegerValidator(Validator):
+
+    def __init__(self, name='Field'):
+        self.name = name
+
+    @staticmethod
+    def validate(value):
+        try:
+            return int(value) > 0
+        except ValueError:
+            return False
+
+    def tooltip(self):
+        return "{} '{}' is not a positive integer".format(self.name, self.value)
+
+
 class FileValidator(Validator):
 
     @staticmethod
