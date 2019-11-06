@@ -57,20 +57,21 @@ if os.path.isfile(prep_params_path):
 bellymask = ":{} <@{}".format(params["central_atom"],
                               params["belly_radius"])
 
-belly = {"bellymask": bellymask}
+sander_params = {**params, "bellymask": bellymask}
 
 relax_params = [
   {"name": "minimize_h_all", "template": "minh"},
-  {"name": "minimize_h_in_sphere", "template": "minh_ibelly", "params": belly},
-  {"name": "annealing_with_restraints", "template": "sa_ca", "params": belly},
-  {"name": "annealing_without_restraints", "template": "sa", "params": belly},
-  {"name": "minimize_all_in_sphere", "template": "min_ibelly", "params": belly}
+  {"name": "minimize_h_in_sphere", "template": "minh_ibelly", "params": sander_params},
+  {"name": "annealing_with_restraints", "template": "sa_ca", "params": sander_params},
+  {"name": "annealing_without_restraints", "template": "sa", "params": sander_params},
+  {"name": "minimize_all_in_sphere", "template": "min_ibelly", "params": sander_params}
 ]
 
+params = {}
 dynam_params = [
-    {"name": "heat", "template": "heat", "params": belly},
-    {"name": "md", "template": "md", "params": belly, "monitor": True},
-    {"name": "minimize", "template": "min", "params": belly},
+    {"name": "heat", "template": "heat", "params": sander_params},
+    {"name": "md", "template": "md", "params": sander_params, "monitor": True},
+    {"name": "minimize", "template": "min", "params": sander_params},
 ]
 
 tleap_dir = os.path.abspath(os.path.join(args.system, 'tleap'))

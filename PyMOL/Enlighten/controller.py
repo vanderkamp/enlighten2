@@ -156,13 +156,21 @@ class EnlightenController(PyQtController):
             arg, title = '-relax', 'Relax'
         else:
             arg, title = '', 'Dynam'
-        dynam_command = "dynam.py {system_name} {arg}".format(
+        self.dump_dynam_params()
+        dynam_command = "dynam.py {system_name} {arg} {params}".format(
             system_name=self.state['dynam.system_name'],
-            arg=arg
+            arg=arg,
+            params="dynam.params"
         )
         command = self.docker_command(self.state['working_dir'],
                                       dynam_command)
         self.run_in_terminal(title, command, self.after_dynam)
+
+    def dump_dynam_params(self):
+        params = {'steps': int(self.state['dynam.simulation_time']) * 500}
+        filename = os.path.join(self.state['working_dir'], 'dynam.params')
+        with open(filename, 'w') as f:
+            json.dump(params, f)
 
     def after_dynam(self):
         tag = 'RELAX' if self.state['dynam.tag'] == 'PREP' else 'DYNAM'
