@@ -1,6 +1,6 @@
 import unittest
 import unittest.mock as mock
-import utils
+from enlighten2 import utils
 
 
 class TestUtils(unittest.TestCase):

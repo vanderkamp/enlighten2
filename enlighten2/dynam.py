@@ -3,8 +3,7 @@ import os
 import sys
 import argparse
 import json
-import utils
-import sanderflow
+from enlighten2 import utils, sanderflow
 
 
 def get_dynam_dir(system):

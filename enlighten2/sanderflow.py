@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import os
 import sys
-from wrappers import SanderWrapper
+from enlighten2.wrappers import SanderWrapper
 from functools import reduce
 from collections import namedtuple
 

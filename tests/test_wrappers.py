@@ -1,7 +1,6 @@
 import unittest
 import unittest.mock as mock
-import wrappers
-import pdb_utils
+from enlighten2 import pdb_utils, wrappers
 from io import StringIO
 
 
