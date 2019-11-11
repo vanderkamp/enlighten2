@@ -199,9 +199,9 @@ def parse_propka_output(file):
 
 
 def line_to_pka_entry(line):
-    raw_entry = line.split()
-    if len(raw_entry) != 5:
+    if len(line.strip()) != 29:
         return None
+    raw_entry = line.split()
     return {'resName': raw_entry[0],
             'resSeq': int(raw_entry[1]),
             'chainID': raw_entry[2],
