@@ -159,7 +159,7 @@ class EnlightenController(PyQtController):
         else:
             arg, title = '', 'Dynam'
         self.dump_dynam_params()
-        dynam_command = "dynam.py {system_name} {arg} {params}".format(
+        dynam_command = "dynam.py {arg} {system_name} {params}".format(
             system_name=self.state['dynam.system_name'],
             arg=arg,
             params="dynam.params"
