@@ -43,7 +43,8 @@ class Pdb(object):
         # If some atoms have no index (extra Hs added by reduce) they go
         # after the "normal" ones.
         for entry in sorted(self.atoms+self.ter,
-                            key=lambda x: (x['resSeq'],
+                            key=lambda x: (x['chainID'],
+                                           x['resSeq'],
                                            x['record'],
                                            x['serial'] or 99999999)):
             file.write(DUMP_CALLBACK[entry['record']](entry))
