@@ -141,7 +141,7 @@ Amber topology/coordinate files.
 - Uses the following AmberTools programs: antechamber (& sqm), prmchk2, pdb4amber, reduce, tleap 
 - Ideally requires installation of propka31 (and put in $PATH)
 - additional parameters are provided as a json file with the following fields:
-  ```json
+  ```
   {
     "antechamber": {
         "ligand": <Ligand name>,
@@ -175,7 +175,7 @@ dynam.py runs a predefined relaxation/production MD protocol for a system create
 - runs short relaxation protocol when used with -relax argument, 
 else runs a longer production MD
 - additional parameters are provided as a json file with the following fields:
-  ```json
+  ```
   {
     "steps": <Number of MD steps> (default: 25000),
     "belly_radius": <radius of the flexible sphere of atoms> (default: 4.5),
