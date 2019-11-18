@@ -40,6 +40,7 @@ if not os.path.isdir(args.system):
     exit(1)
 
 params = {
+    "steps": 25000,
     "belly_radius": 4.5,
     "central_atom": None
 }
