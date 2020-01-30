@@ -1,6 +1,6 @@
 import os
 import sys
-import pdb_utils
+from enlighten2 import pdb_utils
 
 
 def run(params, template):

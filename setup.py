@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 from os import path
 
 this_directory = path.abspath(path.dirname(__file__))
@@ -16,5 +16,9 @@ setup(name='enlighten2',
       author='Kirill Zinovjev',
       author_email='kzinovjev@gmail.com',
       license='GPL',
-      packages=['enlighten2'],
+      packages=find_packages(),
+      package_data={'enlighten2.tleap': ['*.in'],
+                    'enlighten2': ['sander/*']},
+      entry_points={'console_scripts': ['prep.py = enlighten2.prep:main',
+                                        'dynam.py = enlighten2.dynam:main']},
       zip_safe=False)

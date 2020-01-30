@@ -236,7 +236,7 @@ class TleapWrapper(object):
 
         params['include'] = get_tleap_includes(include, nonprot_residues)
         template_module = getattr(
-            __import__('tleap', fromlist=[template_name]),
+            __import__('enlighten2.tleap', fromlist=[template_name]),
             template_name
         )
 
