@@ -25,7 +25,7 @@ def check(params, tleap_wrapper):
 
     central_atom = closest_atom("{name}.pdb".format(**params), params['center'])
     params['export'] = {'central_atom': '{resSeq}@{name}'.format(**central_atom),
-                        'belly_radius': params['solvent_radius'] - 10}
+                        'solvent_radius': params['solvent_radius']}
     return 0
 
 

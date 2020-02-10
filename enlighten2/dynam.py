@@ -43,7 +43,6 @@ def main():
 
     params = {
         "steps": 25000,
-        "belly_radius": 4.5,
         "central_atom": None
     }
 
@@ -56,8 +55,14 @@ def main():
         with open(prep_params_path, 'r') as f:
             params = {**params, **json.load(f)}
 
-    bellymask = ":{} <@{}".format(params["central_atom"],
-                                  params["belly_radius"])
+    mode = 'relax' if args.relax else 'dynam'
+
+    if mode == 'relax':
+        belly_radius = params["solvent_radius"] - 8
+    else:
+        belly_radius = params["solvent_radius"] - 4
+
+    bellymask = ":{} <@{}".format(params["central_atom"], belly_radius)
 
     sander_params = {**params, "bellymask": bellymask}
 
@@ -77,7 +82,6 @@ def main():
 
     tleap_dir = os.path.abspath(os.path.join(args.system, 'tleap'))
     prmtop = "{}/{}.top".format(tleap_dir, args.system)
-    mode = 'relax' if args.relax else 'dynam'
 
     if mode == 'relax':
         crd = "{}/{}.rst".format(tleap_dir, args.system)
