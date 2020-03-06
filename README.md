@@ -178,10 +178,10 @@ else runs a longer production MD
   ```
   {
     "steps": <Number of MD steps> (default: 25000),
-    "belly_radius": <radius of the flexible sphere of atoms> (default: 4.5),
+    "solvent_radius": <radius of the flexible sphere of atoms>,
     "central_atom": <center of the flexible sphere of atoms>
   }  
   ```
  
- Note that the parameters belly_radius and central_atom are usually provided by PREP 
+ Note that the parameters solvent_radius and central_atom are usually provided by PREP 
  output and therefore are not required.
