@@ -1,0 +1,2 @@
+For the build script to work, the AmberTools19.tar.bz2 file (as obtained from
+https://ambermd.org/GetAmber.php) should be copied to the assets/ directory.

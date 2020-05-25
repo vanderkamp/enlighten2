@@ -1,6 +1,6 @@
 import unittest
 from io import StringIO
-import pdb_utils
+from enlighten2 import pdb_utils
 
 
 class TestPdb(unittest.TestCase):

@@ -1,7 +1,6 @@
 import unittest
 import unittest.mock as mock
-import wrappers
-import pdb_utils
+from enlighten2 import pdb_utils, wrappers
 from io import StringIO
 
 
@@ -26,9 +25,9 @@ def setup_mock(mock_os, mock_os_path):
 
 class TestAntechamberWrapper(unittest.TestCase):
 
-    @mock.patch('wrappers.utils')
-    @mock.patch('wrappers.os.path')
-    @mock.patch('wrappers.os')
+    @mock.patch('enlighten2.wrappers.utils')
+    @mock.patch('enlighten2.wrappers.os.path')
+    @mock.patch('enlighten2.wrappers.os')
     def test_antechamber_simple_call(self, mock_os, mock_os_path, mock_utils):
         setup_mock(mock_os, mock_os_path)
         pdb = mock.MagicMock()
@@ -46,9 +45,9 @@ class TestAntechamberWrapper(unittest.TestCase):
 
 class TestPdb4AmberReduceWrapper(unittest.TestCase):
 
-    @mock.patch('wrappers.utils')
-    @mock.patch('wrappers.os.path')
-    @mock.patch('wrappers.os')
+    @mock.patch('enlighten2.wrappers.utils')
+    @mock.patch('enlighten2.wrappers.os.path')
+    @mock.patch('enlighten2.wrappers.os')
     def test_pdb4amber_reduce_call(self, mock_os, mock_os_path, mock_utils):
         setup_mock(mock_os, mock_os_path)
         pdb = mock.MagicMock()
@@ -66,7 +65,7 @@ class TestPdb4AmberReduceWrapper(unittest.TestCase):
                 side_effects.append(iterable_mock_open(read_data=f.read())())
         mock_open.side_effect = side_effects
 
-        with mock.patch('wrappers.open', mock_open):
+        with mock.patch('enlighten2.wrappers.open', mock_open):
             result = wrappers.Pdb4AmberReduceWrapper(pdb)
         self.assertEqual(len(result.pdb.atoms), 4080)
         self.assertEqual(result.nonprot_residues, {'0RN'})
@@ -109,10 +108,10 @@ class TestPropkaWrapper(unittest.TestCase):
              'model-pKa': 3.80}
         )
 
-    @mock.patch('wrappers.utils')
-    @mock.patch('wrappers.print')
-    @mock.patch('wrappers.os.path')
-    @mock.patch('wrappers.os')
+    @mock.patch('enlighten2.wrappers.utils')
+    @mock.patch('enlighten2.wrappers.print')
+    @mock.patch('enlighten2.wrappers.os.path')
+    @mock.patch('enlighten2.wrappers.os')
     def test_propka_call(self, mock_os, mock_os_path, mock_print, mock_utils):
         setup_mock(mock_os, mock_os_path)
 
@@ -123,7 +122,7 @@ class TestPropkaWrapper(unittest.TestCase):
         with open('tests/test_files/propka.pka') as f:
             mock_open = iterable_mock_open(read_data=f.read())
 
-        with mock.patch('wrappers.open', mock_open):
+        with mock.patch('enlighten2.wrappers.open', mock_open):
             result = wrappers.PropkaWrapper(pdb)
         residues = result.pdb.residues()
 
@@ -136,7 +135,7 @@ class TestPropkaWrapper(unittest.TestCase):
 
 class TestTleapWrapper(unittest.TestCase):
 
-    @mock.patch('wrappers.os.path.isfile')
+    @mock.patch('enlighten2.wrappers.os.path.isfile')
     def test_get_tleap_includes(self, mock_isfile):
         result = {'loadoff test1/res1.off',
                   'loadamberprep test1/res1.prepc',
@@ -161,42 +160,37 @@ class TestTleapWrapper(unittest.TestCase):
         with self.assertRaises(FileNotFoundError) as context:
             wrappers.get_tleap_includes(['test1', 'test2'],
                                         ['res1', 'res3'])
-        self.assertEquals(str(context.exception),
-                          "Cannot find topology (res3.prepc) "
-                          "for residue res3. Exiting...")
+        self.assertEqual(str(context.exception),
+                         "Cannot find topology (res3.prepc) "
+                         "for residue res3. Exiting...")
 
-    @mock.patch('wrappers.utils')
-    @mock.patch('wrappers.os.system')
-    @mock.patch('wrappers.get_tleap_includes')
-    def test_tleap_call(self, mock_includes, *args):
-        pdb = mock.MagicMock()
-        pdb.to_filename = mock.MagicMock()
-        PARAMS = {'name': 'XXX',
-                  'pdb': pdb,
-                  'water_pdb': pdb,
-                  'solvent_radius': 20.0,
-                  'solvent_closeness': 0.75,
-                  'ligand': [{'name': "CA",
-                              'resSeq': 1}]}
-        template_file = StringIO()
-        with open('tleap/sphere.in') as f:
-            template_file.write(f.read())
-        template_file.seek(0)
 
-        generated_input = StringIO()
+class TestSanderWrapper(unittest.TestCase):
 
-        def side_effect(data):
-            generated_input.write(data)
+    @mock.patch('enlighten2.wrappers.utils')
+    @mock.patch('enlighten2.wrappers.os.path')
+    @mock.patch('enlighten2.wrappers.os')
+    def test_sander_call(self, mock_os, mock_os_path, mock_utils):
+        setup_mock(mock_os, mock_os_path)
+        params = {'bellymask': 'testmask'}
 
-        mock_includes.return_value = "loadoff XXX.off\nloadamberprep XXX.prepc"
-        with mock.patch("builtins.open", mock.mock_open()) as mock_file:
-            mock_input = mock.MagicMock()
-            mock_input.write = mock.MagicMock()
-            mock_input.write.side_effect = side_effect
-            mock_file.return_value.__enter__.side_effect = [template_file,
-                                                            mock_input]
-            with mock.patch("builtins.print", mock.mock_open()) as mock_print:
-                wrappers.TleapWrapper('sphere', params=PARAMS)
-        generated_input.seek(0)
-        with open('tests/test_files/sphere.in') as f:
-            self.assertEqual(generated_input.read(), f.read())
+        def side_effect(*args):
+            return 'sander/minh_ibelly.in'
+
+        mock_os_path.join.side_effect = side_effect
+        mock_os.environ = {'AMBERHOME': 'amberhome'}
+        wrappers.SanderWrapper(prefix="test",
+                               template="minh_ibelly",
+                               crd="crd",
+                               prmtop="prmtop",
+                               params=params,
+                               working_directory='test_dir')
+
+        mock_utils.parse_template.assert_has_calls([
+            mock.call('sander/minh_ibelly.in', params)
+        ])
+        mock_utils.run_at_path.assert_has_calls([
+            mock.call("amberhome/bin/sander -O -i test.in -p prmtop -c crd "
+                      "-o test.log -r test.rst -ref crd",
+                      'test_dir')
+        ])

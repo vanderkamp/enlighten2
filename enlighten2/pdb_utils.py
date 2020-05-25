@@ -43,7 +43,8 @@ class Pdb(object):
         # If some atoms have no index (extra Hs added by reduce) they go
         # after the "normal" ones.
         for entry in sorted(self.atoms+self.ter,
-                            key=lambda x: (x['resSeq'],
+                            key=lambda x: (x['chainID'],
+                                           x['resSeq'],
                                            x['record'],
                                            x['serial'] or 99999999)):
             file.write(DUMP_CALLBACK[entry['record']](entry))
@@ -64,6 +65,10 @@ class Pdb(object):
         except ValueError:
             pass
 
+    def closest_atom(self, xyz):
+        distances = [dist_sq(atom_xyz(atom), xyz) for atom in self.atoms]
+        return self.atoms[distances.index(min(distances))]
+
 
 def residue_hash(atom):
     """Uniquely identifies the residue atom belongs to"""
@@ -79,6 +84,20 @@ def modify_atoms(atoms, key, value):
 def find_atom(atoms, condition):
     """Return first atom in atoms that fulfills condition"""
     return next(atom for atom in atoms if condition(atom))
+
+
+def atoms_center(atoms):
+    """Returns the geometric center of a group of atoms"""
+    n = len(atoms)
+    return [sum(x)/n for x in zip(*(atom_xyz(atom) for atom in atoms))]
+
+
+def dist_sq(vec1, vec2):
+    return sum((a-b)**2 for a, b in zip(vec1, vec2))
+
+
+def atom_xyz(atom):
+    return atom['x'], atom['y'], atom['z']
 
 
 def pdb_line_key(line):
@@ -121,11 +140,11 @@ def parse_ter(ter_line):
     """
     return {
         'record': ter_line[:6].strip(),
-        'serial': int(ter_line[6:11].strip()),
+        'serial': int(ter_line[6:11].strip()) if ter_line[6:11].strip() else '',
         'resName': ter_line[17:20].strip(),
-        'chainID': ter_line[21].strip(),
-        'resSeq': int(ter_line[22:26]),
-        'iCode': ter_line[26].strip(),
+        'chainID': ter_line[21].strip() if len(ter_line) > 21 else '',
+        'resSeq': int(ter_line[22:26].strip()) if ter_line[22:26].strip() else '',
+        'iCode': ter_line[26].strip() if len(ter_line) > 26 else '',
         'extras': ter_line[27:] or '\n'
     }
 

@@ -1,11 +1,22 @@
 import os
 import shutil
 import subprocess
+import os
 
 
 def check_file(name, message=None):
     if not os.path.isfile(name):
         raise FileNotFoundError(message or "File " + name + " not found.")
+
+
+def dump_to_file(file, contents):
+    with open(file, 'w') as f:
+        f.write(contents)
+
+
+def parse_template(template, params):
+    with open(template) as f:
+        return f.read().format(**params)
 
 
 def set_working_directory(working_directory):
@@ -37,3 +48,24 @@ def run_in_shell(command, output):
         proc = subprocess.Popen(command, shell=True, stdout=f,
                                 stderr=subprocess.STDOUT)
         proc.wait()
+
+
+def run_at_path(command, path):
+    cwd = os.getcwd()
+    os.chdir(path)
+    exit_code = run(command)
+    os.chdir(cwd)
+    return exit_code
+
+
+def run(command):
+    out = open('out', 'w')
+    err = open('err', 'w')
+    try:
+        subprocess.run(command.split(), stdout=out, stderr=err, check=True)
+        exit_code = 0
+    except subprocess.CalledProcessError as e:
+        exit_code = e.returncode
+    out.close()
+    err.close()
+    return exit_code

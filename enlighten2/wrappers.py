@@ -1,8 +1,9 @@
 import os
-import shutil
-import pdb_utils
-import utils
-import tleap
+from enlighten2 import pdb_utils, utils
+import json
+import sys
+import threading
+from enlighten2.md_monitor import run_md_monitor
 
 
 def get_amberhome():
@@ -31,10 +32,10 @@ class AntechamberWrapper(object):
 
         self.working_directory = os.getcwd()
         if create_frcmod:
-            parmck_command = (amberhome + "/bin/parmchk2 " +
-                              "-i {name}.prepc -f prepc -o {name}.frcmod"
-                              .format(name=name))
-            utils.run_in_shell(parmck_command, 'parmchk2.out')
+            parmchk_command = (amberhome + "/bin/parmchk2 " +
+                               "-i {name}.prepc -f prepc -o {name}.frcmod"
+                               .format(name=name))
+            utils.run_in_shell(parmchk_command, 'parmchk2.out')
             # TODO: check for ATTN warnings
 
         os.chdir('..')
@@ -49,7 +50,7 @@ class Pdb4AmberReduceWrapper(object):
         pdb.to_filename('input.pdb')
 
         pdb4amber_command = (amberhome + "/bin/pdb4amber "
-                             "-i input.pdb -o pdb4amber.pdb --nohyd --dry")
+                             "-i input.pdb -o pdb4amber.pdb --nohyd")
         utils.run_in_shell(pdb4amber_command, 'pdb4amber.out')
 
         reduce_command = (amberhome + "/bin/reduce "
@@ -79,10 +80,6 @@ class Pdb4AmberReduceWrapper(object):
         self.pdb.atoms = [atom for atom in self.pdb.atoms
                           if (atom['resName'] not in self.nonprot_residues or
                               'new' not in atom['extras'])]
-
-        # store crystalline waters
-        with open('pdb4amber_water.pdb') as f:
-            self.waterPdb = pdb_utils.Pdb(f)
 
         os.chdir('..')
 
@@ -157,6 +154,18 @@ class PropkaWrapper(object):
                     lambda atom: 'new' in atom['extras']
                 ))
 
+                # Also remove HZ1 atoms from deprotonated LYS and CYS
+                if pka_entry['resName'] == 'LYS':
+                    self.pdb.remove_atom(pdb_utils.find_atom(
+                        residues[hash],
+                        lambda atom: atom['name'] == 'HZ1'
+                    ))
+                if pka_entry['resName'] == 'CYS':
+                    self.pdb.remove_atom(pdb_utils.find_atom(
+                        residues[hash],
+                        lambda atom: atom['name'] == 'HG'
+                    ))
+
         PRINT_PKA_FORMAT = "{resName:>6}{resSeq:>4}{chainID:>2}{pKa:>9.2f}"
 
         if len(self.prot_list) > 0:
@@ -190,9 +199,9 @@ def parse_propka_output(file):
 
 
 def line_to_pka_entry(line):
-    raw_entry = line.split()
-    if len(raw_entry) != 5:
+    if len(line.strip()) != 29:
         return None
+    raw_entry = line.split()
     return {'resName': raw_entry[0],
             'resSeq': int(raw_entry[1]),
             'chainID': raw_entry[2],
@@ -227,20 +236,26 @@ class TleapWrapper(object):
 
         params['include'] = get_tleap_includes(include, nonprot_residues)
         template_module = getattr(
-            __import__('tleap', fromlist=[template_name]),
+            __import__('enlighten2.tleap', fromlist=[template_name]),
             template_name
         )
 
         params['pdb'].to_filename('input.pdb')
-        params['water_pdb'].to_filename('water.pdb')
         with open('tleap.in', 'w') as f:
             f.write(template_module.run(params, template_contents))
         utils.run_in_shell('tleap -f tleap.in', 'tleap.log')
 
         try:
-            template_module.check(params)
+            check_result = template_module.check(params, self)
+            if check_result:
+                sys.exit(check_result)
         except AttributeError:
             pass
+
+        if 'export' in params:
+            with open('params', 'w') as f:
+                json.dump(params['export'], f)
+        os.chdir('..')
 
 
 def get_tleap_includes(include, nonprot_residues):
@@ -272,3 +287,46 @@ def get_tleap_includes(include, nonprot_residues):
     return '\n'.join(INCLUDE_COMMANDS[key].format(name)
                      for key, include_list in include_lists.items()
                      for name in include_list)
+
+
+class SanderWrapper(object):
+
+    def __init__(self, prefix, template, crd, prmtop, params, working_directory,
+                 monitor=False):
+
+        self.prefix = prefix
+
+        os.mkdir(working_directory)
+        self.working_directory = os.path.abspath(working_directory)
+
+        template_file = self._full_path('{}.in'.format(prefix))
+        utils.dump_to_file(template_file, self._get_template(template, params))
+
+        if monitor:
+            mdinfo = os.path.join(self.working_directory, 'mdinfo')
+            log = os.path.join(self.working_directory, prefix + '.log')
+            monitor_thread = threading.Thread(target=run_md_monitor,
+                                              args=(mdinfo, log))
+            monitor_thread.start()
+
+        command = ('{amberhome}/bin/sander -O -i {prefix}.in -p {prmtop} '
+                   '-c {crd} -o {prefix}.log -r {prefix}.rst -ref {crd}')
+        self.exit_code = utils.run_at_path(
+            command.format(amberhome=get_amberhome(), prefix=prefix,
+                           crd=crd, prmtop=prmtop),
+            working_directory
+        )
+
+        if monitor:
+            monitor_thread.join()
+
+        self.output_crd = self._full_path('{}.rst'.format(prefix))
+
+    def _full_path(self, filename):
+        return os.path.join(self.working_directory, filename)
+
+    @staticmethod
+    def _get_template(template, params):
+        enlighten_path = os.path.dirname(__import__(__name__).__file__)
+        template_path = os.path.join(enlighten_path, 'sander', template + '.in')
+        return utils.parse_template(template_path, params)
