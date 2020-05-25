@@ -1,10 +1,11 @@
 Enlighten2
 ============
 
-Protocols and tools to run (automated) atomistic simulations of enzyme-ligand systems.
+**IMPORTANT: This repository contains the source code of the enlighten2 python package 
+and the docker image, NOT the PyMOL plugin. The source code for the enlighten2 
+PyMOL plugin can be found [here](https://github.com/vanderkamp/enlighten2-pymol).** 
 
-To acknowledge the use of the Enlighten2 plugin and/or protocols, please refer to this website.
-(There is no publication to cite yet, please check back later.)
+Protocols and tools to run (automated) atomistic simulations of enzyme-ligand systems.
 
 Aimed at:
  
@@ -13,9 +14,9 @@ Aimed at:
 
 Minimal software requirements:
 
-- [AmberTools14 or later](http://www.ambermd.org) (the manual - Amber14.pdf or later - has instructions for installation)
+- [AmberTools18 or later](http://www.ambermd.org) (the manual - Amber18.pdf or later - has instructions for installation)
 
-Several utitilies/programs from AmberTools14 (or later) are used for the majority of tasks.
+Several utitilies/programs from AmberTools18 (or later) are used for the majority of tasks.
 
 Additional recommended software requirements:
 
