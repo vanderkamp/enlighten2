@@ -17,7 +17,7 @@ Aimed at:
 
 Minimal software requirements:
 
-- [AmberTools18 or later](http://www.ambermd.org) (the manual - Amber18.pdf or later - has instructions for installation)
+- [AmberTools18 or later](https://ambermd.org/AmberTools.php) (the manual - Amber18.pdf or later - has instructions for installation)
 
 Several utitilies/programs from AmberTools18 (or later) are used for the majority of tasks.
 
