@@ -3,7 +3,10 @@ Enlighten2
 
 **IMPORTANT: This repository contains the source code of the enlighten2 python package 
 and the docker image, NOT the PyMOL plugin. The source code for the enlighten2 
-PyMOL plugin can be found [here](https://github.com/vanderkamp/enlighten2-pymol).** 
+PyMOL plugin can be found [here](https://github.com/vanderkamp/enlighten2-pymol).**
+
+**For the installation instructions for PyMOL plugin and usage tutorials, please, visit the 
+[project webpage](https://enlighten2.github.io).**
 
 Protocols and tools to run (automated) atomistic simulations of enzyme-ligand systems.
 
