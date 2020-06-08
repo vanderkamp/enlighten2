@@ -1,6 +1,6 @@
 source oldff/leaprc.ff14SB
 source leaprc.water.tip3p
-source leaprc.gaff
+source leaprc.gaff2
 {include}
 # load the prepared pdb (sslinks should be automatically recognised through CYX & CONECT records in pdb)
 mol = loadpdb input.pdb

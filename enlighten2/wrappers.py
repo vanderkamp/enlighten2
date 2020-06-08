@@ -23,7 +23,8 @@ class AntechamberWrapper(object):
 
         antechamber_command = (amberhome + "/bin/antechamber " +
                                "-i ligand.pdb -fi pdb -o {name}.prepc "
-                               "-fo prepc -rn {name} -c bcc -nc {charge}"
+                               "-fo prepc -rn {name} -c bcc -nc {charge} "
+                               "-at gaff2"
                                .format(name=name, charge=charge))
         utils.run_in_shell(antechamber_command, 'antechamber.out')
         utils.check_file(name + '.prepc',
