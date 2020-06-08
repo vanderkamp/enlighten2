@@ -17,6 +17,7 @@ mv * /tmp/
 mv /tmp/libc.so .
 mv /tmp/libdl.so .
 mv /tmp/libffi.so.6 .
+mv /tmp/libffi.so.6.0.4 .
 mv /tmp/libgfortran.so.4.0.0 .
 mv /tmp/libgfortran.so.4 .
 mv /tmp/libm.so .

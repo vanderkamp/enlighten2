@@ -5,7 +5,7 @@ if [[ ! -d enlighten2 ]]; then
 	rm -rf enlighten2/examples enlighten2/.git
 fi
 if [[ ! -d propka-3.1 ]]; then
-	git clone https://github.com/jensengroup/propka-3.1.git
+	git clone --branch v3.1.0 https://github.com/jensengroup/propka-3.1.git
 	rm -rf propka-3.1/.git
 fi
 cd ..
