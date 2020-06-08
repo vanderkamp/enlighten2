@@ -1,4 +1,4 @@
-FROM ubuntu AS ubuntu-ambertools19-py3.6-run
+FROM ubuntu:18.04 AS ubuntu-ambertools19-py3.6-run
 RUN apt-get update; \
     DEBIAN_FRONTEND=noninteractive; \
     apt-get install -y --no-install-recommends \
