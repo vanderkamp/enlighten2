@@ -52,7 +52,7 @@ Command-line:
 
    For AmberTools, do the following:
    ```bash
-   source <full path to amber directory, e.g. /users/me/amber14/>amber.sh
+   source <full path to amber directory, e.g. /users/me/amber18/>amber.sh
    ```
 
    For PropKa, ensure that propka31 is in your $PATH (i.e. it is recognised as command from the command-line), e.g. in bash:
