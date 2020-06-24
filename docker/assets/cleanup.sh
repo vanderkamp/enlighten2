@@ -27,4 +27,4 @@ mv /tmp/libstdc++.so.6 .
 
 cd /usr/local/lib/python3.6/dist-packages
 mv * /tmp/
-mv /tmp/numpy .
+mv /tmp/numpy /tmp/numpy.libs .
