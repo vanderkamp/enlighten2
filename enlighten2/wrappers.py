@@ -44,18 +44,21 @@ class AntechamberWrapper(object):
 
 class Pdb4AmberReduceWrapper(object):
 
-    def __init__(self, pdb, working_directory="pdb4amber_reduce"):
+    def __init__(self, pdb, working_directory="pdb4amber_reduce",
+                 pdb4amber_extra_args="", reduce_extra_args=""):
 
         amberhome = get_amberhome()
         utils.set_working_directory(working_directory)
         pdb.to_filename('input.pdb')
 
-        pdb4amber_command = (amberhome + "/bin/pdb4amber "
-                             "-i input.pdb -o pdb4amber.pdb --nohyd")
+        pdb4amber_command = (amberhome + "/bin/pdb4amber " +
+                             pdb4amber_extra_args +
+                             " -i input.pdb -o pdb4amber.pdb --nohyd")
         utils.run_in_shell(pdb4amber_command, 'pdb4amber.out')
 
-        reduce_command = (amberhome + "/bin/reduce "
-                          "-build -nuclear pdb4amber.pdb")
+        reduce_command = (amberhome + "/bin/reduce " +
+                          reduce_extra_args +
+                          " -build -nuclear pdb4amber.pdb")
         utils.run_in_shell(reduce_command, 'reduce.pdb')
 
         with open('reduce.pdb') as f:
