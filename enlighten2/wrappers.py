@@ -205,12 +205,11 @@ def parse_propka_output(file):
 def line_to_pka_entry(line):
     if len(line.strip()) != 29:
         return None
-    raw_entry = line.split()
-    return {'resName': raw_entry[0],
-            'resSeq': int(raw_entry[1]),
-            'chainID': raw_entry[2],
-            'pKa': float(raw_entry[3]),
-            'model-pKa': float(raw_entry[4])}
+    return {'resName': line[:6].strip(),
+            'resSeq': int(line[6:10]),
+            'chainID': line[11],
+            'pKa': float(line[12:21].strip()),
+            'model-pKa': float(line[21:].strip())}
 
 
 def prot_residue(pka_entry, prot_pka):
